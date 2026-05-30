@@ -1,6 +1,104 @@
 import Link from "next/link";
 import { PRICING } from "@/lib/config";
 
+// 文书类型定义
+const DOCUMENT_TYPES = [
+  {
+    id: "marriage",
+    name: "婚姻协议书",
+    description: "明确婚后财产分配、权利义务",
+    icon: "💑",
+    color: "rose",
+    price: 99,
+  },
+  {
+    id: "marital-property",
+    name: "婚内财产协议",
+    description: "约定婚姻存续期间财产归属",
+    icon: "🏠",
+    color: "amber",
+    price: 129,
+  },
+  {
+    id: "divorce",
+    name: "离婚协议",
+    description: "子女抚养、财产分割协议",
+    icon: "📄",
+    color: "slate",
+    price: 159,
+  },
+  {
+    id: "child-custody",
+    name: "子女抚养协议",
+    description: "明确抚养费、探视权安排",
+    icon: "👨‍👩‍👧",
+    color: "blue",
+    price: 99,
+  },
+  {
+    id: "gift",
+    name: "赠与协议",
+    description: "房产、财产赠与公证文书",
+    icon: "🎁",
+    color: "emerald",
+    price: 89,
+  },
+  {
+    id: "will",
+    name: "遗嘱",
+    description: "遗产分配、继承人指定",
+    icon: "⚖️",
+    color: "purple",
+    price: 19.9,
+  },
+];
+
+// 颜色映射
+const colorClasses: Record<string, { bg: string; border: string; text: string; hover: string; icon: string }> = {
+  rose: {
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+    text: "text-rose-700",
+    hover: "hover:border-rose-400 hover:bg-rose-100",
+    icon: "bg-rose-100 text-rose-600",
+  },
+  amber: {
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+    text: "text-amber-700",
+    hover: "hover:border-amber-400 hover:bg-amber-100",
+    icon: "bg-amber-100 text-amber-600",
+  },
+  slate: {
+    bg: "bg-slate-50",
+    border: "border-slate-200",
+    text: "text-slate-700",
+    hover: "hover:border-slate-400 hover:bg-slate-100",
+    icon: "bg-slate-100 text-slate-600",
+  },
+  blue: {
+    bg: "bg-blue-50",
+    border: "border-blue-200",
+    text: "text-blue-700",
+    hover: "hover:border-blue-400 hover:bg-blue-100",
+    icon: "bg-blue-100 text-blue-600",
+  },
+  emerald: {
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+    text: "text-emerald-700",
+    hover: "hover:border-emerald-400 hover:bg-emerald-100",
+    icon: "bg-emerald-100 text-emerald-600",
+  },
+  purple: {
+    bg: "bg-purple-50",
+    border: "border-purple-200",
+    text: "text-purple-700",
+    hover: "hover:border-purple-400 hover:bg-purple-100",
+    icon: "bg-purple-100 text-purple-600",
+  },
+};
+
 export default function HomePage() {
   return (
     <div className="landing-page">
@@ -9,11 +107,11 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-2xl">⚖️</span>
-            <span className="text-xl font-bold text-slate-800">传承家</span>
+            <span className="text-xl font-bold text-slate-800">爱的延续</span>
           </div>
           <nav className="hidden md:flex gap-6 text-slate-600">
+            <a href="#documents" className="hover:text-amber-600 transition">文书类型</a>
             <a href="#pricing" className="hover:text-amber-600 transition">定价</a>
-            <a href="#process" className="hover:text-amber-600 transition">流程</a>
             <a href="#about" className="hover:text-amber-600 transition">关于</a>
           </nav>
           <Link
@@ -36,53 +134,88 @@ export default function HomePage() {
             保护您的财富<br />传承您的爱
           </h1>
           <p className="text-xl text-slate-200 mb-8 max-w-2xl mx-auto">
-            传承家为您提供专业的遗嘱规划服务。AI辅助生成草稿，专业律师审核把关，
-            让您的意愿得到妥善安排，给家人一份安心。
+            AI智能生成各类法律文书：婚姻协议、婚内财产约定、离婚协议、遗嘱等。
+            专业律师审核把关，让您的意愿得到法律保障。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/questionnaire" className="btn-primary">
-              开始创建遗嘱 · ¥19.9起
+              开始创建文书 · ¥19.9起
             </Link>
-            <a href="#process" className="btn-secondary" style={{ background: 'transparent', border: '2px solid white', color: 'white' }}>
-              了解更多
+            <a href="#documents" className="btn-secondary" style={{ background: 'transparent', border: '2px solid white', color: 'white' }}>
+              查看全部类型
             </a>
           </div>
         </div>
       </section>
 
+      {/* 文书类型选择 */}
+      <section id="documents" className="py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-4 text-slate-800">选择您的文书类型</h2>
+          <p className="text-slate-600 text-center mb-12">覆盖婚姻家庭各类法律文书需求</p>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {DOCUMENT_TYPES.map((doc) => {
+              const colors = colorClasses[doc.color];
+              return (
+                <Link
+                  key={doc.id}
+                  href={`/questionnaire?type=${doc.id}`}
+                  className={`${colors.bg} ${colors.border} border-2 rounded-2xl p-6 transition-all duration-200 ${colors.hover} group`}
+                >
+                  <div className={`w-14 h-14 ${colors.icon} rounded-xl flex items-center justify-center text-2xl mb-4`}>
+                    {doc.icon}
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-amber-600 transition-colors">
+                    {doc.name}
+                  </h3>
+                  <p className="text-slate-600 text-sm mb-4">{doc.description}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-amber-600 font-semibold">¥{doc.price}</span>
+                    <span className="text-slate-400 text-sm group-hover:translate-x-1 transition-transform">
+                      开始填写 →
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* 服务流程 */}
-      <section id="process" className="py-16 px-4">
+      <section id="process" className="py-16 px-4 bg-slate-50">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-4 text-slate-800">简单四步，完成遗嘱规划</h2>
+          <h2 className="text-3xl font-bold text-center mb-4 text-slate-800">简单四步，完成文书</h2>
           <p className="text-slate-600 text-center mb-12">全程在线操作，无需到场排队</p>
-          
+
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flow-step">
               <div className="step-number">1</div>
               <div>
-                <h3 className="font-semibold text-lg mb-2">填写问卷</h3>
-                <p className="text-slate-600 text-sm">回答25个问题，涵盖财产、家庭、医疗等各个方面</p>
+                <h3 className="font-semibold text-lg mb-2">选择文书类型</h3>
+                <p className="text-slate-600 text-sm">根据您的需求选择对应的法律文书类型</p>
               </div>
             </div>
             <div className="flow-step">
               <div className="step-number">2</div>
               <div>
-                <h3 className="font-semibold text-lg mb-2">AI生成草稿</h3>
-                <p className="text-slate-600 text-sm">基于您的回答，AI即时生成遗嘱草稿</p>
+                <h3 className="font-semibold text-lg mb-2">填写问卷</h3>
+                <p className="text-slate-600 text-sm">回答相关问题，AI实时理解您的需求</p>
               </div>
             </div>
             <div className="flow-step">
               <div className="step-number">3</div>
               <div>
-                <h3 className="font-semibold text-lg mb-2">律师审核</h3>
-                <p className="text-slate-600 text-sm">专业律师1对1审核，确保法律效力</p>
+                <h3 className="font-semibold text-lg mb-2">AI生成草稿</h3>
+                <p className="text-slate-600 text-sm">基于您的回答，AI即时生成文书草稿</p>
               </div>
             </div>
             <div className="flow-step">
               <div className="step-number">4</div>
               <div>
-                <h3 className="font-semibold text-lg mb-2">正式签署</h3>
-                <p className="text-slate-600 text-sm">线上视频见证 or 线下公证处，完成签署</p>
+                <h3 className="font-semibold text-lg mb-2">付费下载</h3>
+                <p className="text-slate-600 text-sm">支付后即可下载PDF/Word文件</p>
               </div>
             </div>
           </div>
@@ -90,11 +223,11 @@ export default function HomePage() {
       </section>
 
       {/* 定价方案 */}
-      <section id="pricing" className="py-16 px-4 bg-slate-50">
+      <section id="pricing" className="py-16 px-4">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-4 text-slate-800">透明定价</h2>
           <p className="text-slate-600 text-center mb-12">根据您的需求选择合适的服务方案</p>
-          
+
           <div className="grid md:grid-cols-3 gap-6">
             {/* AI引导版 */}
             <div className="pricing-card">
@@ -111,11 +244,11 @@ export default function HomePage() {
               <ul className="space-y-3 mb-6 text-sm">
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  25题AI问卷引导
+                  AI问卷引导
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  遗嘱草稿生成
+                  文书草稿生成
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
@@ -143,11 +276,11 @@ export default function HomePage() {
               <ul className="space-y-3 mb-6 text-sm">
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  25题AI问卷引导
+                  AI问卷引导
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  遗嘱草稿生成
+                  文书草稿生成
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
@@ -163,7 +296,7 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* 家族传承版 */}
+            {/* 家庭传承版 */}
             <div className="pricing-card">
               <div className="text-center mb-6">
                 <h3 className="text-xl font-bold mb-2">{PRICING.familyHeritage.name}</h3>
@@ -200,61 +333,70 @@ export default function HomePage() {
       </section>
 
       {/* 常见问题 */}
-      <section id="faq" className="py-16 px-4">
+      <section id="faq" className="py-16 px-4 bg-slate-50">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12 text-slate-800">常见问题</h2>
-          
+
           <div className="space-y-6">
             <details className="bg-white rounded-lg p-6 shadow-sm">
-              <summary className="font-semibold text-lg cursor-pointer">遗嘱一定要公证吗？</summary>
+              <summary className="font-semibold text-lg cursor-pointer">生成的文书有法律效力吗？</summary>
               <p className="mt-4 text-slate-600">
-                自书遗嘱和代书遗嘱在符合法定条件时也具有法律效力，但公证遗嘱效力最高。
-                传承家提供的服务包含公证指引，帮助您选择最适合的方式。
+                AI生成的仅为草稿模板，需经当事人签字或公证后才具备法律效力。
+                我们建议重要文书（如房产赠与、离婚协议等）完成公证以确保最大法律效力。
               </p>
             </details>
-            
+
             <details className="bg-white rounded-lg p-6 shadow-sm">
               <summary className="font-semibold text-lg cursor-pointer">我的信息是否安全？</summary>
               <p className="mt-4 text-slate-600">
-                我们采用银行级加密存储，所有数据仅用于生成遗嘱，不会泄露给第三方。
-                律师也需签署保密协议。
+                我们采用银行级加密存储，所有数据仅用于生成文书，不会泄露给第三方。
+                文书内容仅保存在您自己的设备和我们安全的服务器上。
               </p>
             </details>
-            
+
             <details className="bg-white rounded-lg p-6 shadow-sm">
-              <summary className="font-semibold text-lg cursor-pointer">AI生成的遗嘱有法律效力吗？</summary>
+              <summary className="font-semibold text-lg cursor-pointer">如何修改已生成的文书？</summary>
               <p className="mt-4 text-slate-600">
-                AI生成的仅为草稿，需经律师审核并完成正式签署后才具备法律效力。
-                我们强烈建议进行公证以确保最大法律效力。
+                在支付前，您可以无限次重新填写问卷并生成新草稿。
+                支付后如需修改，可联系客服或重新购买生成服务。
               </p>
             </details>
-            
+
             <details className="bg-white rounded-lg p-6 shadow-sm">
-              <summary className="font-semibold text-lg cursor-pointer">如何修改已签署的遗嘱？</summary>
+              <summary className="font-semibold text-lg cursor-pointer">支持哪些文件格式下载？</summary>
               <p className="mt-4 text-slate-600">
-                遗嘱人可以随时修改或撤销遗嘱。传承家会员可在有效期内享受多次修改服务。
+                付费后，您可以下载PDF和Word两种格式的文书文件，方便您查看和打印。
               </p>
             </details>
           </div>
         </div>
       </section>
 
+      {/* 法律免责 */}
+      <div className="bg-slate-100 border-t border-slate-200 py-6">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <p className="text-slate-500 text-sm">
+            本平台仅提供文书模板智能生成参考，不构成法律专业意见，所有文书仅供个人参考使用
+          </p>
+        </div>
+      </div>
+
       {/* 页脚 */}
       <footer className="bg-slate-800 text-white py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <span className="text-2xl">⚖️</span>
-            <span className="text-xl font-bold">传承家</span>
+            <span className="text-xl font-bold">爱的延续</span>
           </div>
           <p className="text-slate-400 mb-6">
             专业律师团队 × AI辅助生成<br />
             让爱与财富安心传承
           </p>
           <p className="text-slate-500 text-sm">
-            © 2024 传承家. 免责声明：本平台仅提供遗嘱规划辅助服务，不构成法律意见。
+            © 2024 爱的延续. 免责声明：本平台仅提供文书规划辅助服务，不构成法律意见。
           </p>
         </div>
       </footer>
     </div>
   );
-}
+}# trigger redeploy

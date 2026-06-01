@@ -1,0 +1,80 @@
+{
+  "id": "template-nda-v1",
+  "name": "Non-Disclosure Agreement",
+  "version": "1.0.0",
+  "category": "confidentiality",
+  "fields": [
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 3,
+        "max_length": 200
+      }
+    },
+    {
+      "name": "disclosing_party",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 2,
+        "max_length": 100
+      }
+    },
+    {
+      "name": "disclosing_party_email",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      }
+    },
+    {
+      "name": "receiving_party",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 2,
+        "max_length": 100
+      }
+    },
+    {
+      "name": "receiving_party_email",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      }
+    },
+    {
+      "name": "confidential_info_description",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 10,
+        "max_length": 2000
+      }
+    },
+    {
+      "name": "effective_date",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "expiration_date",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "jurisdiction",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "allowed_values": ["California", "New York", "Delaware", "Texas", "London"]
+      }
+    }
+  ],
+  "content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>{{uppercase .title}}</title>\n    <style>\n        body { font-family: Times New Roman, serif; margin: 40px; line-height: 1.6; }\n        h1 { text-align: center; text-decoration: underline; }\n        .section { margin: 20px 0; }\n        .section-title { font-weight: bold; text-decoration: underline; margin-bottom: 10px; }\n        .signature-block { margin-top: 60px; display: flex; justify-content: space-between; }\n        .sig-col { width: 45%; }\n        .sig-line { border-bottom: 1px solid #333; height: 40px; margin-top: 30px; }\n    </style>\n</head>\n<body>\n    <h1>{{uppercase .title}}</h1>\n    \n    <p style=\"text-align: center;\"><strong>Effective Date:</strong> {{.effective_date}}</p>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">PARTIES</div>\n        <p><strong>Disclosing Party:</strong> {{.disclosing_party}} ({{.disclosing_party_email}})</p>\n        <p><strong>Receiving Party:</strong> {{.receiving_party}} ({{.receiving_party_email}})</p>\n    </div>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">1. DEFINITION OF CONFIDENTIAL INFORMATION</div>\n        <p>{{.confidential_info_description}}</p>\n    </div>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">2. OBLIGATIONS OF RECEIVING PARTY</div>\n        <p>The Receiving Party agrees to:</p>\n        <ul>\n            <li>Hold the Confidential Information in strict confidence</li>\n            <li>Not disclose the Confidential Information to any third parties</li>\n            <li>Use the Confidential Information only for the purpose of evaluating the potential business relationship</li>\n        </ul>\n    </div>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">3. TERM</div>\n        <p>This Agreement shall remain in effect until {{.expiration_date}}, unless terminated earlier by either party with 30 days written notice.</p>\n    </div>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">4. JURISDICTION</div>\n        <p>This Agreement shall be governed by the laws of <strong>{{.jurisdiction}}</strong>.</p>\n    </div>\n    \n    <div class=\"signature-block\">\n        <div class=\"sig-col\">\n            <strong>Disclosing Party</strong><br><br>\n            <div class=\"sig-line\"></div>\n            Signature<br><br>\n            <div class=\"sig-line\"></div>\n            Name: ________________<br>\n            Date: ________________\n        </div>\n        <div class=\"sig-col\">\n            <strong>Receiving Party</strong><br><br>\n            <div class=\"sig-line\"></div>\n            Signature<br><br>\n            <div class=\"sig-line\"></div>\n            Name: ________________<br>\n            Date: ________________\n        </div>\n    </div>\n</body>\n</html>",
+  "variables": {}
+}

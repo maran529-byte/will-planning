@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aiwill-config
+  namespace: aiwill-planner
+data:
+  GW_HOST: "0.0.0.0"
+  GW_PORT: "8080"
+  JWT_ISSUER: "aiwill-planner"
+  JWT_AUDIENCE: "aiwill-api"
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_REQUESTS_PER_SEC: "100"
+  RATE_LIMIT_BURST_SIZE: "200"
+  CIRCUIT_ENABLED: "true"
+  CIRCUIT_THRESHOLD: "5"
+  CIRCUIT_TIMEOUT: "30"
+  GRAY_ENABLED: "true"
+  GRAY_PERCENT: "10"
+  SVC_CONTRACT_GENERATOR: "http://t4-contract-generator:8081"
+  SVC_MEMBERSHIP: "http://t5-membership:8082"
+  SVC_AFFILIATE: "http://t6-affiliate:8083"
+  SVC_DOCUMENT_RENDERER: "http://t7-document-renderer:8084"
+  SVC_MINIPROGRAM: "http://t8-miniprogram:8085"
+  SVC_COMPLIANCE_ENGINE: "http://t1-compliance-engine:8086"

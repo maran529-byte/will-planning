@@ -1,0 +1,314 @@
+syntax = "proto3";
+
+package affiliate.v1;
+
+option go_package = "aiwill-planner/t6-affiliate/pkg/pb/affiliate/v1;affiliatev1";
+
+import "google/api/annotations.proto";
+
+// 分销商服务
+service AffiliateService {
+    // 创建分销商
+    rpc CreateAffiliate(CreateAffiliateRequest) returns (CreateAffiliateResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/affiliates"
+            body: "*"
+        };
+    }
+    
+    // 获取分销商
+    rpc GetAffiliate(GetAffiliateRequest) returns (GetAffiliateResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/affiliates/{id}"
+        };
+    }
+    
+    // 获取分销商统计
+    rpc GetAffiliateStats(GetAffiliateStatsRequest) returns (GetAffiliateStatsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/affiliates/{id}/stats"
+        };
+    }
+    
+    // 列出分销商
+    rpc ListAffiliates(ListAffiliatesRequest) returns (ListAffiliatesResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/affiliates"
+        };
+    }
+}
+
+// 佣金服务
+service CommissionService {
+    // 记录佣金
+    rpc RecordCommission(RecordCommissionRequest) returns (RecordCommissionResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/commissions/record"
+            body: "*"
+        };
+    }
+    
+    // 结算佣金
+    rpc SettleCommission(SettleCommissionRequest) returns (SettleCommissionResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/commissions/settle/{id}"
+        };
+    }
+    
+    // 获取佣金记录
+    rpc GetCommissionRecords(GetCommissionRecordsRequest) returns (GetCommissionRecordsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/commissions/affiliate/{affiliate_id}"
+        };
+    }
+}
+
+// 提现服务
+service WithdrawService {
+    // 申请提现
+    rpc ApplyWithdraw(ApplyWithdrawRequest) returns (ApplyWithdrawResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/withdraws"
+            body: "*"
+        };
+    }
+    
+    // 处理提现
+    rpc ProcessWithdraw(ProcessWithdrawRequest) returns (ProcessWithdrawResponse) {
+        option (google.api.http) = {
+            put: "/api/v1/withdraws/{id}/process"
+            body: "*"
+        };
+    }
+    
+    // 获取提现记录
+    rpc GetWithdrawRequests(GetWithdrawRequestsRequest) returns (GetWithdrawRequestsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/withdraws/affiliate/{affiliate_id}"
+        };
+    }
+}
+
+// 邀请服务
+service InviteService {
+    // 创建邀请关系
+    rpc InviteParent(InviteParentRequest) returns (InviteParentResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/invites"
+            body: "*"
+        };
+    }
+    
+    // 获取邀请树
+    rpc GetInviteTree(GetInviteTreeRequest) returns (GetInviteTreeResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/invites/inviter/{inviter_id}/tree"
+        };
+    }
+}
+
+// ============ 消息定义 ============
+
+// Affiliate消息
+message Affiliate {
+    string id = 1;
+    string user_id = 2;
+    int32 level = 3;
+    string name = 4;
+    string phone = 5;
+    string email = 6;
+    string status = 7;
+    string total_commission = 8;
+    string available_commission = 9;
+    string total_sales = 10;
+    string invite_code = 11;
+    string created_at = 12;
+    string updated_at = 13;
+}
+
+// CreateAffiliate
+message CreateAffiliateRequest {
+    string user_id = 1;
+    string name = 2;
+    string phone = 3;
+    string email = 4;
+}
+
+message CreateAffiliateResponse {
+    Affiliate affiliate = 1;
+}
+
+// GetAffiliate
+message GetAffiliateRequest {
+    string id = 1;
+}
+
+message GetAffiliateResponse {
+    Affiliate affiliate = 1;
+}
+
+// GetAffiliateStats
+message GetAffiliateStatsRequest {
+    string id = 1;
+}
+
+message AffiliateStats {
+    int64 direct_count = 1;
+    int64 indirect_count = 2;
+    string total_sales = 3;
+    string total_commission = 4;
+    string available_commission = 5;
+}
+
+message GetAffiliateStatsResponse {
+    AffiliateStats stats = 1;
+}
+
+// ListAffiliates
+message ListAffiliatesRequest {
+    int32 page = 1;
+    int32 page_size = 2;
+}
+
+message ListAffiliatesResponse {
+    repeated Affiliate affiliates = 1;
+    int64 total = 2;
+}
+
+// RecordCommission
+message RecordCommissionRequest {
+    string affiliate_id = 1;
+    string order_id = 2;
+    string order_amount = 3;
+    int32 level = 4;
+}
+
+message CommissionRecord {
+    string id = 1;
+    string affiliate_id = 2;
+    string order_id = 3;
+    string order_amount = 4;
+    string commission_rate = 5;
+    string commission_amt = 6;
+    int32 level = 7;
+    string type = 8;
+    string status = 9;
+    string settled_at = 10;
+    string created_at = 11;
+}
+
+message RecordCommissionResponse {
+    CommissionRecord record = 1;
+}
+
+// SettleCommission
+message SettleCommissionRequest {
+    string id = 1;
+}
+
+message SettleCommissionResponse {
+    bool success = 1;
+}
+
+// GetCommissionRecords
+message GetCommissionRecordsRequest {
+    string affiliate_id = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+}
+
+message GetCommissionRecordsResponse {
+    repeated CommissionRecord records = 1;
+    int64 total = 2;
+}
+
+// ApplyWithdraw
+message ApplyWithdrawRequest {
+    string affiliate_id = 1;
+    string amount = 2;
+    string bank_name = 3;
+    string bank_account = 4;
+}
+
+message WithdrawRequest {
+    string id = 1;
+    string affiliate_id = 2;
+    string amount = 3;
+    string fee = 4;
+    string actual_amount = 5;
+    string bank_name = 6;
+    string bank_account = 7;
+    string status = 8;
+    string reject_reason = 9;
+    string process_time = 10;
+    string completed_at = 11;
+    string created_at = 12;
+    string updated_at = 13;
+}
+
+message ApplyWithdrawResponse {
+    WithdrawRequest request = 1;
+}
+
+// ProcessWithdraw
+message ProcessWithdrawRequest {
+    string id = 1;
+    string status = 2;
+    string reject_reason = 3;
+}
+
+message ProcessWithdrawResponse {
+    bool success = 1;
+}
+
+// GetWithdrawRequests
+message GetWithdrawRequestsRequest {
+    string affiliate_id = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+}
+
+message GetWithdrawRequestsResponse {
+    repeated WithdrawRequest requests = 1;
+    int64 total = 2;
+}
+
+// InviteParent
+message InviteParentRequest {
+    string inviter_id = 1;
+    string invitee_id = 2;
+    string invite_code = 3;
+}
+
+message InviteTreeNode {
+    string invitee_id = 1;
+    string invitee_name = 2;
+    int32 level = 3;
+    string invite_time = 4;
+    repeated InviteTreeNode children = 5;
+}
+
+message AffiliateInvite {
+    string id = 1;
+    string inviter_id = 2;
+    string invitee_id = 3;
+    string inviter_affiliate_id = 4;
+    string invitee_affiliate_id = 5;
+    string invite_code = 6;
+    int32 level = 7;
+    string invite_time = 8;
+    string created_at = 9;
+}
+
+message InviteParentResponse {
+    AffiliateInvite invite = 1;
+}
+
+// GetInviteTree
+message GetInviteTreeRequest {
+    string inviter_id = 1;
+}
+
+message GetInviteTreeResponse {
+    repeated InviteTreeNode tree = 1;
+}

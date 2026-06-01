@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: t8-miniprogram
+  namespace: aiwill-planner
+  labels:
+    app: t8-miniprogram
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: t8-miniprogram
+  template:
+    metadata:
+      labels:
+        app: t8-miniprogram
+    spec:
+      containers:
+        - name: miniprogram
+          image: aiwill-planner/t8-miniprogram:latest
+          ports:
+            - containerPort: 8085
+          envFrom:
+            - configMapRef:
+                name: t8-miniprogram-config
+            - secretRef:
+                name: aiwill-secrets
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8085
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8085
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: t8-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: t8-data-pvc
+  namespace: aiwill-planner
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: t8-miniprogram
+  namespace: aiwill-planner
+spec:
+  selector:
+    app: t8-miniprogram
+  ports:
+    - port: 8085
+      targetPort: 8085
+  type: ClusterIP

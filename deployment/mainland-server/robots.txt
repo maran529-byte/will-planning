@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# 百度蜘蛛
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 1
+
+# 360蜘蛛
+User-agent: 360Spider
+Allow: /
+
+# 搜狗蜘蛛
+User-agent: Sogou
+Allow: /
+
+# 必应蜘蛛
+User-agent: bingbot
+Allow: /
+
+# Google
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://aiwill-planner.cn/sitemap.xml

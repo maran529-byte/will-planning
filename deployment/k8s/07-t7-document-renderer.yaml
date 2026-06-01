@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: t7-document-renderer
+  namespace: aiwill-planner
+  labels:
+    app: t7-document-renderer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: t7-document-renderer
+  template:
+    metadata:
+      labels:
+        app: t7-document-renderer
+    spec:
+      containers:
+        - name: document-renderer
+          image: aiwill-planner/t7-document-renderer:latest
+          ports:
+            - containerPort: 8084
+          envFrom:
+            - configMapRef:
+                name: t7-document-renderer-config
+          volumeMounts:
+            - name: templates
+              mountPath: /templates
+            - name: output
+              mountPath: /output
+            - name: logs
+              mountPath: /logs
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8084
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8084
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: templates
+          persistentVolumeClaim:
+            claimName: t7-templates-pvc
+        - name: output
+          persistentVolumeClaim:
+            claimName: t7-output-pvc
+        - name: logs
+          emptyDir: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: t7-templates-pvc
+  namespace: aiwill-planner
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: t7-output-pvc
+  namespace: aiwill-planner
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: t7-document-renderer
+  namespace: aiwill-planner
+spec:
+  selector:
+    app: t7-document-renderer
+  ports:
+    - port: 8084
+      targetPort: 8084
+  type: ClusterIP

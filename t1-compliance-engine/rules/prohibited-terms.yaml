@@ -1,0 +1,17 @@
+id: rule-001
+name: Prohibited Terms Check
+description: Reject contracts containing prohibited legal terms
+category: content-filter
+version: "1.0"
+priority: 1
+enabled: true
+
+conditions:
+  - field: content
+    operator: contains
+    value: "最高法"
+
+actions:
+  - type: reject
+    params:
+      message: "Content contains prohibited reference"

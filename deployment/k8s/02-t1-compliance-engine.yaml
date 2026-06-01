@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: t1-compliance-engine
+  namespace: aiwill-planner
+  labels:
+    app: t1-compliance-engine
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: t1-compliance-engine
+  template:
+    metadata:
+      labels:
+        app: t1-compliance-engine
+    spec:
+      containers:
+        - name: compliance-engine
+          image: aiwill-planner/t1-compliance-engine:latest
+          ports:
+            - containerPort: 8086
+          envFrom:
+            - configMapRef:
+                name: t1-compliance-config
+          volumeMounts:
+            - name: rules
+              mountPath: /rules
+            - name: logs
+              mountPath: /logs
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8086
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8086
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: rules
+          configMap:
+            name: t1-compliance-rules
+        - name: logs
+          emptyDir: {}

@@ -1,0 +1,200 @@
+version: '3.8'
+
+services:
+  # API Gateway - Single entry point
+  t2-api-gateway:
+    build:
+      context: ./t2-api-gateway
+      dockerfile: Dockerfile
+    container_name: aiwill-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - GW_HOST=0.0.0.0
+      - GW_PORT=8080
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key}
+      - JWT_ISSUER=aiwill-planner
+      - JWT_AUDIENCE=aiwill-api
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_REQUESTS_PER_SEC=100
+      - RATE_LIMIT_BURST_SIZE=200
+      - CIRCUIT_ENABLED=true
+      - CIRCUIT_THRESHOLD=5
+      - CIRCUIT_TIMEOUT=30
+      - GRAY_ENABLED=true
+      - GRAY_PERCENT=10
+      - SVC_CONTRACT_GENERATOR=http://t4-contract-generator:8081
+      - SVC_MEMBERSHIP=http://t5-membership:8082
+      - SVC_AFFILIATE=http://t6-affiliate:8083
+      - SVC_DOCUMENT_RENDERER=http://t7-document-renderer:8084
+      - SVC_MINIPROGRAM=http://t8-miniprogram:8085
+      - SVC_COMPLIANCE_ENGINE=http://t1-compliance-engine:8086
+    depends_on:
+      - t1-compliance-engine
+      - t4-contract-generator
+      - t5-membership
+      - t6-affiliate
+      - t7-document-renderer
+      - t8-miniprogram
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+
+  # Compliance Engine
+  t1-compliance-engine:
+    build:
+      context: ./t1-compliance-engine
+      dockerfile: Dockerfile
+    container_name: aiwill-compliance
+    ports:
+      - "8086:8086"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8086
+      - COMPLIANCE_RULES_PATH=/rules
+      - COMPLIANCE_HOT_RELOAD=true
+      - AUDIT_PATH=/logs
+      - TENANT_POOL_SIZE=10
+    volumes:
+      - ./t1-compliance-engine/rules:/rules
+      - ./t1-compliance-engine/logs:/logs
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+
+  # Contract Generator
+  t4-contract-generator:
+    build:
+      context: ./t4-contract-generator
+      dockerfile: Dockerfile
+    container_name: aiwill-contract-gen
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8081
+      - GENERATOR_TEMPLATES_PATH=/templates
+      - COMPLIANCE_RULES_PATH=/rules
+      - COMPLIANCE_HOT_RELOAD=true
+      - AUDIT_PATH=/logs
+      - TENANT_POOL_SIZE=10
+    volumes:
+      - ./t4-contract-generator/templates:/templates
+      - ./t4-contract-generator/rules:/rules
+      - ./t4-contract-generator/logs:/logs
+    depends_on:
+      - t1-compliance-engine
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+
+  # Membership Service
+  t5-membership:
+    build:
+      context: ./t5-membership
+      dockerfile: Dockerfile
+    container_name: aiwill-membership
+    ports:
+      - "8082:8082"
+    environment:
+      - SERVER_PORT=8082
+      - DATABASE_DSN=${MEMBERSHIP_DB_DSN:-root:password@tcp(mysql:3306)/membership?charset=utf8mb4&parseTime=True&loc=Local}
+      - STRIPE_KEY=${STRIPE_KEY}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key}
+      - ENVIRONMENT=production
+    depends_on:
+      - mysql
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+
+  # Affiliate Service
+  t6-affiliate:
+    build:
+      context: ./t6-affiliate
+      dockerfile: Dockerfile
+    container_name: aiwill-affiliate
+    ports:
+      - "8083:8083"
+    environment:
+      - SERVER_PORT=8083
+      - SERVER_MODE=release
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=password
+      - DATABASE_DBNAME=affiliate
+      - APP_COMMISSION_RULE_LEVEL1=0.1
+      - APP_COMMISSION_RULE_LEVEL2=0.05
+      - APP_WITHDRAW_MIN_AMOUNT=100
+      - APP_WITHDRAW_FEE_RATE=0.01
+    depends_on:
+      - mysql
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+
+  # Document Renderer
+  t7-document-renderer:
+    build:
+      context: ./t7-document-renderer
+      dockerfile: Dockerfile
+    container_name: aiwill-doc-renderer
+    ports:
+      - "8084:8084"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8084
+      - RENDERER_TEMPLATES_PATH=/templates
+      - RENDERER_OUTPUT_PATH=/output
+      - RENDERER_MAX_RETRIES=3
+      - AUDIT_PATH=/logs
+      - TENANT_POOL_SIZE=10
+    volumes:
+      - ./t7-document-renderer/templates:/templates
+      - ./t7-document-renderer/output:/output
+      - ./t7-document-renderer/logs:/logs
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+
+  # Miniprogram Service
+  t8-miniprogram:
+    build:
+      context: ./t8-miniprogram
+      dockerfile: Dockerfile
+    container_name: aiwill-miniprogram
+    ports:
+      - "8085:8085"
+    environment:
+      - SERVER_PORT=8085
+      - DATABASE_DSN=/data/miniprogram.db
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key}
+      - ENVIRONMENT=production
+    volumes:
+      - ./t8-miniprogram/data:/data
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+
+  # MySQL Database (shared)
+  mysql:
+    image: mysql:8.0
+    container_name: aiwill-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=membership
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+
+networks:
+  aiwill-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

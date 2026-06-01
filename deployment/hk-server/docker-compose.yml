@@ -1,0 +1,341 @@
+version: '3.8'
+
+services:
+  # ============================================================
+  # API Gateway - Single entry point (port 8080)
+  # ============================================================
+  t2-api-gateway:
+    build:
+      context: ../../
+      dockerfile: deployment/dockerfiles/Dockerfile.t2-api-gateway
+    container_name: aiwill-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - GW_HOST=0.0.0.0
+      - GW_PORT=8080
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
+      - RATE_LIMIT_REQUESTS_PER_SEC=${RATE_LIMIT_REQUESTS_PER_SEC:-100}
+      - RATE_LIMIT_BURST_SIZE=${RATE_LIMIT_BURST_SIZE:-200}
+      - CIRCUIT_ENABLED=${CIRCUIT_ENABLED:-true}
+      - CIRCUIT_THRESHOLD=${CIRCUIT_THRESHOLD:-5}
+      - CIRCUIT_TIMEOUT=${CIRCUIT_TIMEOUT:-30}
+      - GRAY_ENABLED=${GRAY_ENABLED:-true}
+      - GRAY_PERCENT=${GRAY_PERCENT:-10}
+      - SVC_CONTRACT_GENERATOR=http://t4-contract-generator:8081
+      - SVC_MEMBERSHIP=http://t5-membership:8082
+      - SVC_AFFILIATE=http://t6-affiliate:8083
+      - SVC_DOCUMENT_RENDERER=http://t7-document-renderer:8084
+      - SVC_MINIPROGRAM=http://t8-miniprogram:8085
+      - SVC_COMPLIANCE_ENGINE=http://t1-compliance-engine:8086
+    depends_on:
+      - t1-compliance-engine
+      - t4-contract-generator
+      - t5-membership
+      - t6-affiliate
+      - t7-document-renderer
+      - t8-miniprogram
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # Compliance Engine (port 8086)
+  # ============================================================
+  t1-compliance-engine:
+    build:
+      context: ../../
+      dockerfile: deployment/dockerfiles/Dockerfile.t1-compliance-engine
+    container_name: aiwill-compliance
+    ports:
+      - "8086:8086"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8086
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_SSLMODE=${DB_SSLMODE:-disable}
+      - COMPLIANCE_RULES_PATH=/rules
+      - COMPLIANCE_HOT_RELOAD=${COMPLIANCE_HOT_RELOAD:-true}
+      - AUDIT_PATH=/logs
+      - TENANT_POOL_SIZE=10
+    volumes:
+      - ./data/t1-compliance-engine/rules:/rules
+      - ./data/t1-compliance-engine/logs:/logs
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # Contract Generator (port 8081)
+  # ============================================================
+  t4-contract-generator:
+    build:
+      context: ../../
+      dockerfile: deployment/dockerfiles/Dockerfile.t4-contract-generator
+    container_name: aiwill-contract-gen
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8081
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_SSLMODE=${DB_SSLMODE:-disable}
+      - GENERATOR_TEMPLATES_PATH=/templates
+      - OUTPUT_PATH=/output
+      - GENERATOR_MAX_RETRIES=${GENERATOR_MAX_RETRIES:-3}
+      - COMPLIANCE_RULES_PATH=/rules
+      - COMPLIANCE_HOT_RELOAD=${COMPLIANCE_HOT_RELOAD:-true}
+      - AUDIT_PATH=/logs
+      - TENANT_POOL_SIZE=10
+      - AI_PROVIDER=${AI_PROVIDER:-openai}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE:-https://api.openai.com/v1}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_API_BASE=${ANTHROPIC_API_BASE:-https://api.anthropic.com/v1}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
+    volumes:
+      - ./data/t4-contract-generator/templates:/templates
+      - ./data/t4-contract-generator/rules:/rules
+      - ./data/t4-contract-generator/output:/output
+      - ./data/t4-contract-generator/logs:/logs
+    depends_on:
+      - t1-compliance-engine
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # Membership Service (port 8082)
+  # ============================================================
+  t5-membership:
+    build:
+      context: ../../
+      dockerfile: deployment/dockerfiles/Dockerfile.t5-membership
+    container_name: aiwill-membership
+    ports:
+      - "8082:8082"
+    environment:
+      - SERVER_PORT=8082
+      - DATABASE_DSN=${MEMBERSHIP_DB_DSN}
+      - STRIPE_KEY=${STRIPE_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - ENVIRONMENT=production
+    depends_on:
+      - mysql
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # Affiliate Service (port 8083)
+  # ============================================================
+  t6-affiliate:
+    build:
+      context: ../../
+      dockerfile: deployment/dockerfiles/Dockerfile.t6-affiliate
+    container_name: aiwill-affiliate
+    ports:
+      - "8083:8083"
+    environment:
+      - SERVER_PORT=8083
+      - SERVER_MODE=release
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - DATABASE_DBNAME=affiliate
+      - APP_COMMISSION_RULE_LEVEL1=${APP_COMMISSION_RULE_LEVEL1:-0.1}
+      - APP_COMMISSION_RULE_LEVEL2=${APP_COMMISSION_RULE_LEVEL2:-0.05}
+      - APP_WITHDRAW_MIN_AMOUNT=${APP_WITHDRAW_MIN_AMOUNT:-100}
+      - APP_WITHDRAW_FEE_RATE=${APP_WITHDRAW_FEE_RATE:-0.01}
+    depends_on:
+      - mysql
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # Document Renderer (port 8084)
+  # ============================================================
+  t7-document-renderer:
+    build:
+      context: ../../
+      dockerfile: deployment/dockerfiles/Dockerfile.t7-document-renderer
+    container_name: aiwill-doc-renderer
+    ports:
+      - "8084:8084"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8084
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_SSLMODE=${DB_SSLMODE:-disable}
+      - RENDERER_TEMPLATES_PATH=/templates
+      - RENDERER_OUTPUT_PATH=/output
+      - RENDERER_MAX_RETRIES=${RENDERER_MAX_RETRIES:-3}
+      - AUDIT_PATH=/logs
+      - TENANT_POOL_SIZE=10
+    volumes:
+      - ./data/t7-document-renderer/templates:/templates
+      - ./data/t7-document-renderer/output:/output
+      - ./data/t7-document-renderer/logs:/logs
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # Miniprogram Service (port 8085)
+  # ============================================================
+  t8-miniprogram:
+    build:
+      context: ../../
+      dockerfile: deployment/dockerfiles/Dockerfile.t8-miniprogram
+    container_name: aiwill-miniprogram
+    ports:
+      - "8085:8085"
+    environment:
+      - SERVER_PORT=8085
+      - DATABASE_DSN=/data/miniprogram.db
+      - JWT_SECRET=${JWT_SECRET}
+      - ENVIRONMENT=production
+    volumes:
+      - ./data/t8-miniprogram/data:/data
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # PostgreSQL Database (main database)
+  # ============================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: aiwill-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================
+  # MySQL Database (for t5-membership, t6-affiliate)
+  # ============================================================
+  mysql:
+    image: mysql:8.0
+    container_name: aiwill-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-membership}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================
+  # Nginx Reverse Proxy (ports 80, 443)
+  # ============================================================
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: aiwill-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - t2-api-gateway
+    networks:
+      - aiwill-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nginx -t && curl -f http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  aiwill-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mysql_data:

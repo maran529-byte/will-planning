@@ -1,0 +1,88 @@
+{
+  "id": "template-service-agreement-v1",
+  "name": "Service Agreement",
+  "version": "1.0.0",
+  "category": "service",
+  "fields": [
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 3,
+        "max_length": 200
+      }
+    },
+    {
+      "name": "party_a_name",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 2,
+        "max_length": 100
+      }
+    },
+    {
+      "name": "party_a_email",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      }
+    },
+    {
+      "name": "party_b_name",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 2,
+        "max_length": 100
+      }
+    },
+    {
+      "name": "party_b_email",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      }
+    },
+    {
+      "name": "service_description",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 10,
+        "max_length": 2000
+      }
+    },
+    {
+      "name": "contract_amount",
+      "type": "number",
+      "required": true,
+      "validation": {
+        "min": 0
+      }
+    },
+    {
+      "name": "currency",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "allowed_values": ["USD", "EUR", "CNY", "JPY", "GBP"]
+      }
+    },
+    {
+      "name": "start_date",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "end_date",
+      "type": "string",
+      "required": true
+    }
+  ],
+  "content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>{{uppercase .title}}</title>\n    <style>\n        body { font-family: Arial, sans-serif; margin: 40px; }\n        h1 { text-align: center; color: #333; }\n        .section { margin: 20px 0; }\n        .label { font-weight: bold; color: #555; }\n        .value { margin-left: 10px; }\n        .parties { display: flex; justify-content: space-between; }\n        .party { width: 45%; border: 1px solid #ddd; padding: 15px; }\n        .signature-block { margin-top: 50px; border-top: 1px solid #333; padding-top: 20px; }\n    </style>\n</head>\n<body>\n    <h1>{{uppercase .title}}</h1>\n    \n    <div class=\"section\">\n        <div><span class=\"label\">Contract ID:</span> <span class=\"value\">{{.contract_id}}</span></div>\n        <div><span class=\"label\">Generated:</span> <span class=\"value\">{{formatDate .generated_at \"2006-01-02\"}}</span></div>\n    </div>\n    \n    <div class=\"section\">\n        <h2>Parties</h2>\n        <div class=\"parties\">\n            <div class=\"party\">\n                <strong>Party A</strong><br>\n                Name: {{.party_a_name}}<br>\n                Email: {{.party_a_email}}\n            </div>\n            <div class=\"party\">\n                <strong>Party B</strong><br>\n                Name: {{.party_b_name}}<br>\n                Email: {{.party_b_email}}\n            </div>\n        </div>\n    </div>\n    \n    <div class=\"section\">\n        <h2>Service Description</h2>\n        <p>{{.service_description}}</p>\n    </div>\n    \n    <div class=\"section\">\n        <h2>Contract Terms</h2>\n        <div><span class=\"label\">Amount:</span> <span class=\"value\">{{formatCurrency .contract_amount .currency}}</span></div>\n        <div><span class=\"label\">Start Date:</span> <span class=\"value\">{{.start_date}}</span></div>\n        <div><span class=\"label\">End Date:</span> <span class=\"value\">{{.end_date}}</span></div>\n    </div>\n    \n    <div class=\"signature-block\">\n        <h2>Signatures</h2>\n        <p>Both parties hereby agree to the terms and conditions outlined in this contract.</p>\n        <div style=\"margin-top: 30px;\">\n            <div style=\"float: left; width: 45%;\">\n                Party A: _____________________<br>\n                Date: _____________\n            </div>\n            <div style=\"float: right; width: 45%;\">\n                Party B: _____________________<br>\n                Date: _____________\n            </div>\n        </div>\n    </div>\n</body>\n</html>",
+  "variables": {}
+}

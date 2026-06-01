@@ -1,0 +1,17 @@
+id: rule-002
+name: Required Field Validation
+description: Ensure all required contract fields are present
+category: field-validation
+version: "1.0"
+priority: 2
+enabled: true
+
+conditions:
+  - field: party_a
+    operator: eq
+    value: ""
+
+actions:
+  - type: reject
+    params:
+      message: "Missing required field: party_a"

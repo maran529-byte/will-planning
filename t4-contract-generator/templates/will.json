@@ -1,0 +1,134 @@
+{
+  "id": "template-will-v1",
+  "name": "遗嘱",
+  "version": "1.0.0",
+  "category": "will",
+  "fields": [
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 3,
+        "max_length": 200
+      }
+    },
+    {
+      "name": "testator_name",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 2,
+        "max_length": 50
+      }
+    },
+    {
+      "name": "testator_id_card",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "pattern": "^[1-9]\\d{5}(18|19|20)\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\d{3}[\\dXx]$"
+      }
+    },
+    {
+      "name": "testator_phone",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "pattern": "^1[3-9]\\d{9}$"
+      }
+    },
+    {
+      "name": "testator_address",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 10,
+        "max_length": 200
+      }
+    },
+    {
+      "name": "beneficiaries",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 10,
+        "max_length": 2000
+      }
+    },
+    {
+      "name": "assets",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 10,
+        "max_length": 5000
+      }
+    },
+    {
+      "name": "executor_name",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 2,
+        "max_length": 50
+      }
+    },
+    {
+      "name": "executor_phone",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "pattern": "^1[3-9]\\d{9}$"
+      }
+    },
+    {
+      "name": "executor_address",
+      "type": "string",
+      "required": false,
+      "validation": {
+        "max_length": 200
+      }
+    },
+    {
+      "name": "witness_name",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "min_length": 2,
+        "max_length": 50
+      }
+    },
+    {
+      "name": "witness_id_card",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "pattern": "^[1-9]\\d{5}(18|19|20)\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\d{3}[\\dXx]$"
+      }
+    },
+    {
+      "name": "effective_date",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "jurisdiction",
+      "type": "string",
+      "required": true,
+      "validation": {
+        "allowed_values": ["北京市", "上海市", "广州市", "深圳市", "杭州市", "南京市", "武汉市", "成都市", "西安市", "重庆市"]
+      }
+    },
+    {
+      "name": "special_wishes",
+      "type": "string",
+      "required": false,
+      "validation": {
+        "max_length": 2000
+      }
+    }
+  ],
+  "content": "<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>{{uppercase .title}}</title>\n    <style>\n        body { font-family: \"SimSun\", \"宋体\", serif; margin: 40px; line-height: 1.8; font-size: 14px; }\n        h1 { text-align: center; font-size: 22px; margin-bottom: 30px; }\n        .section { margin: 20px 0; }\n        .section-title { font-weight: bold; font-size: 16px; margin-bottom: 10px; text-decoration: underline; }\n        .info-table { width: 100%; border-collapse: collapse; }\n        .info-table td { padding: 8px 10px; border: 1px solid #333; }\n        .info-table .label { font-weight: bold; width: 120px; background: #f5f5f5; }\n        .signature-block { margin-top: 60px; display: flex; justify-content: space-between; }\n        .sig-col { width: 45%; }\n        .sig-line { border-bottom: 1px solid #333; height: 40px; margin-top: 30px; }\n        .footer { margin-top: 50px; font-size: 12px; color: #666; text-align: center; }\n        .assets-list { white-space: pre-wrap; background: #fafafa; padding: 15px; border: 1px solid #eee; }\n        .beneficiaries-list { white-space: pre-wrap; background: #fafafa; padding: 15px; border: 1px solid #eee; }\n    </style>\n</head>\n<body>\n    <h1>{{uppercase .title}}</h1>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">一、遗嘱人基本信息</div>\n        <table class=\"info-table\">\n            <tr>\n                <td class=\"label\">姓名</td>\n                <td>{{.testator_name}}</td>\n                <td class=\"label\">身份证号</td>\n                <td>{{.testator_id_card}}</td>\n            </tr>\n            <tr>\n                <td class=\"label\">联系电话</td>\n                <td>{{.testator_phone}}</td>\n                <td class=\"label\">住所地址</td>\n                <td>{{.testator_address}}</td>\n            </tr>\n        </table>\n    </div>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">二、受益人信息</div>\n        <div class=\"beneficiaries-list\">{{.beneficiaries}}</div>\n    </div>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">三、遗产清单</div>\n        <div class=\"assets-list\">{{.assets}}</div>\n    </div>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">四、遗嘱执行人</div>\n        <table class=\"info-table\">\n            <tr>\n                <td class=\"label\">姓名</td>\n                <td>{{.executor_name}}</td>\n                <td class=\"label\">联系电话</td>\n                <td>{{.executor_phone}}</td>\n            </tr>\n            <tr>\n                <td class=\"label\">地址</td>\n                <td colspan=\"3\">{{.executor_address}}</td>\n            </tr>\n        </table>\n    </div>\n    \n    {{if .special_wishes}}\n    <div class=\"section\">\n        <div class=\"section-title\">五、特别嘱托</div>\n        <p>{{.special_wishes}}</p>\n    </div>\n    {{end}}\n    \n    <div class=\"section\">\n        <div class=\"section-title\">六、见证人</div>\n        <table class=\"info-table\">\n            <tr>\n                <td class=\"label\">姓名</td>\n                <td>{{.witness_name}}</td>\n                <td class=\"label\">身份证号</td>\n                <td>{{.witness_id_card}}</td>\n            </tr>\n        </table>\n    </div>\n    \n    <div class=\"section\">\n        <div class=\"section-title\">七、生效与解释</div>\n        <p>本遗嘱自{{.effective_date}}起生效。本遗嘱的解释及执行均适用中华人民共和国法律。</p>\n        <p>本遗嘱共一式叁份，遗嘱人、受益人、见证人各执一份，具有同等法律效力。</p>\n        <p>管辖法院：{{.jurisdiction}}人民法院</p>\n    </div>\n    \n    <div class=\"signature-block\">\n        <div class=\"sig-col\">\n            <p><strong>遗嘱人（签字）：</strong></p>\n            <div class=\"sig-line\"></div>\n            <p>日期：{{.effective_date}}</p>\n        </div>\n        <div class=\"sig-col\">\n            <p><strong>见证人（签字）：</strong></p>\n            <div class=\"sig-line\"></div>\n            <p>日期：{{.effective_date}}</p>\n        </div>\n    </div>\n    \n    <div class=\"footer\">\n        <p>本遗嘱由 AI 遗嘱规划平台 生成 | aiwill-planner.cn</p>\n        <p>本文件仅作为遗嘱起草参考，不构成法律意见。正式签署前请咨询专业律师。</p>\n    </div>\n</body>\n</html>",
+  "variables": {}
+}

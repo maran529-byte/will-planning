@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: t6-affiliate
+  namespace: aiwill-planner
+  labels:
+    app: t6-affiliate
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: t6-affiliate
+  template:
+    metadata:
+      labels:
+        app: t6-affiliate
+    spec:
+      containers:
+        - name: affiliate
+          image: aiwill-planner/t6-affiliate:latest
+          ports:
+            - containerPort: 8083
+          envFrom:
+            - configMapRef:
+                name: t6-affiliate-config
+            - secretRef:
+                name: aiwill-secrets
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8083
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8083
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: t6-affiliate
+  namespace: aiwill-planner
+spec:
+  selector:
+    app: t6-affiliate
+  ports:
+    - port: 8083
+      targetPort: 8083
+  type: ClusterIP

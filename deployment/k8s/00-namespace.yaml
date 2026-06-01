@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aiwill-planner
+  labels:
+    app.kubernetes.io/name: aiwill-planner
+    app.kubernetes.io/managed-by: kubectl

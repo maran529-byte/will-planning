@@ -1,0 +1,29 @@
+id: will-compliance-check
+name: Will Compliance Check
+description: Reject wills containing prohibited terms or invalid data
+category: will
+version: "1.0"
+priority: 5
+enabled: true
+conditions:
+  - field: title
+    operator: contains
+    value: "FRAUD"
+actions:
+  - type: reject
+    params:
+      reason: "Will title contains prohibited terms"
+  - field: assets
+    operator: contains
+    value: "ILLEGAL"
+actions:
+  - type: reject
+    params:
+      reason: "Assets list contains prohibited terms"
+  - field: testator_id_card
+    operator: contains
+    value: "FRAUD"
+actions:
+  - type: reject
+    params:
+      reason: "Testator ID card contains prohibited terms"

@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aiwill-secrets
+  namespace: aiwill-planner
+type: Opaque
+stringData:
+  jwt-secret: "your-production-jwt-secret-change-me"
+  stripe-key: "sk_test_your_stripe_key"
+  mysql-root-password: "your-mysql-password"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aiwill-config
+  namespace: aiwill-planner
+data:
+  # API Gateway
+  GW_HOST: "0.0.0.0"
+  GW_PORT: "8080"
+  JWT_ISSUER: "aiwill-planner"
+  JWT_AUDIENCE: "aiwill-api"
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_REQUESTS_PER_SEC: "100"
+  RATE_LIMIT_BURST_SIZE: "200"
+  CIRCUIT_ENABLED: "true"
+  CIRCUIT_THRESHOLD: "5"
+  CIRCUIT_TIMEOUT: "30"
+  GRAY_ENABLED: "true"
+  GRAY_PERCENT: "10"
+  SVC_CONTRACT_GENERATOR: "http://t4-contract-generator:8081"
+  SVC_MEMBERSHIP: "http://t5-membership:8082"
+  SVC_AFFILIATE: "http://t6-affiliate:8083"
+  SVC_DOCUMENT_RENDERER: "http://t7-document-renderer:8084"
+  SVC_MINIPROGRAM: "http://t8-miniprogram:8085"
+  SVC_COMPLIANCE_ENGINE: "http://t1-compliance-engine:8086"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: t1-compliance-config
+  namespace: aiwill-planner
+data:
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "8086"
+  COMPLIANCE_RULES_PATH: "/rules"
+  COMPLIANCE_HOT_RELOAD: "true"
+  AUDIT_PATH: "/logs"
+  TENANT_POOL_SIZE: "10"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: t4-contract-generator-config
+  namespace: aiwill-planner
+data:
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "8081"
+  GENERATOR_TEMPLATES_PATH: "/templates"
+  COMPLIANCE_RULES_PATH: "/rules"
+  COMPLIANCE_HOT_RELOAD: "true"
+  AUDIT_PATH: "/logs"
+  TENANT_POOL_SIZE: "10"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: t7-document-renderer-config
+  namespace: aiwill-planner
+data:
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "8084"
+  RENDERER_TEMPLATES_PATH: "/templates"
+  RENDERER_OUTPUT_PATH: "/output"
+  RENDERER_MAX_RETRIES: "3"
+  AUDIT_PATH: "/logs"
+  TENANT_POOL_SIZE: "10"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: t6-affiliate-config
+  namespace: aiwill-planner
+data:
+  SERVER_PORT: "8083"
+  SERVER_MODE: "release"
+  DATABASE_HOST: "mysql"
+  DATABASE_PORT: "3306"
+  DATABASE_USER: "root"
+  DATABASE_DBNAME: "affiliate"
+  APP_COMMISSION_RULE_LEVEL1: "0.1"
+  APP_COMMISSION_RULE_LEVEL2: "0.05"
+  APP_WITHDRAW_MIN_AMOUNT: "100"
+  APP_WITHDRAW_FEE_RATE: "0.01"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: t8-miniprogram-config
+  namespace: aiwill-planner
+data:
+  SERVER_PORT: "8085"
+  DATABASE_DSN: "/data/miniprogram.db"
+  ENVIRONMENT: "production"

@@ -1,0 +1,22 @@
+id: prohibited-terms-check
+name: Prohibited Terms Check
+description: Reject contracts containing prohibited terms
+category: compliance
+version: "1.0"
+priority: 1
+enabled: true
+conditions:
+  - field: title
+    operator: contains
+    value: "FRAUD"
+actions:
+  - type: reject
+    params:
+      reason: "Contract title contains prohibited terms"
+  - field: service_description
+    operator: contains
+    value: "ILLEGAL"
+actions:
+  - type: reject
+    params:
+      reason: "Service description contains prohibited terms"

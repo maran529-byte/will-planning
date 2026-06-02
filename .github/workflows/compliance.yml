@@ -149,11 +149,14 @@ jobs:
         run: |
           echo "==== 证据 2: nginx.conf 无 proxy_pass 境外 ===="
           set +e
-          if grep -E "proxy_pass" deployment/mainland-server/nginx.conf; then
-            echo "::error::nginx.conf 含 proxy_pass，违反合规证据 2"
+          # 跳过注释行（# 或 // 开头）和空行
+          HITS=$(grep -nE "proxy_pass" deployment/mainland-server/nginx.conf | grep -vE "^\s*[0-9]+:\s*#" | grep -vE "^\s*[0-9]+:\s*//" || true)
+          if [[ -n "$HITS" ]]; then
+            echo "::error::nginx.conf 含未注释的 proxy_pass，违反合规证据 2:"
+            echo "$HITS"
             exit 1
           fi
-          echo "✅ PASS: nginx.conf 无 proxy_pass"
+          echo "✅ PASS: nginx.conf 无未注释的 proxy_pass"
 
       # ===== 证据 3：H5 fetch 仅指向 api.aiwill-planner.cn =====
       - name: "证据3: Vercel 域 fetch 域名合规"

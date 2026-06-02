@@ -395,8 +395,20 @@ export default function HomePage() {
           <p className="text-slate-500 text-sm">
             © 2024 爱的延续. 免责声明：本平台仅提供文书规划辅助服务，不构成法律意见。
           </p>
+          <p className="text-slate-500 text-xs mt-3">
+            <a
+              href="https://beian.miit.gov.cn"
+              target="_blank"
+              rel="noopener nofollow"
+              className="hover:text-slate-300"
+            >
+              沪ICP备2026020925号-1
+            </a>
+            <span className="mx-2">|</span>
+            爱的延续工作室 · 上海市
+          </p>
         </div>
       </footer>
     </div>
   );
-}# trigger redeploy
+}

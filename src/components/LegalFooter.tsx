@@ -18,6 +18,18 @@ export default function LegalFooter() {
             本平台仅提供文书模板智能生成参考，不构成法律专业意见，所有文书仅供个人参考使用。
             如需法律咨询，请联系专业律师。
           </p>
+          <p className="text-slate-500 text-xs mt-2">
+            <a
+              href="https://beian.miit.gov.cn"
+              target="_blank"
+              rel="noopener nofollow"
+              className="hover:text-slate-300"
+            >
+              沪ICP备2026020925号-1
+            </a>
+            <span className="mx-2">|</span>
+            爱的延续工作室 · 上海市
+          </p>
         </div>
       </div>
     </footer>

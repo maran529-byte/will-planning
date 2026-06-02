@@ -41,13 +41,14 @@ export async function getOrdersServer(): Promise<Order[]> {
 
 export async function getOrderServer(orderId: string): Promise<Order | null> {
   if (!supabaseAdmin) return null;
+  // P0: .maybeSingle() prevents PGRST116 crash when no row matches.
   const { data, error } = await supabaseAdmin
     .from('orders')
     .select('*')
     .eq('id', orderId)
-    .single();
+    .maybeSingle();
   if (error) return null;
-  return data as Order;
+  return data as Order | null;
 }
 
 export async function createOrderServer(data: {
@@ -64,16 +65,17 @@ export async function createOrderServer(data: {
     will_id: data.will_id,
     created_at: new Date().toISOString(),
   };
+  // P0: .maybeSingle() prevents PGRST116 when insert returns no row.
   const { data: created, error } = await supabaseAdmin
     .from('orders')
     .insert(newOrder)
     .select()
-    .single();
+    .maybeSingle();
   if (error) {
     console.error('Supabase createOrder error:', error);
     return null;
   }
-  return created as Order;
+  return created as Order | null;
 }
 
 export async function updateOrderServer(
@@ -81,14 +83,15 @@ export async function updateOrderServer(
   updates: Partial<Order>
 ): Promise<Order | null> {
   if (!supabaseAdmin) return null;
+  // P0: .maybeSingle() prevents PGRST116 when update returns no row.
   const { data, error } = await supabaseAdmin
     .from('orders')
     .update(updates)
     .eq('id', orderId)
     .select()
-    .single();
+    .maybeSingle();
   if (error) return null;
-  return data as Order;
+  return data as Order | null;
 }
 
 export async function updateOrderStatusServer(

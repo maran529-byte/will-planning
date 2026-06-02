@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
 import { MINIMAX_API_KEY, MINIMAX_BASE_URL, MINIMAX_MODEL } from "@/lib/config";
 import { supabaseAdmin } from "@/lib/supabase-server";
+import { getPriceCents } from "@/lib/pricing";
 
 // 获取Supabase客户端（兼容无环境变量时）
 function getSupabaseClient() {
@@ -13,17 +15,65 @@ function getSupabaseClient() {
   return supabaseAdmin;
 }
 
+// P0: zod schema for generate-will input. Strict-but-permissive: we accept
+// the existing questionnaire shape, but every field that contains PII
+// (name, idCard, phone, address, spouseIdCard) is bounded and typed so a
+// malicious client cannot inject arbitrary keys or giant blobs.
+const generateWillSchema = z.object({
+  name: z.string().min(1).max(64),
+  age: z.number().int().min(0).max(150),
+  gender: z.string().max(16).optional(),
+  idCard: z.string().max(32).optional(),
+  phone: z.string().max(32).optional(),
+  address: z.string().max(256).optional(),
+  maritalStatus: z.string().max(32).optional(),
+  spouseName: z.string().max(64).optional(),
+  spouseIdCard: z.string().max(32).optional(),
+  children: z.array(z.any()).optional(),
+  parents: z.array(z.any()).optional(),
+  assets: z.array(z.any()).optional(),
+  heirs: z.array(z.any()).optional(),
+  specialArrangements: z.record(z.string(), z.any()).optional(),
+  medicalWishes: z.record(z.string(), z.any()).optional(),
+  plan: z.enum(['ai', 'lawyer', 'family']).default('ai'),
+});
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { 
+    const json = await request.json();
+    const parsed = generateWillSchema.safeParse(json);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          code: 'INVALID_REQUEST',
+          error: '缺少或无效的参数',
+          issues: parsed.error.issues.map((i) => ({ path: i.path, message: i.message })),
+        },
+        { status: 400 }
+      );
+    }
+
+    const body = parsed.data;
+    const {
       name, age, gender, idCard, phone, address,
       maritalStatus, spouseName, spouseIdCard,
       children, parents, assets, heirs,
-      specialArrangements, medicalWishes, plan 
+      specialArrangements, medicalWishes, plan,
     } = body;
 
     const willId = uuidv4();
+
+    // P0: PIPL §51 — never log PII (name/idCard/phone/address).
+    // Log only non-PII metadata: doc type, answer count, plan.
+    console.log(
+      "Generate will: doc_type=",
+      "will",
+      "answers_count=",
+      Object.keys(body).length,
+      "plan=",
+      plan
+    );
 
     // 构建prompt
     const prompt = buildWillPrompt({
@@ -61,8 +111,11 @@ export async function POST(request: NextRequest) {
       willContent = generateDefaultWill({ name, age, maritalStatus, spouseName, children, assets, heirs });
     }
 
+    // Authoritative server-side price in 分 (cents). Frontend is ignored.
+    const priceCents = getPriceCents(plan) ?? 1990;
+
     const supabase = getSupabaseClient();
-    
+
     if (supabase) {
       // 存储到Supabase
       const { error } = await supabase.from("wills").insert({
@@ -85,7 +138,7 @@ export async function POST(request: NextRequest) {
         will_content: willContent,
         will_content_html: `<pre style="white-space:pre-wrap">${willContent}</pre>`,
         plan: plan || "ai",
-        price: plan === "lawyer" ? 999 : plan === "family" ? 4699 : 19.9,
+        price: priceCents,
         status: "generated",
       });
 
@@ -98,7 +151,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id: willId, success: true });
   } catch (error) {
     console.error("Generate will error:", error);
-    return NextResponse.json({ error: "生成失败" }, { status: 500 });
+    return NextResponse.json(
+      { code: 'INTERNAL_ERROR', error: "生成失败" },
+      { status: 500 }
+    );
   }
 }
 
@@ -107,7 +163,10 @@ export async function GET(request: NextRequest) {
   const id = searchParams.get("id");
 
   if (!id) {
-    return NextResponse.json({ error: "缺少ID参数" }, { status: 400 });
+    return NextResponse.json(
+      { code: 'INVALID_REQUEST', error: "缺少ID参数" },
+      { status: 400 }
+    );
   }
 
   const supabase = getSupabaseClient();
@@ -117,7 +176,7 @@ export async function GET(request: NextRequest) {
       .from("wills")
       .select("*")
       .eq("id", id)
-      .single();
+      .maybeSingle();   // P0: .maybeSingle() prevents PGRST116 crash on miss
 
     if (!error && data) {
       return NextResponse.json({
@@ -140,7 +199,10 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ error: "未找到相关记录" }, { status: 404 });
+  return NextResponse.json(
+    { code: 'NOT_FOUND', error: "未找到相关记录" },
+    { status: 404 }
+  );
 }
 
 function buildWillPrompt(data: {

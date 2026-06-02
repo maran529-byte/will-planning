@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initiatePayment } from '@/lib/payment';
+import { z } from 'zod';
+import { initiatePayment, PaymentChannel } from '@/lib/payment';
 import { getOrderServer, updateOrderStatusServer } from '@/lib/orders';
 import { supabaseAdmin } from '@/lib/supabase-server';
 
@@ -38,14 +39,29 @@ function updateOrderStatusLocal(
   return orders[index];
 }
 
+// P0: zod schema for payment init input.
+const initiatePaymentSchema = z.object({
+  order_id: z.string().min(1).max(128),
+  channel: z.enum(['wechat', 'alipay', 'demo']).default('demo'),
+});
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { order_id, channel = 'demo' } = body;
+    const json = await request.json();
+    const parsed = initiatePaymentSchema.safeParse(json);
 
-    if (!order_id) {
-      return NextResponse.json({ error: '缺少订单ID' }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          code: 'INVALID_REQUEST',
+          error: '缺少或无效的参数',
+          issues: parsed.error.issues.map((i) => ({ path: i.path, message: i.message })),
+        },
+        { status: 400 }
+      );
     }
+
+    const { order_id, channel } = parsed.data;
 
     // Get order details
     let order;
@@ -56,15 +72,21 @@ export async function POST(request: NextRequest) {
     }
 
     if (!order) {
-      return NextResponse.json({ error: '订单不存在' }, { status: 404 });
+      return NextResponse.json(
+        { code: 'NOT_FOUND', error: '订单不存在' },
+        { status: 404 }
+      );
     }
 
     if (order.status !== 'pending') {
-      return NextResponse.json({ error: '订单状态不允许支付' }, { status: 400 });
+      return NextResponse.json(
+        { code: 'CONFLICT', error: '订单状态不允许支付' },
+        { status: 400 }
+      );
     }
 
     // Plan descriptions for payment
-    const planDescriptions = {
+    const planDescriptions: Record<string, string> = {
       ai: '遗嘱规划 AI 指导服务',
       lawyer: '律师审核服务',
       family: '家族传承综合服务',
@@ -78,11 +100,14 @@ export async function POST(request: NextRequest) {
       order_no: order.order_no,
       amount: order.amount,
       description,
-      channel,
+      channel: channel as PaymentChannel,
     });
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 500 });
+      return NextResponse.json(
+        { code: 'UPSTREAM_ERROR', error: result.error },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
@@ -93,6 +118,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('发起支付失败:', error);
-    return NextResponse.json({ error: '服务器错误' }, { status: 500 });
+    return NextResponse.json(
+      { code: 'INTERNAL_ERROR', error: '服务器错误' },
+      { status: 500 }
+    );
   }
 }

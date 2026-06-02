@@ -11,7 +11,7 @@
 
 ```
 aiwill-planner/
-├── src/                            # 业务前端（Next.js App Router，来自 origin/main）
+├── src/                            # 业务前端（Next.js App Router，部署在 Vercel Global）
 │   ├── app/
 │   │   ├── page.tsx                # 首页
 │   │   ├── questionnaire/          # 问卷
@@ -19,23 +19,22 @@ aiwill-planner/
 │   │   ├── payment/                # 支付页
 │   │   ├── result/                 # 生成结果
 │   │   └── api/                    # 7 个业务 API 路由
-│   ├── components/                 # 共用组件（含 LegalFooter）
-│   ├── lib/                        # questionnaire / orders / payment / supabase
+│   ├── components/                 # 共用组件（含 LegalFooter，root layout 全站挂载）
+│   ├── lib/                        # pricing / questionnaire / orders / payment / supabase
 │   └── types/
 │
 ├── supabase-schema.sql             # Supabase 表结构
 │
-├── t1-compliance-engine/           # T1: 合规引擎核心服务 (Go)
-├── t2-api-gateway/                 # T2: API 网关 (Go)
-├── t4-contract-generator/          # T4: AI 契约生成引擎 (Go)
-├── t5-membership/                  # T5: 会员系统 (Go)
-├── t6-affiliate/                   # T6: 分销 (Go)
-├── t7-document-renderer/           # T7: 文档渲染 (Go)
-├── t8-miniprogram/                 # T8: 小程序 (Go)
-├── t9-h5-frontend/                 # T9: H5 备选前端 (Next.js，本地分支)
-├── t10-pc-admin/                   # T10: PC 管理端
+├── t1-compliance-engine/           # T1: 合规引擎核心服务 (Go) [legacy]
+├── t2-api-gateway/                 # T2: API 网关 (Go)        [legacy]
+├── t4-contract-generator/          # T4: AI 契约生成引擎 (Go)  [legacy]
+├── t5-membership/                  # T5: 会员系统 (Go)         [legacy]
+├── t6-affiliate/                   # T6: 分销 (Go)            [legacy]
+├── t7-document-renderer/           # T7: 文档渲染 (Go)        [legacy]
+├── t8-miniprogram/                 # T8: 小程序 (Go)          [legacy]
+├── t10-pc-admin/                   # T10: PC 管理端           [legacy]
 │
-├── static-content/                 # SEO 静态页（5 个合规页面）
+├── static-content/                 # SEO 静态页（4 个合规页面，供大陆 nginx 服务）
 │   ├── faq.html
 │   ├── tutorial.html
 │   ├── compare.html
@@ -44,8 +43,8 @@ aiwill-planner/
 ├── index.html                      # 大陆主站首页
 │
 ├── deployment/
-│   ├── hk-server/                  # 香港云部署（43.129.207.154）
-│   ├── mainland-server/            # 大陆云部署（124.222.215.107）— P0 合规收紧
+│   ├── hk-server/                  # 香港云部署（43.129.207.154）— 仅做 H5 紧急回滚
+│   ├── mainland-server/            # 大陆云部署（124.222.215.107）— P0 合规收紧 nginx
 │   ├── dockerfiles/
 │   └── docs/
 │
@@ -135,8 +134,9 @@ docker compose up -d
 
 ## 部署
 
-- **大陆节点** `124.222.215.107`（合规收紧 nginx）：`bash deployment/mainland-server/deploy_mainland.sh`
-- **香港节点** `43.129.207.154`（API + H5）：`bash deployment/hk-server/deploy_h5.sh`
+- **业务前端（H5 + Web）** `h5.aiwill-planner.cn` + `aiwill-planner.vercel.app`：Vercel Global（自动从 `main` 分支部署，无本地脚本）
+- **大陆主站** `aiwill-planner.cn`（合规收紧 nginx，仅 5 个静态路径）：`bash deployment/mainland-server/deploy_mainland.sh`
+- **香港节点** `43.129.207.154`（H5 紧急回滚用，**已废弃**）：`bash deployment/hk-server/deploy_h5.sh.deprecated`（拒绝运行，仅作归档）
 
 ---
 

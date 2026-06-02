@@ -1,10 +1,21 @@
 #!/bin/bash
 # ============================================================
+# DEPRECATED 2026-06-02: H5 site is now deployed via Vercel.
+# This script is kept for 90-day rollback only. Do not use for new deploys.
+# 90-day sunset: 2026-09-01 — delete this file after that date.
+# ------------------------------------------------------------
+# (Original header preserved below for reference)
 # AI Will Planner — 香港节点 H5 一键重建脚本
 # 目标 ：43.129.207.154
 # 用途 ：清除卡死的旧 NextJS 容器、重新构建本地干净源码、:80 端口启动
 # 前提 ：本机已配置 SSH 到 root@43.129.207.154 的免密
 # ============================================================
+
+# Hard guard: refuse to run from CI / cron. Must be invoked manually.
+echo "ERROR: deploy_h5.sh is DEPRECATED (H5 is now on Vercel)."
+echo "For rollback only — sunset 2026-09-01."
+echo "If you really need to run this, comment out the exit below."
+exit 1
 
 set -e
 

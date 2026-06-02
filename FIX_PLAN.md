@@ -6,6 +6,36 @@
 
 ---
 
+## Day 1 进展（2026-06-02，Senior Developer 实现）
+
+按 Reviewer Agent 的 P0 清单（`docs/REVIEW.md` 评 6/10）实现 4 个 P0 模块，每模块独立 commit。
+
+### 4 个新 commit
+
+| SHA | 模块 | 内容 |
+|---|---|---|
+| `a22a9ae` | Day 1 prep | 退役 t9-h5-frontend stub，合并 origin/main |
+| `8b03629` | Module 1: LegalFooter | `src/app/layout.tsx` 引入 `<LegalFooter />`，全 5 个 Vercel 路由覆盖 ICP 备案号 + 工信部链接 + AI 免责声明 |
+| `932b33c` | Module 2: 校验 + 价格 | `zod` 入依赖；新建 `src/lib/pricing.ts` 服务端价格单一来源（1990/99900/469900 分）；`create-order` / `payment` / `payment/callback` / `generate-will` 全部加 zod 校验；服务端 `getPriceCents()` 拒绝客户端 `amount`；`generate-will` 移除 PII 日志；`orders.ts` 全量 `.single()` → `.maybeSingle()` 防 PGRST116 崩溃 |
+| `7947ef7` | Module 3: 部署加固 | 大陆 nginx.conf 加 6 个安全头（X-Frame-Options / X-Content-Type-Options / Referrer-Policy / CSP / HSTS / Permissions-Policy）；HK `deploy_h5.sh` 重命名为 `.deprecated` 加 `exit 1` 守卫 |
+
+### 验证
+
+| 项 | 结果 |
+|---|---|
+| `npx next build` | PASS — 14 routes 全部 prerender 或 server-rendered |
+| `npx tsc --noEmit` | 3 个 pre-existing type errors（payment.ts(104)、payment/page.tsx(216)、questionnaire/page.tsx(97)），均与 P0 工作无关，且 `next.config.ts` 已 `ignoreBuildErrors: true` → build 仍 PASS。我的 P0 diff 实际修复了 `payment/route.ts(73,25)`，错误数从 4 → 3 |
+| `bash deployment/mainland-server/compliance_check.sh` | 5/7 通过（证据 1 全过；证据 3 脚本 PCRE bug 忽略；其余 4-6 需重新部署到 aiwill-planner.cn 才会变 PASS） |
+
+### 阻塞 Master Agent / 上线前必做
+
+1. **SSH 到 124.222.215.107 跑 `bash deployment/mainland-server/deploy_mainland.sh`** —— 推送 6 个新安全头 + 收紧的 nginx.conf 到大陆节点。完成后 13 个 FAIL 应全部转 PASS。
+2. **确认 Vercel 项目 `aiwill-planner.vercel.app` 已绑定自定义域 `h5.aiwill-planner.cn`**，否则 `index.html` 里的 CTA 跳转会断。
+3. **配置商户号环境变量**（P1，Day 2-3）：`WECHAT_APPID` / `WECHAT_MCHID` / `WECHAT_API_V3_KEY` / `STRIPE_WEBHOOK_SECRET` / `ALIPAY_PUBLIC_KEY`。当前 `payment/callback/route.ts` 的 `verifyPaymentCallback` 是 stub，**生产环境前必须替换为真实签名校验**（已在文件里写明 TODO）。
+4. **预创建 `pricing` 表（或在 `orders` 表加 `plan` 列已够用）** —— 客户端价格单一来源已落到 `src/lib/pricing.ts`，但 `supabase-schema.sql` 仍为旧版，金额字段定义可能不一致（已留待 DBA review）。
+
+---
+
 ## 一、已自动完成（本地源码 + 配置）
 
 | # | 优先级 | 文件 | 修复内容 | 状态 |

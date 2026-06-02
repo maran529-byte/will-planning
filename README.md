@@ -2,46 +2,66 @@
 
 合规优先的契约生成平台
 
+> ICP 备案：沪ICP备2026020925号-1
+> 域名主站：aiwill-planner.cn（大陆） · h5.aiwill-planner.cn（香港 H5）
+
+---
+
 ## 项目结构
 
 ```
 aiwill-planner/
-├── t1-compliance-engine/     # T1: 合规引擎核心服务
-│   ├── cmd/server/          # 主服务入口
-│   ├── internal/
-│   │   ├── config/          # 配置管理
-│   │   ├── database/        # 数据库查询封装
-│   │   ├── tenant/         # 多租户隔离管理
-│   │   ├── audit/          # 审计日志
-│   │   └── compliance/     # 合规规则引擎
-│   ├── rules/               # YAML 规则文件（热加载）
-│   └── go.mod
+├── src/                            # 业务前端（Next.js App Router，来自 origin/main）
+│   ├── app/
+│   │   ├── page.tsx                # 首页
+│   │   ├── questionnaire/          # 问卷
+│   │   ├── orders/                 # 订单
+│   │   ├── payment/                # 支付页
+│   │   ├── result/                 # 生成结果
+│   │   └── api/                    # 7 个业务 API 路由
+│   ├── components/                 # 共用组件（含 LegalFooter）
+│   ├── lib/                        # questionnaire / orders / payment / supabase
+│   └── types/
 │
-├── t2-api-gateway/          # T2: API 网关
-│   ├── cmd/gateway/         # 网关入口
-│   ├── internal/
-│   │   ├── config/         # 配置管理
-│   │   ├── jwt/            # JWT 鉴权
-│   │   ├── ratelimit/      # 按租户限流
-│   │   ├── circuit/        # 按租户熔断
-│   │   └── gray/           # 灰度发布
-│   └── go.mod
+├── supabase-schema.sql             # Supabase 表结构
 │
-├── t4-contract-generator/  # T4: AI契约生成引擎
-│   ├── cmd/server/         # 主服务入口
-│   ├── internal/
-│   │   ├── config/        # 配置管理
-│   │   ├── tenant/        # 多租户隔离管理
-│   │   ├── audit/         # 审计日志
-│   │   ├── compliance/    # 合规规则引擎
-│   │   └── generator/     # 合同生成引擎
-│   ├── templates/          # 合同模板
-│   ├── rules/              # YAML 规则文件
-│   └── go.mod
+├── t1-compliance-engine/           # T1: 合规引擎核心服务 (Go)
+├── t2-api-gateway/                 # T2: API 网关 (Go)
+├── t4-contract-generator/          # T4: AI 契约生成引擎 (Go)
+├── t5-membership/                  # T5: 会员系统 (Go)
+├── t6-affiliate/                   # T6: 分销 (Go)
+├── t7-document-renderer/           # T7: 文档渲染 (Go)
+├── t8-miniprogram/                 # T8: 小程序 (Go)
+├── t9-h5-frontend/                 # T9: H5 备选前端 (Next.js，本地分支)
+├── t10-pc-admin/                   # T10: PC 管理端
 │
+├── static-content/                 # SEO 静态页（5 个合规页面）
+│   ├── faq.html
+│   ├── tutorial.html
+│   ├── compare.html
+│   └── tool.html
+│
+├── index.html                      # 大陆主站首页
+│
+├── deployment/
+│   ├── hk-server/                  # 香港云部署（43.129.207.154）
+│   ├── mainland-server/            # 大陆云部署（124.222.215.107）— P0 合规收紧
+│   ├── dockerfiles/
+│   └── docs/
+│
+├── tests/                          # 集成测试
+│
+├── FIX_PLAN.md                     # 上线修复执行报告
+├── docker-compose.yml
+├── next.config.ts                  # Next.js 业务前端配置
+└── package.json
+```
 
-## T1 验收标准
+---
 
+## 验收标准
+
+### T1 合规引擎
 | 标准 | 状态 |
 |------|------|
 | 每个 tenant 拥有独立数据库实例 | ✅ |
@@ -50,10 +70,7 @@ aiwill-planner/
 | 所有生成行为记录审计日志 | ✅ |
 | 单租户 QPS ≥ 100 | ✅ |
 
-技术约束：Go + PostgreSQL，禁止 Redis/Kafka/共享表
-
-## T2 验收标准
-
+### T2 API 网关
 | 标准 | 状态 |
 |------|------|
 | 基于 JWT 的租户鉴权 | ✅ |
@@ -61,8 +78,7 @@ aiwill-planner/
 | 支持按租户熔断 | ✅ |
 | 支持灰度发布 | ✅ |
 
-## T4 验收标准
-
+### T4 契约生成
 | 标准 | 状态 |
 |------|------|
 | 支持多模板合同生成 | ✅ |
@@ -71,39 +87,86 @@ aiwill-planner/
 | 所有操作记录审计日志 | ✅ |
 | 多租户隔离 | ✅ |
 
+技术约束：Go + PostgreSQL，禁止 Redis/Kafka/共享表
+
+---
+
+## 合规约束（P0 — ICP 死线）
+
+详见 [aiwill-planner_合规手册.docx](docs/)（项目外文档）。
+
+- **大陆节点不出现 AI 推理 endpoint**：所有 AI 能力走 h5.aiwill-planner.cn → 香港
+- **大陆 nginx 不反代境外**：仅 5 个静态路径，`/api/*` 301 跳 h5
+- **法律 Footer 全站 100% 覆盖**：含 `沪ICP备2026020925号-1` + 工信部链接
+- **首页 CTA 按钮**：必跳 `https://h5.aiwill-planner.cn`
+
+自查脚本：
+```bash
+bash deployment/mainland-server/compliance_check.sh
+```
+
+---
+
 ## 构建
 
+### 业务前端（src/，来自 origin/main）
+```bash
+npm install
+npm run dev      # 本地
+npm run build    # 生产构建
+```
+
+### 微服务（Go）
 ```bash
 # T1
-cd t1-compliance-engine
-go build -o bin/server ./cmd/server
-
+cd t1-compliance-engine && go build -o bin/server ./cmd/server
 # T2
-cd t2-api-gateway
-go build -o bin/gateway ./cmd/gateway
-
+cd t2-api-gateway && go build -o bin/gateway ./cmd/gateway
 # T4
-cd t4-contract-generator
-go build -o bin/server ./cmd/server
+cd t4-contract-generator && go build -o bin/server ./cmd/server
 ```
+
+### Docker 全栈
+```bash
+docker compose up -d
+```
+
+---
+
+## 部署
+
+- **大陆节点** `124.222.215.107`（合规收紧 nginx）：`bash deployment/mainland-server/deploy_mainland.sh`
+- **香港节点** `43.129.207.154`（API + H5）：`bash deployment/hk-server/deploy_h5.sh`
+
+---
 
 ## 环境变量
 
 ### T1
-- SERVER_HOST: 服务监听地址
-- DB_HOST/DB_USER/DB_PASSWORD: PostgreSQL 连接信息
-- AUDIT_LOG_PATH: 审计日志目录
-- COMPLIANCE_RULES_PATH: 规则文件目录
+- `SERVER_HOST`: 服务监听地址
+- `DB_HOST/DB_USER/DB_PASSWORD`: PostgreSQL 连接信息
+- `AUDIT_LOG_PATH`: 审计日志目录
+- `COMPLIANCE_RULES_PATH`: 规则文件目录
 
 ### T2
-- GW_HOST/GW_PORT: 网关监听地址
-- UPSTREAM_URL: 上游服务地址
-- JWT_SECRET/JWT_ISSUER/JWT_AUDIENCE: JWT 配置
+- `GW_HOST/GW_PORT`: 网关监听地址
+- `UPSTREAM_URL`: 上游服务地址
+- `JWT_SECRET/JWT_ISSUER/JWT_AUDIENCE`: JWT 配置
 
 ### T4
-- SERVER_HOST: 服务监听地址（默认 0.0.0.0）
-- SERVER_PORT: 服务端口（默认 8081）
-- DB_HOST/DB_USER/DB_PASSWORD: PostgreSQL 连接信息
-- AUDIT_LOG_PATH: 审计日志目录
-- TEMPLATES_PATH: 合同模板目录
-- COMPLIANCE_RULES_PATH: 规则文件目录
+- `SERVER_HOST`: 服务监听地址（默认 0.0.0.0）
+- `SERVER_PORT`: 服务端口（默认 8081）
+- `DB_HOST/DB_USER/DB_PASSWORD`: PostgreSQL 连接信息
+- `AUDIT_LOG_PATH`: 审计日志目录
+- `TEMPLATES_PATH`: 合同模板目录
+- `COMPLIANCE_RULES_PATH`: 规则文件目录
+
+---
+
+## Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs) — Web 前端
+- [Supabase Docs](https://supabase.com/docs) — 业务数据
+- [腾讯云合规指引](https://cloud.tencent.com/document/product/301) — ICP 备案
+
+Check out the [腾讯云部署文档](https://cloud.tencent.com/document/product/213) for our cloud setup.

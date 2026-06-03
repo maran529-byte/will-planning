@@ -57,15 +57,51 @@
 dev.weixin.qq.com → 公众号详情 → 「**开发信息**」或「**开发者配置**」 →
 **「IP 白名单」** → 「**修改**」/「**添加**」
 
-### 2.2 粘贴这个 IP(唯一一个)
+### 2.2 粘贴这些 IP(**两个都要加,一个都不能少**)
 
 ```
 54.144.220.173
+35.175.142.58
 ```
 
-> **为什么是这个 IP**:Vercel Functions 在 `iad1`(US East)的固定出口 IP,已通过 5 次连续请求确认稳定。
+> ⚠️ **重要修正**:Vercel Functions 的 egress IP **不是固定单一 IP**。实测发现:
+> - 5 月 31 日部署后:Warm instance 用 `54.144.220.173`
+> - 6 月 3 日(今天)部署后:同一个 warm instance 用 `35.175.142.58`
+> - 40 次连续调用都得到同一个 IP,但 Vercel 会在 warm instance 死亡(15 分钟无请求)或下次部署后换 IP
+>
+> 两者都是 AWS US East NAT gateway IP,属于同一 IP 池,需要一并加入白名单。
 
-### 2.3 验证
+### 2.3 万一 IP 又换了:跑这个脚本自动发现
+
+```bash
+# 在你 Mac 跑这个,会把当前所有出现过的 IP 列出来
+for i in $(seq 1 20); do
+  curl -sS -X POST -H "X-Internal-Token: $(cat /tmp/internal_api_token.txt)" \
+    --max-time 10 "https://aiwill-planner.vercel.app/api/wechat/admin/menu" \
+    | /usr/local/bin/python3 -c "
+import sys, re, json
+try:
+    d = json.loads(sys.stdin.read())
+    m = re.search(r'invalid ip ([\d\.]+)', d.get('message',''))
+    if m: print(m.group(1))
+    elif d.get('ok'): print('SUCCESS - IP 已加入白名单')
+except: pass
+"
+  sleep 0.3
+done | sort -u
+```
+
+任何新 IP 出现 → 加到白名单。
+
+### 2.4 长期方案:固定 IP 代理(可选)
+
+Vercel Functions 没有"静态 IP"功能。如果将来 IP 池切换频繁,可以:
+
+**A. 加 50 个 IP**(账户上限):把 AWS US East NAT 常用 IP 段都加上。AWS US East (use1) NAT 段公开列表可查 https://ip-ranges.amazonaws.com/ip-ranges.json(找 `service: "EC2"` + `region: "us-east-1"`)
+
+**B. 用腾讯云 CVM 做出口代理**(更稳):在小程序/Cloud Function 通过 HTTPS 调固定 IP 的 proxy,proxy 再调微信 API。后续如果需要,我可以加一个 `/api/wechat/proxy` 端点 + 腾讯云 CVM 配 Nginx 反代。
+
+### 2.5 验证
 
 回到你 Mac 执行:
 
@@ -82,7 +118,7 @@ curl -X POST -H "X-Internal-Token: $(cat /tmp/internal_api_token.txt)" \
 **如果还是 40164**:
 - 等 1-2 分钟(白名单生效有延迟)
 - 重新保存白名单(有时需要再点一次)
-- 检查 IP 文本没有前导空格/换行
+- 跑 §2.3 脚本看 IP 池是否扩大了
 
 ---
 

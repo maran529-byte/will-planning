@@ -57,19 +57,27 @@
 dev.weixin.qq.com → 公众号详情 → 「**开发信息**」或「**开发者配置**」 →
 **「IP 白名单」** → 「**修改**」/「**添加**」
 
-### 2.2 粘贴这些 IP(**两个都要加,一个都不能少**)
+### 2.2 粘贴这些 IP(**全部都要加,一个都不能少**)
 
 ```
 54.144.220.173
 35.175.142.58
+34.239.148.227
 ```
 
-> ⚠️ **重要修正**:Vercel Functions 的 egress IP **不是固定单一 IP**。实测发现:
-> - 5 月 31 日部署后:Warm instance 用 `54.144.220.173`
-> - 6 月 3 日(今天)部署后:同一个 warm instance 用 `35.175.142.58`
-> - 40 次连续调用都得到同一个 IP,但 Vercel 会在 warm instance 死亡(15 分钟无请求)或下次部署后换 IP
+> ⚠️ **重要修正(2026-06-03 更新)**:Vercel Functions 的 egress IP **不是固定单一 IP**,实测 3 个不同的 IP 都已经出现过:
 >
-> 两者都是 AWS US East NAT gateway IP,属于同一 IP 池,需要一并加入白名单。
+> | # | IP | 出现时机 |
+> |---|-----|---------|
+> | 1 | `54.144.220.173` | 5 月 31 日部署,第一次发现 |
+> | 2 | `35.175.142.58` | 6 月 3 日上午,经 30 次连续调用确认 sticky |
+> | 3 | `34.239.148.227` | 6 月 3 日中午 warm instance 重启后 |
+>
+> **关键事实**:Vercel 用 AWS US East (iad1) NAT gateway,出口 IP 从一个**大池**里轮换。30 次连击都打中同一个 IP,因为 warm instance sticky;但 15 分钟无请求后 instance 死亡 → 下次请求落到新 instance → 不同 IP。
+>
+> **白名单是 50 IP 上限的硬性限制**,AWS US East EC2 公网 IP 段有 295 个前缀 / 约 6100 个 /32 IP,**白名单方式不可持续**。
+>
+> 短期把这 3 个都加上;**长期必须切到 §2.4 B 方案的 CVM 固定 IP 代理**。
 
 ### 2.3 万一 IP 又换了:跑这个脚本自动发现
 
@@ -91,15 +99,64 @@ except: pass
 done | sort -u
 ```
 
-任何新 IP 出现 → 加到白名单。
+任何新 IP 出现 → 加到白名单(直到 50 个上限)。
 
-### 2.4 长期方案:固定 IP 代理(可选)
+### 2.4 长期方案:固定 IP 代理(**强烈推荐,白名单不持久**)
 
-Vercel Functions 没有"静态 IP"功能。如果将来 IP 池切换频繁,可以:
+Vercel Functions 没有"静态 IP"功能,白名单是治标不治本。**两个方案**:
 
-**A. 加 50 个 IP**(账户上限):把 AWS US East NAT 常用 IP 段都加上。AWS US East (use1) NAT 段公开列表可查 https://ip-ranges.amazonaws.com/ip-ranges.json(找 `service: "EC2"` + `region: "us-east-1"`)
+#### 方案 A:加满 50 个 IP(不推荐)
 
-**B. 用腾讯云 CVM 做出口代理**(更稳):在小程序/Cloud Function 通过 HTTPS 调固定 IP 的 proxy,proxy 再调微信 API。后续如果需要,我可以加一个 `/api/wechat/proxy` 端点 + 腾讯云 CVM 配 Nginx 反代。
+把 AWS US East NAT 常用 IP 段都加上。
+- 公网列表:https://ip-ranges.amazonaws.com/ip-ranges.json
+- 过滤条件:`service: "EC2"` + `region: "us-east-1"`
+- 缺点:仍然会漏,Vercel 实际用的 NAT 段是子集但子集经常变;且**账户白名单 50 个是硬限**。
+
+#### 方案 B:腾讯云 CVM 做固定 IP 代理(✅ 强烈推荐,一劳永逸)
+
+利用你已有的腾讯云香港服务器(`124.222.215.107`,**固定公网 IP**)做出口代理,微信端只加这 1 个 IP。
+
+**架构**:
+```
+[Vercel Function] --HTTPS--> [CVM Nginx :9443] --HTTP/HTTPS--> [api.weixin.qq.com]
+                              ↑
+                              出口 IP: 124.222.215.107 (固定)
+```
+
+**实现**(约 30 分钟):
+1. **CVM 端**(Nginx 配反代):
+   ```nginx
+   server {
+     listen 9443 ssl;
+     server_name wx-proxy.aiwill-planner.cn;
+     ssl_certificate ...;  # 用 Let's Encrypt 或自签
+     ssl_certificate_key ...;
+     location / {
+       proxy_pass https://api.weixin.qq.com;
+       proxy_set_header Host api.weixin.qq.com;
+       proxy_ssl_server_name on;
+     }
+   }
+   ```
+2. **Vercel 端**(改一行 mp-api.ts):
+   - 旧:`const R = await fetch('https://api.weixin.qq.com/cgi-bin/...')`
+   - 新:`const R = await fetch('https://wx-proxy.aiwill-planner.cn:9443/cgi-bin/...')`
+3. **微信端**:把 `124.222.215.107` 加到 IP 白名单(只需 1 个)。
+4. **DNS**:在 Cloudflare 加 `wx-proxy` A 记录 → 124.222.215.107。
+
+**优势**:
+- 微信白名单永远只需 1 个 IP
+- 抗 warm instance 切换 / 部署重启 / 任何 Vercel 内部变更
+- 复用现有 CVM,**零额外成本**
+- 一次配置永久生效
+
+**需要你的输入**:同意做这个改动的话,告诉我"做 B 方案",我会:
+1. 在 CVM 上配 Nginx 反代
+2. 改 `src/lib/wechat/mp-api.ts` 让它走代理
+3. 推送代码触发 Vercel redeploy
+4. 给你一个验证命令确认菜单推送成功
+
+不立即做的话,临时方案:把上面 3 个 IP 都加进白名单,菜单推送能成;但下次 warm instance 切换(几小时到几天)又会 40164,届时再跑 §2.3 脚本发现新 IP 加上。
 
 ### 2.5 验证
 
@@ -353,9 +410,9 @@ curl -I "https://aiwill-planner.vercel.app/wechat/bind?return=/orders"
 ## Master Agent 已为你做完的部分(你不用再做)
 
 - ✅ 所有 env 变量已写入 Vercel 并在 production+preview 生效
-- ✅ 代码已推到 GitHub `main` 分支(commit `9002325` + docs `e5f6635`)
+- ✅ 代码已推到 GitHub `main` 分支(commit `9002325` + docs `e5f6635`/`f8b4b3c`/`247b129`/`04c2a3e`)
 - ✅ Vercel 部署 `dpl_3uM7UJ8wB6Rrufaj` 已 READY 并切换为 production alias
 - ✅ `/api/wechat/admin/menu` 端点已上线(auth 工作)
 - ✅ `/wechat/{bind,callback,success}` 3 个 H5 页面已上线(Suspense 已修)
 - ✅ `INTERNAL_API_TOKEN` 已生成并保存到 `/tmp/internal_api_token.txt`
-- ✅ Vercel egress IP 已 5 次实测确认(54.144.220.173)
+- ⚠️ Vercel egress IP 已 3 次实测均不同(54.144.220.173 / 35.175.142.58 / 34.239.148.227),白名单方案不持久 — 待你确认是否走 §2.4 B 方案 CVM 代理

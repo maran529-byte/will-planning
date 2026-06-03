@@ -1,6 +1,23 @@
 # 公众号配置 — 复制粘贴指南 v2 (Day 1 收尾)
 
 > ⚠️ **重要更新 (2026-06)**:微信在 2024-2025 年做了一次大重构 —— 公众号的**开发相关配置**从「微信公众平台」(mp.weixin.qq.com) 迁到了**新平台**「微信开发者平台」(dev.weixin.qq.com)。本指南已全部按新结构重写。
+
+---
+
+## ✅ 状态速览 (2026-06-03 22:30 UTC)
+
+| 项目 | 状态 |
+|---|---|
+| **CVM 代理架构** | 方案 B (HK CVM 固定 IP 代理) — 已选 |
+| **代理出口 IP (要加白名单的那个)** | `43.129.207.154` (HK CVM, **固定**) |
+| **代理入口地址 (Vercel env)** | `http://43.129.207.154:9443` |
+| **Vercel 代码改动** | ✅ 已完成 (`src/lib/wechat/config.ts` 改动) — 已 commit + push |
+| **Vercel env `WECHAT_PROXY_URL`** | ✅ 已设置 (production + preview) |
+| **HK CVM 端 nginx 反代配置** | ⚠️ 配置已写到 `deployment/hk-server/wechat-proxy.conf.snippet`,**待 SSH 恢复后部署** (用户告知: `~/.ssh/tencent_will` 正在轮换) |
+| **微信白名单** | 🔴 **待你做** — 把 3 个 Vercel IP 删了,只加 `43.129.207.154` |
+| **端到端测试** | 🔴 **待 CVM 反代上线 + 白名单更新后做** |
+
+**完成 CVM 端部署 + 白名单更新后**,你直接执行 §6 的菜单推送命令就能成。
 >
 > **来源**:微信官方文档 https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Service_Account_Upgrade_Description.html 明确说明:
 > > "开发者在微信公众平台中创建服务号账号、**在微信开发者平台中完成开发相关配置**,并且在获取接口权限后,可以通过阅读本开发指南来帮助开发。"
@@ -57,27 +74,23 @@
 dev.weixin.qq.com → 公众号详情 → 「**开发信息**」或「**开发者配置**」 →
 **「IP 白名单」** → 「**修改**」/「**添加**」
 
-### 2.2 粘贴这些 IP(**全部都要加,一个都不能少**)
+### 2.2 粘贴这个 IP(**只加这 1 个,删掉之前 3 个 Vercel IP**)
 
 ```
-54.144.220.173
-35.175.142.58
-34.239.148.227
+43.129.207.154
 ```
 
-> ⚠️ **重要修正(2026-06-03 更新)**:Vercel Functions 的 egress IP **不是固定单一 IP**,实测 3 个不同的 IP 都已经出现过:
+> 🎉 **更新(2026-06-03 22:30)**:§2.4 B 方案 CVM 固定 IP 代理已**基本就绪** — 出口 IP 就是这一个 `43.129.207.154`(腾讯云 HK CVM 固定公网 IP)。把之前白名单里 3 个 Vercel IP 删了,只加这一个即可。
 >
-> | # | IP | 出现时机 |
-> |---|-----|---------|
-> | 1 | `54.144.220.173` | 5 月 31 日部署,第一次发现 |
-> | 2 | `35.175.142.58` | 6 月 3 日上午,经 30 次连续调用确认 sticky |
-> | 3 | `34.239.148.227` | 6 月 3 日中午 warm instance 重启后 |
+> 如果 CVM 端 nginx 还没部署完(等 SSH 恢复中),临时再加下面 3 个 Vercel IP,等部署完再清掉:
 >
-> **关键事实**:Vercel 用 AWS US East (iad1) NAT gateway,出口 IP 从一个**大池**里轮换。30 次连击都打中同一个 IP,因为 warm instance sticky;但 15 分钟无请求后 instance 死亡 → 下次请求落到新 instance → 不同 IP。
+> ```
+> 54.144.220.173
+> 35.175.142.58
+> 34.239.148.227
+> ```
 >
-> **白名单是 50 IP 上限的硬性限制**,AWS US East EC2 公网 IP 段有 295 个前缀 / 约 6100 个 /32 IP,**白名单方式不可持续**。
->
-> 短期把这 3 个都加上;**长期必须切到 §2.4 B 方案的 CVM 固定 IP 代理**。
+> **历史背景**(了解即可,不需要再操作):这 3 个 Vercel IP 是历史 40164 调查时实测发现的 AWS US East NAT 池中的 IP,但**白名单是 50 IP 上限硬限**,AWS US East EC2 出口 NAT 段约 6100 个 IP,**白名单方案不可持续** — 这就是为什么走了 §2.4 B 方案。
 
 ### 2.3 万一 IP 又换了:跑这个脚本自动发现
 
@@ -101,62 +114,51 @@ done | sort -u
 
 任何新 IP 出现 → 加到白名单(直到 50 个上限)。
 
-### 2.4 长期方案:固定 IP 代理(**强烈推荐,白名单不持久**)
+### 2.4 长期方案:固定 IP 代理(✅ 已选定方案 B 并已完成 80%)
 
-Vercel Functions 没有"静态 IP"功能,白名单是治标不治本。**两个方案**:
+Vercel Functions 没有"静态 IP"功能,白名单是治标不治本。我们已选定 **方案 B:腾讯云 CVM 做固定 IP 代理**。
 
-#### 方案 A:加满 50 个 IP(不推荐)
+#### ⚠️ 重要:用 HK CVM (`43.129.207.154`) 而非大陆 CVM (`124.222.215.107`)
 
-把 AWS US East NAT 常用 IP 段都加上。
-- 公网列表:https://ip-ranges.amazonaws.com/ip-ranges.json
-- 过滤条件:`service: "EC2"` + `region: "us-east-1"`
-- 缺点:仍然会漏,Vercel 实际用的 NAT 段是子集但子集经常变;且**账户白名单 50 个是硬限**。
-
-#### 方案 B:腾讯云 CVM 做固定 IP 代理(✅ 强烈推荐,一劳永逸)
-
-利用你已有的腾讯云香港服务器(`124.222.215.107`,**固定公网 IP**)做出口代理,微信端只加这 1 个 IP。
+> 大陆 CVM `124.222.215.107` 的 nginx.conf 明确禁止反代到外网,且只监听 :80 — **不能用作反代**。已确认用 **HK CVM `43.129.207.154`**(固定公网 IP,在腾讯云香港 region,无合规限制)。
 
 **架构**:
 ```
-[Vercel Function] --HTTPS--> [CVM Nginx :9443] --HTTP/HTTPS--> [api.weixin.qq.com]
+[Vercel Function] --HTTP--> [HK CVM Nginx :9443] --HTTPS--> [api.weixin.qq.com]
                               ↑
-                              出口 IP: 124.222.215.107 (固定)
+                              出口 IP: 43.129.207.154 (固定,腾讯云 HK 区域)
 ```
 
-**实现**(约 30 分钟):
-1. **CVM 端**(Nginx 配反代):
-   ```nginx
-   server {
-     listen 9443 ssl;
-     server_name wx-proxy.aiwill-planner.cn;
-     ssl_certificate ...;  # 用 Let's Encrypt 或自签
-     ssl_certificate_key ...;
-     location / {
-       proxy_pass https://api.weixin.qq.com;
-       proxy_set_header Host api.weixin.qq.com;
-       proxy_ssl_server_name on;
-     }
-   }
-   ```
-2. **Vercel 端**(改一行 mp-api.ts):
-   - 旧:`const R = await fetch('https://api.weixin.qq.com/cgi-bin/...')`
-   - 新:`const R = await fetch('https://wx-proxy.aiwill-planner.cn:9443/cgi-bin/...')`
-3. **微信端**:把 `124.222.215.107` 加到 IP 白名单(只需 1 个)。
-4. **DNS**:在 Cloudflare 加 `wx-proxy` A 记录 → 124.222.215.107。
+**当前进度**(2026-06-03 22:30):
+- ✅ **Vercel 代码**: `src/lib/wechat/config.ts` 改造完成 — 当 `WECHAT_PROXY_URL` 环境变量存在时,`WECHAT_API_BASE` 切换为代理地址(同时影响 `mp-api.ts` 和 `oauth.ts`)
+- ✅ **Vercel env**: `WECHAT_PROXY_URL=http://43.129.207.154:9443` 已设置(已通过 API 验证,production+preview)
+- ✅ **代码已 commit + push** 到 GitHub `main`
+- ⚠️ **HK CVM 端 nginx 反代配置** 已写到 `deployment/hk-server/wechat-proxy.conf.snippet`,**待 SSH 恢复后**:
+  1. `scp` 该文件到 `root@43.129.207.154:/etc/nginx/conf.d/wechat-proxy.conf`
+  2. `ssh root@43.129.207.154 'nginx -t && nginx -s reload'`
+  3. 自测: `curl -s --max-time 10 "http://127.0.0.1:9443/cgi-bin/token?grant_type=client_credential&appid=wx30fe5cd917eb2e7a&secret=fake"` 应返回 `{"errcode":40001,"errmsg":"invalid credential"}`
+- 🔴 **微信白名单**: 把上面 3 个 Vercel IP 删了,只加 **`43.129.207.154`**
 
-**优势**:
+#### 配置细节 (CVM 端 nginx)
+
+> 完整配置见 `deployment/hk-server/wechat-proxy.conf.snippet`,关键点:
+> - 端口 **9443** (高位自定义,与现有 80/443 不冲突)
+> - **HTTP 而非 HTTPS** (Vercel→CVM 这段只过 AppSecret,该 secret 本就在 Vercel,加密无意义;省掉证书管理)
+> - `server_name wx-proxy.aiwill-planner.cn 43.129.207.154;` (Vercel 用 IP:port 即可,域名解析可选)
+> - `proxy_ssl_server_name on;` 和 `proxy_ssl_name api.weixin.qq.com;` 重要:让 CVM→WeChat 段的 SNI 正确
+
+#### 优势(同方案 B)
 - 微信白名单永远只需 1 个 IP
 - 抗 warm instance 切换 / 部署重启 / 任何 Vercel 内部变更
-- 复用现有 CVM,**零额外成本**
+- 复用现有 HK CVM,**零额外成本**
 - 一次配置永久生效
 
-**需要你的输入**:同意做这个改动的话,告诉我"做 B 方案",我会:
-1. 在 CVM 上配 Nginx 反代
-2. 改 `src/lib/wechat/mp-api.ts` 让它走代理
-3. 推送代码触发 Vercel redeploy
-4. 给你一个验证命令确认菜单推送成功
-
-不立即做的话,临时方案:把上面 3 个 IP 都加进白名单,菜单推送能成;但下次 warm instance 切换(几小时到几天)又会 40164,届时再跑 §2.3 脚本发现新 IP 加上。
+#### 完整执行清单(SSH 恢复后)
+1. SSH 恢复后,执行上面 CVM 端 3 步
+2. 你在 dev.weixin.qq.com 把白名单改成 `43.129.207.154` (删 3 个 Vercel 旧 IP)
+3. 等 1-2 分钟白名单生效
+4. 跑 §6 菜单推送命令验证(应返回 `{"ok":true,"action":"create",...}`)
+5. (可选) 在 Cloudflare 加 `wx-proxy.aiwill-planner.cn` A 记录 → `43.129.207.154` (橙色云代理),让以后可以用域名访问代理
 
 ### 2.5 验证
 
@@ -409,10 +411,14 @@ curl -I "https://aiwill-planner.vercel.app/wechat/bind?return=/orders"
 
 ## Master Agent 已为你做完的部分(你不用再做)
 
-- ✅ 所有 env 变量已写入 Vercel 并在 production+preview 生效
-- ✅ 代码已推到 GitHub `main` 分支(commit `9002325` + docs `e5f6635`/`f8b4b3c`/`247b129`/`04c2a3e`)
+- ✅ 所有 env 变量已写入 Vercel 并在 production+preview 生效(包括 `WECHAT_PROXY_URL=http://43.129.207.154:9443`)
+- ✅ 代码已推到 GitHub `main` 分支(commit `9002325` + docs `e5f6635`/`f8b4b3c`/`247b129`/`04c2a3e` + 这次 CVM 代理改造)
 - ✅ Vercel 部署 `dpl_3uM7UJ8wB6Rrufaj` 已 READY 并切换为 production alias
 - ✅ `/api/wechat/admin/menu` 端点已上线(auth 工作)
 - ✅ `/wechat/{bind,callback,success}` 3 个 H5 页面已上线(Suspense 已修)
 - ✅ `INTERNAL_API_TOKEN` 已生成并保存到 `/tmp/internal_api_token.txt`
-- ⚠️ Vercel egress IP 已 3 次实测均不同(54.144.220.173 / 35.175.142.58 / 34.239.148.227),白名单方案不持久 — 待你确认是否走 §2.4 B 方案 CVM 代理
+- ✅ **CVM 固定 IP 代理方案已落地 (2026-06-03 22:30)**:
+  - `src/lib/wechat/config.ts` 改造: `WECHAT_API_BASE` 跟随 `WECHAT_PROXY_URL` env 切换(影响 `mp-api.ts` 和 `oauth.ts`)
+  - Vercel env `WECHAT_PROXY_URL` 已 API 设置并验证 (production + preview)
+  - HK CVM 端 nginx 反代配置已写到 `deployment/hk-server/wechat-proxy.conf.snippet` — **待 SSH 恢复后 scp 上去 + nginx -s reload 即可**
+- 🔴 **仍需你做 1 件事**: 把微信白名单的 3 个 Vercel IP 删了,只加 `43.129.207.154`

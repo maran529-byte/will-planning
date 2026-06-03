@@ -17,8 +17,8 @@ function ResultContent() {
   const id = searchParams.get("id");
   const plan = searchParams.get("plan") || "ai";
   const [result, setResult] = useState<ResultData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const loading = !result && !error;
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentChannel, setPaymentChannel] = useState<'wechat' | 'alipay'>('wechat');
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'paid' | 'timeout'>('pending');
@@ -27,20 +27,15 @@ function ResultContent() {
   const [pollingCount, setPollingCount] = useState(0);
 
   useEffect(() => {
-    if (id) {
-      fetch(`/api/generate-will?id=${id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setResult(data);
-          setLoading(false);
-        })
-        .catch(() => {
-          setError("加载失败，请重试");
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
+    if (!id) return;
+    fetch(`/api/generate-will?id=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setResult(data);
+      })
+      .catch(() => {
+        setError("加载失败，请重试");
+      });
   }, [id]);
 
   // 轮询订单状态

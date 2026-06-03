@@ -12,6 +12,7 @@
 
 import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { WechatLoginButton } from '@/components/Wechat/WechatLoginButton';
 
 function WechatBindInner() {
@@ -85,9 +86,9 @@ function WechatBindInner() {
         </p>
 
         <div className="mt-8 text-center">
-          <a href="/" className="text-sm text-gray-500 hover:text-gray-700">
+          <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
             ← 返回首页
-          </a>
+          </Link>
         </div>
       </div>
     </main>

@@ -19,6 +19,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 function WechatCallbackInner() {
   const router = useRouter();
@@ -29,24 +30,31 @@ function WechatCallbackInner() {
   useEffect(() => {
     const code = searchParams.get('code');
     const state = searchParams.get('state');
-    const scope = searchParams.get('scope') || 'snsapi_userinfo';
     const expectedState = sessionStorage.getItem('wechat_oauth_state');
 
     if (!code || !state) {
-      setStatus('error');
-      setErrorMsg('微信回调缺少 code 或 state 参数');
+      // 在 effect 里同步 setState 会触发 cascading render,
+      // 用 microtask 推迟到 effect 结束之后
+      Promise.resolve().then(() => {
+        setStatus('error');
+        setErrorMsg('微信回调缺少 code 或 state 参数');
+      });
       return;
     }
 
     if (!expectedState) {
-      setStatus('error');
-      setErrorMsg('会话已过期,请重新发起登录');
+      Promise.resolve().then(() => {
+        setStatus('error');
+        setErrorMsg('会话已过期,请重新发起登录');
+      });
       return;
     }
 
     if (state !== expectedState) {
-      setStatus('error');
-      setErrorMsg('state 校验失败,可能存在 CSRF 攻击');
+      Promise.resolve().then(() => {
+        setStatus('error');
+        setErrorMsg('state 校验失败,可能存在 CSRF 攻击');
+      });
       return;
     }
 
@@ -60,11 +68,11 @@ function WechatCallbackInner() {
         });
 
         if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
+          const err = (await res.json().catch(() => ({}))) as { message?: string };
           throw new Error(err.message || `HTTP ${res.status}`);
         }
 
-        const data = await res.json();
+        await res.json();
         // 清理 state
         sessionStorage.removeItem('wechat_oauth_state');
 
@@ -77,9 +85,10 @@ function WechatCallbackInner() {
         setTimeout(() => {
           router.push(`/wechat/success?return=${encodeURIComponent(returnTo)}`);
         }, 600);
-      } catch (e: any) {
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e);
         setStatus('error');
-        setErrorMsg(e.message || '登录失败,请重试');
+        setErrorMsg(message || '登录失败,请重试');
       }
     })();
   }, [searchParams, router]);
@@ -114,18 +123,18 @@ function WechatCallbackInner() {
           <h1 className="text-lg font-medium text-gray-900">登录失败</h1>
           <p className="mt-2 text-sm text-red-600">{errorMsg}</p>
           <div className="mt-6 flex gap-2">
-            <a
+            <Link
               href="/wechat/bind"
               className="flex-1 rounded-lg bg-[#07C160] py-2 text-sm font-medium text-white hover:bg-[#06B05A]"
             >
               重新绑定
-            </a>
-            <a
+            </Link>
+            <Link
               href="/"
               className="flex-1 rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               返回首页
-            </a>
+            </Link>
           </div>
         </>
       )}

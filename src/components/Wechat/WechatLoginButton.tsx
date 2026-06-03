@@ -59,9 +59,9 @@ export function WechatLoginButton({
         params.set('redirect_uri', redirectUri);
       }
       window.location.href = `/wechat/callback?${params.toString()}`;
-    } catch (e: any) {
+    } catch (e: unknown) {
       setLoading(false);
-      onError?.(e);
+      onError?.(e instanceof Error ? e : new Error(String(e)));
     }
   };
 

@@ -53,9 +53,10 @@ export async function POST(req: NextRequest) {
   let token;
   try {
     token = await exchangeCode(code);
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
-      { error: 'exchange_failed', message: e.message },
+      { error: 'exchange_failed', message },
       { status: 502 }
     );
   }
@@ -65,9 +66,10 @@ export async function POST(req: NextRequest) {
   if (token.scope.includes('userinfo')) {
     try {
       userInfo = await getUserInfo(token.access_token, token.openid);
-    } catch (e: any) {
+    } catch (e: unknown) {
       // userinfo 拉失败不致命, openid 已够
-      console.warn('getUserInfo failed:', e.message);
+      const message = e instanceof Error ? e.message : String(e);
+      console.warn('getUserInfo failed:', message);
     }
   }
 
@@ -76,7 +78,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'supabase_not_configured' }, { status: 503 });
   }
 
-  const upsertData: Record<string, any> = {
+  const upsertData: Record<string, unknown> = {
     openid: token.openid,
     unionid: token.unionid ?? userInfo?.unionid ?? null,
     wechat_nickname: userInfo?.nickname ?? null,

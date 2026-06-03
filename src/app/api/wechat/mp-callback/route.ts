@@ -16,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifySignatureSafe } from '@/lib/wechat/verify';
 import { parseWeChatXml, buildTextReply, buildNewsReply, buildEmptyResponse, WeChatRecvMessage } from '@/lib/wechat/xml';
 import { recordUserInteraction } from '@/lib/wechat/cs-window';
-import { WECHAT_MP_APP_ID, assertWeChatMpConfigured } from '@/lib/wechat/config';
+import { assertWeChatMpConfigured } from '@/lib/wechat/config';
 import { supabaseAdmin } from '@/lib/supabase-server';
 
 // ============================================================================
@@ -26,8 +26,9 @@ import { supabaseAdmin } from '@/lib/supabase-server';
 export async function GET(req: NextRequest) {
   try {
     assertWeChatMpConfigured();
-  } catch (e: any) {
-    return new NextResponse(e.message, { status: 500 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    return new NextResponse(message, { status: 500 });
   }
 
   const { searchParams } = req.nextUrl;
@@ -59,8 +60,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     assertWeChatMpConfigured();
-  } catch (e: any) {
-    return new NextResponse(e.message, { status: 500 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    return new NextResponse(message, { status: 500 });
   }
 
   const { searchParams } = req.nextUrl;
@@ -80,8 +82,9 @@ export async function POST(req: NextRequest) {
   let msg: WeChatRecvMessage;
   try {
     msg = parseWeChatXml(xml);
-  } catch (e: any) {
-    console.error('parseWeChatXml failed:', e.message, xml);
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error('parseWeChatXml failed:', message, xml);
     return new NextResponse(buildEmptyResponse(), {
       status: 200,
       headers: { 'Content-Type': 'text/plain' },
@@ -103,7 +106,6 @@ export async function POST(req: NextRequest) {
 
 async function handleMessage(msg: WeChatRecvMessage): Promise<string> {
   const openid = msg.fromUserName;
-  const mpId = msg.toUserName;
 
   // ----- 事件 -----
   if (msg.msgType === 'event') {
@@ -257,8 +259,9 @@ function getHelpText(): string {
 async function recordUserInteractionSafe(openid: string, opts: { menuKey?: string }) {
   try {
     await recordUserInteraction({ openid, menuKey: opts.menuKey });
-  } catch (e: any) {
-    console.error('recordUserInteraction failed:', e.message);
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error('recordUserInteraction failed:', message);
     // 不阻断主流程
   }
 }

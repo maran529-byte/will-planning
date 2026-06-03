@@ -34,7 +34,7 @@ function buildWechatH5Payment(params: {
   amount: number;
   description: string;
 }): PaymentResult {
-  const { order_no, amount, description } = params;
+  const { order_no, amount: _amount, description: _description } = params;
 
   // WeChat Trade_type = NATIVE (QR code payment)
   // In production, call https://api.mch.weixin.qq.com/v3/pay/transactions/native
@@ -88,7 +88,7 @@ export async function initiatePayment(params: {
 }
 
 // Verify payment callback signature
-export function verifyPaymentCallback(data: Record<string, string>, signature: string): boolean {
+export function verifyPaymentCallback(_data: Record<string, string>, _signature: string): boolean {
   // In production, verify WeChat Pay callback signature using WECHAT_API_KEY
   // For now, accept all callbacks (demo mode)
   return true;

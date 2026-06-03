@@ -11,12 +11,15 @@
 #   1. 把本文件追加到 HK CVM 的 /etc/nginx/nginx.conf (http{} 段尾) 或者
 #      单独放到 /etc/nginx/conf.d/wechat-proxy.conf 后 nginx -s reload
 #   2. 验证: nginx -t && nginx -s reload
-#   3. 自测:  curl -s --max-time 10 "http://127.0.0.1:9443/cgi-bin/token?grant_type=client_credential&appid=wx30fe5cd917eb2e7a&secret=fake"
-#   4. Vercel 端: 设置 env WECHAT_PROXY_URL=http://43.129.207.154:9443 (已通过 API 设置好)
+#   3. 自测:  curl -s --max-time 10 "http://127.0.0.1:443/cgi-bin/token?grant_type=client_credential&appid=wx30fe5cd917eb2e7a&secret=fake"
+#   4. Vercel 端: 设置 env WECHAT_PROXY_URL=http://43.129.207.154:443 (已通过 API 设置好)
 #   5. 微信公众号后台: 白名单改成 43.129.207.154 (删掉 3 个 Vercel 旧 IP)
 #
 # 端口选择:
-#   - 9443 是高位自定义端口, 与现有 80/443 不冲突, 也不需要 sudo
+#   - 用 443 而不是 9443: 腾讯云主机防火墙 (YJ-FIREWALL-INPUT) 默认只放行 22/80/443,
+#     高位端口 9443 需手动开. 443 免开, 直接可用. 走 HTTP 不是 HTTPS: nginx 默认
+#     允许非 TLS 监听 443, 只是 server_name 解析照常工作. (之后如果要正式 TLS,
+#     可以加 certbot 给 443 上 https, 改 listen 443 ssl 即可)
 #   - 走 HTTP 而不是 HTTPS: Vercel → CVM 这段只传递 AppSecret, 该 secret 本就在
 #     Vercel 端, TLS 多一层无意义; 省掉证书管理复杂度. 真正受 TLS 保护的是
 #     CVM → api.weixin.qq.com 这段 (proxy_pass https://, nginx 自动处理)
@@ -26,14 +29,14 @@
 
     # 微信公众号 Open API 反代 (固定 IP 出口)
     server {
-        listen 9443;
+        listen 443;
         server_name wx-proxy.aiwill-planner.cn 43.129.207.154;
 
         # 大请求体 (客服消息 / 图文素材 JSON 较大)
         client_max_body_size 10m;
 
-        # 日志
-        access_log /var/log/nginx/wechat-proxy-access.log main;
+        # 日志 (用默认 combined 格式, 不依赖 nginx.conf 里的 main 自定义格式)
+        access_log /var/log/nginx/wechat-proxy-access.log;
         error_log  /var/log/nginx/wechat-proxy-error.log warn;
 
         # 简单的健康检查 (Vercel 部署时验证 proxy 是否可达)

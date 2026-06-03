@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { willId, name, phone, preferTime, notes } = body;
+    const { willId, name, phone, preferTime, notes: _notes } = body;
 
     if (!name || !phone) {
       return NextResponse.json({ error: "姓名和手机号必填" }, { status: 400 });

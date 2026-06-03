@@ -12,6 +12,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 function WechatSuccessInner() {
   const router = useRouter();
@@ -54,12 +55,12 @@ function WechatSuccessInner() {
           >
             继续浏览 ({countdown}s)
           </a>
-          <a
+          <Link
             href="/"
             className="block w-full rounded-lg border border-gray-300 py-3 font-medium text-gray-700 hover:bg-gray-50"
           >
             返回首页
-          </a>
+          </Link>
         </div>
 
         <div className="mt-10 rounded-xl bg-white p-6 text-left shadow-sm">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PRICING } from "@/lib/config";
@@ -28,21 +28,16 @@ function PaymentContent() {
   const [showQR, setShowQR] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'wechat' | 'alipay' | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [pollingCount, setPollingCount] = useState(0);
   const [timeout, setTimeout] = useState(false);
 
-  const planData = planParam === 'lawyer' ? PRICING.lawyerReview 
-    : planParam === 'family' ? PRICING.familyHeritage 
+  const planData = planParam === 'lawyer' ? PRICING.lawyerReview
+    : planParam === 'family' ? PRICING.familyHeritage
     : PRICING.aiGuide;
 
   const priceInYuan = planData.price;
   const priceInFen = Math.round(priceInYuan * 100);
 
-  useEffect(() => {
-    createNewOrder();
-  }, []);
-
-  const createNewOrder = async () => {
+  const createNewOrder = useCallback(async () => {
     setCreating(true);
     try {
       const res = await fetch('/api/create-order', {
@@ -64,48 +59,54 @@ function PaymentContent() {
       setCreating(false);
       setLoading(false);
     }
-  };
+  }, [planParam, priceInFen, willId]);
+
+  useEffect(() => {
+    // Defer the create to avoid the setState-in-effect cascading render warning.
+    Promise.resolve().then(() => {
+      void createNewOrder();
+    });
+  }, [createNewOrder]);
 
   const startPayment = async (method: 'wechat' | 'alipay') => {
     setPaymentMethod(method);
     setShowQR(true);
     setPaying(true);
     setTimeout(false);
-    setPollingCount(0);
   };
 
   // 轮询订单状态
   useEffect(() => {
     if (!paying || !order) return;
 
+    let count = 0;
     const pollInterval = setInterval(async () => {
+      count += 1;
       try {
         const res = await fetch(`/api/orders/${order.id}`);
         const data = await res.json();
-        
+
         if (data.success && data.order) {
           if (data.order.status === 'paid') {
             setPaymentSuccess(true);
             setPaying(false);
             clearInterval(pollInterval);
+            return;
           } else if (data.order.status === 'cancelled') {
             setPaying(false);
             clearInterval(pollInterval);
+            return;
           }
         }
       } catch (error) {
         console.error('轮询订单状态失败:', error);
       }
 
-      setPollingCount(prev => {
-        const next = prev + 1;
-        if (next >= 30) { // 30次轮询约30秒
-          setTimeout(true);
-          setPaying(false);
-          clearInterval(pollInterval);
-        }
-        return next;
-      });
+      if (count >= 30) { // 30次轮询约30秒
+        setTimeout(true);
+        setPaying(false);
+        clearInterval(pollInterval);
+      }
     }, 1000);
 
     return () => clearInterval(pollInterval);

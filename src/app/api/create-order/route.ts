@@ -1,26 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createOrderServer, getOrdersServer } from '@/lib/orders';
+import { createOrderServer, getOrdersServer, Order } from '@/lib/orders';
 import { supabaseAdmin } from '@/lib/supabase-server';
 import { PLAN_IDS, getPriceCents } from '@/lib/pricing';
 
-// Server-side localStorage fallback using globalThis
-const SERVER_ORDERS_KEY = 'will_planning_orders_server';
+// Extended globalThis type to include the orders array
+type GlobalWithOrders = typeof globalThis & { orders?: Order[] };
 
-function getServerOrders(): any[] {
-  if (typeof globalThis !== 'undefined' && (globalThis as any).orders) {
-    return (globalThis as any).orders;
+function getServerOrders(): Order[] {
+  const g = globalThis as GlobalWithOrders;
+  if (g.orders) {
+    return g.orders;
   }
-  if (typeof globalThis !== 'undefined') {
-    (globalThis as any).orders = [];
-  }
-  return [];
+  g.orders = [];
+  return g.orders;
 }
 
-function setServerOrders(orders: any[]) {
-  if (typeof globalThis !== 'undefined') {
-    (globalThis as any).orders = orders;
-  }
+function setServerOrders(orders: Order[]) {
+  const g = globalThis as GlobalWithOrders;
+  g.orders = orders;
 }
 
 function generateOrderNo(): string {
@@ -29,9 +27,9 @@ function generateOrderNo(): string {
   return `ORD${timestamp}${random}`;
 }
 
-function createOrderLocal(data: { amount: number; plan: string; will_id?: string }) {
+function createOrderLocal(data: { amount: number; plan: Order['plan']; will_id?: string }): Order {
   const orders = getServerOrders();
-  const newOrder = {
+  const newOrder: Order = {
     id: crypto.randomUUID(),
     order_no: generateOrderNo(),
     amount: data.amount,

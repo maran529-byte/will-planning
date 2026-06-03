@@ -1,42 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { initiatePayment, PaymentChannel } from '@/lib/payment';
-import { getOrderServer, updateOrderStatusServer } from '@/lib/orders';
+import { getOrderServer, Order } from '@/lib/orders';
 import { supabaseAdmin } from '@/lib/supabase-server';
 
+// Extended globalThis type to include the orders array
+type GlobalWithOrders = typeof globalThis & { orders?: Order[] };
+
 // Server-side localStorage fallback using globalThis
-function getServerOrders(): any[] {
-  if (typeof globalThis !== 'undefined' && (globalThis as any).orders) {
-    return (globalThis as any).orders;
+function getServerOrders(): Order[] {
+  const g = globalThis as GlobalWithOrders;
+  if (g.orders) {
+    return g.orders;
   }
-  if (typeof globalThis !== 'undefined') {
-    (globalThis as any).orders = [];
-  }
-  return [];
+  g.orders = [];
+  return g.orders;
 }
 
-function setServerOrders(orders: any[]) {
-  if (typeof globalThis !== 'undefined') {
-    (globalThis as any).orders = orders;
-  }
-}
-
-function getOrderLocal(orderId: string): any | undefined {
-  return getServerOrders().find((o: any) => o.id === orderId);
-}
-
-function updateOrderStatusLocal(
-  orderId: string,
-  status: 'pending' | 'paid' | 'refunded' | 'cancelled'
-): any | undefined {
-  const orders = getServerOrders();
-  const index = orders.findIndex((o: any) => o.id === orderId);
-  if (index === -1) return undefined;
-  const updates: any = { status };
-  if (status === 'paid') updates.paid_at = new Date().toISOString();
-  orders[index] = { ...orders[index], ...updates };
-  setServerOrders(orders);
-  return orders[index];
+function getOrderLocal(orderId: string): Order | undefined {
+  return getServerOrders().find((o) => o.id === orderId);
 }
 
 // P0: zod schema for payment init input.

@@ -9,6 +9,15 @@
 // Types - 接收的消息
 // ============================================================================
 
+type EventType =
+  | 'subscribe'         // 关注
+  | 'unsubscribe'       // 取消关注
+  | 'scan'              // 扫码 (已关注)
+  | 'click'             // 菜单点击
+  | 'view'              // 菜单跳转 (URL)
+  | 'location'          // 上报位置
+  | 'tpl_send_job_finish'; // 模板消息发送结果 (我们不用, 占位)
+
 export type WeChatRecvMessage = {
   toUserName: string;       // 公众号 ID
   fromUserName: string;     // 用户 OpenID
@@ -23,14 +32,7 @@ export type WeChatRecvMessage = {
   | { msgType: 'link'; title: string; description: string; url: string; msgId: number }
   | {
       msgType: 'event';
-      event:
-        | 'subscribe'         // 关注
-        | 'unsubscribe'       // 取消关注
-        | 'scan'              // 扫码 (已关注)
-        | 'click'             // 菜单点击
-        | 'view'              // 菜单跳转 (URL)
-        | 'location'          // 上报位置
-        | 'tpl_send_job_finish'; // 模板消息发送结果 (我们不用, 占位)
+      event: EventType;
       eventKey?: string;     // 菜单 key (CLICK), 扫码场景值 (SCAN)
       ticket?: string;       // 扫码 ticket
     }
@@ -51,7 +53,7 @@ export function parseWeChatXml(xml: string): WeChatRecvMessage {
   };
 
   const msgType = get('MsgType') as WeChatRecvMessage['msgType'];
-  const base: any = {
+  const base = {
     toUserName: get('ToUserName'),
     fromUserName: get('FromUserName'),
     createTime: parseInt(get('CreateTime'), 10) || 0,
@@ -64,14 +66,14 @@ export function parseWeChatXml(xml: string): WeChatRecvMessage {
         ...base,
         content: get('Content'),
         msgId: parseInt(get('MsgId'), 10) || 0,
-      };
+      } as WeChatRecvMessage;
     case 'image':
       return {
         ...base,
         picUrl: get('PicUrl'),
         mediaId: get('MediaId'),
         msgId: parseInt(get('MsgId'), 10) || 0,
-      };
+      } as WeChatRecvMessage;
     case 'voice':
       return {
         ...base,
@@ -79,14 +81,14 @@ export function parseWeChatXml(xml: string): WeChatRecvMessage {
         format: get('Format'),
         msgId: parseInt(get('MsgId'), 10) || 0,
         recognition: get('Recognition') || undefined,
-      };
+      } as WeChatRecvMessage;
     case 'video':
       return {
         ...base,
         mediaId: get('MediaId'),
         thumbMediaId: get('ThumbMediaId'),
         msgId: parseInt(get('MsgId'), 10) || 0,
-      };
+      } as WeChatRecvMessage;
     case 'location':
       return {
         ...base,
@@ -95,7 +97,7 @@ export function parseWeChatXml(xml: string): WeChatRecvMessage {
         scale: parseInt(get('Scale'), 10) || 0,
         label: get('Label'),
         msgId: parseInt(get('MsgId'), 10) || 0,
-      };
+      } as WeChatRecvMessage;
     case 'link':
       return {
         ...base,
@@ -103,17 +105,17 @@ export function parseWeChatXml(xml: string): WeChatRecvMessage {
         description: get('Description'),
         url: get('Url'),
         msgId: parseInt(get('MsgId'), 10) || 0,
-      };
+      } as WeChatRecvMessage;
     case 'event':
-      const event = get('Event') as any;
+      const event = get('Event') as EventType;
       return {
         ...base,
         event,
         eventKey: get('EventKey') || undefined,
         ticket: get('Ticket') || undefined,
-      };
+      } as WeChatRecvMessage;
     default:
-      return base;
+      return base as WeChatRecvMessage;
   }
 }
 

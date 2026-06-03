@@ -25,8 +25,9 @@ export async function POST(req: NextRequest) {
 
   try {
     assertWeChatMpConfigured();
-  } catch (e: any) {
-    return NextResponse.json({ error: 'mp_not_configured', message: e.message }, { status: 500 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: 'mp_not_configured', message }, { status: 500 });
   }
 
   // 2. 解析

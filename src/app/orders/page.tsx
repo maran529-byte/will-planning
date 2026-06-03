@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { PRICING } from "@/lib/config";
 
@@ -21,11 +21,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const res = await fetch('/api/create-order');
       const data = await res.json();
@@ -37,7 +33,14 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Defer the fetch to avoid the setState-in-effect cascading render warning.
+    Promise.resolve().then(() => {
+      void fetchOrders();
+    });
+  }, [fetchOrders]);
 
   const getStatusBadge = (status: Order['status']) => {
     const styles = {

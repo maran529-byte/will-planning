@@ -22,7 +22,7 @@ export interface CsSession {
   last_bot_msg_at: string | null;
   last_menu_key: string | null;
   msg_count: number;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -72,7 +72,7 @@ export async function getCsSession(openid: string): Promise<CsSession | null> {
 export async function recordUserInteraction(opts: {
   openid: string;
   menuKey?: string;
-  contextPatch?: Record<string, any>;
+  contextPatch?: Record<string, unknown>;
 }): Promise<void> {
   if (!supabaseAdmin) {
     throw new Error('supabaseAdmin 未配置');

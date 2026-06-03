@@ -2,38 +2,39 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getOrderServer, updateOrderStatusServer, Order } from '@/lib/orders';
 import { supabaseAdmin } from '@/lib/supabase-server';
 
+// Extended globalThis type to include the orders array
+type GlobalWithOrders = typeof globalThis & { orders?: Order[] };
+
 // Server-side localStorage fallback using globalThis
-function getServerOrders(): any[] {
-  if (typeof globalThis !== 'undefined' && (globalThis as any).orders) {
-    return (globalThis as any).orders;
+function getServerOrders(): Order[] {
+  const g = globalThis as GlobalWithOrders;
+  if (g.orders) {
+    return g.orders;
   }
-  if (typeof globalThis !== 'undefined') {
-    (globalThis as any).orders = [];
-  }
-  return [];
+  g.orders = [];
+  return g.orders;
 }
 
-function setServerOrders(orders: any[]) {
-  if (typeof globalThis !== 'undefined') {
-    (globalThis as any).orders = orders;
-  }
+function setServerOrders(orders: Order[]) {
+  const g = globalThis as GlobalWithOrders;
+  g.orders = orders;
 }
 
-function getOrderLocal(orderId: string): any | undefined {
+function getOrderLocal(orderId: string): Order | undefined {
   const orders = getServerOrders();
-  return orders.find((o: any) => o.id === orderId);
+  return orders.find((o) => o.id === orderId);
 }
 
 function updateOrderStatusLocal(
   orderId: string,
   status: Order['status'],
   paymentChannel?: 'wechat' | 'alipay'
-): any | undefined {
+): Order | undefined {
   const orders = getServerOrders();
-  const index = orders.findIndex((o: any) => o.id === orderId);
+  const index = orders.findIndex((o) => o.id === orderId);
   if (index === -1) return undefined;
 
-  const updates: any = { status };
+  const updates: Partial<Order> = { status };
   if (status === 'paid') {
     updates.paid_at = new Date().toISOString();
   }

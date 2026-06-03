@@ -42,9 +42,10 @@ export async function POST(req: NextRequest) {
     try {
       const raw = await req.json();
       body = ActionSchema.parse(raw);
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
       return NextResponse.json(
-        { error: 'invalid_input', message: e.message ?? String(e) },
+        { error: 'invalid_input', message },
         { status: 400 }
       );
     }
@@ -63,9 +64,10 @@ export async function POST(req: NextRequest) {
   // 4. create / delete 需要 mp 配置
   try {
     assertWeChatMpConfigured();
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
-      { error: 'mp_not_configured', message: e.message },
+      { error: 'mp_not_configured', message },
       { status: 500 }
     );
   }
@@ -97,11 +99,12 @@ export async function POST(req: NextRequest) {
       buttons: menu.button.length,
       source: body.menu ? 'inline_body' : 'src/lib/wechat/menu-config.ts',
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
       {
         error: 'wechat_api_failed',
-        message: e.message ?? String(e),
+        message,
         hint: 'If 40164: 公众号 IP 白名单未含 Vercel 出口 IP. 在 mp.weixin.qq.com → 设置与开发 → 基本配置 → 公众号开发信息 → IP 白名单 添加.',
       },
       { status: 502 }
@@ -132,9 +135,10 @@ export async function GET(req: NextRequest) {
       );
       const data = await res.json();
       return NextResponse.json(data);
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
       return NextResponse.json(
-        { error: 'wechat_api_failed', message: e.message },
+        { error: 'wechat_api_failed', message },
         { status: 502 }
       );
     }

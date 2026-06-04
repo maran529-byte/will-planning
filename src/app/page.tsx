@@ -372,7 +372,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 法律免责 */}
+      {/* 法律免责 — 法律免责声明保留在内容区, 让 LegalFooter (来自根 layout) 统一承担页脚职责,
+          避免双 footer 重复。 */}
       <div className="bg-slate-100 border-t border-slate-200 py-6">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-slate-500 text-sm">
@@ -380,35 +381,6 @@ export default function HomePage() {
           </p>
         </div>
       </div>
-
-      {/* 页脚 */}
-      <footer className="bg-slate-800 text-white py-12 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="text-2xl">⚖️</span>
-            <span className="text-xl font-bold">爱的延续</span>
-          </div>
-          <p className="text-slate-400 mb-6">
-            专业律师团队 × AI辅助生成<br />
-            让爱与财富安心传承
-          </p>
-          <p className="text-slate-500 text-sm">
-            © 2024 爱的延续. 免责声明：本平台仅提供文书规划辅助服务，不构成法律意见。
-          </p>
-          <p className="text-slate-500 text-xs mt-3">
-            <a
-              href="https://beian.miit.gov.cn"
-              target="_blank"
-              rel="noopener nofollow"
-              className="hover:text-slate-300"
-            >
-              沪ICP备2026020925号-1
-            </a>
-            <span className="mx-2">|</span>
-            爱的延续工作室 · 上海市
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

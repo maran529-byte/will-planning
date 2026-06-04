@@ -49,7 +49,13 @@ export type WeChatRecvMessage = {
 export function parseWeChatXml(xml: string): WeChatRecvMessage {
   const get = (tag: string): string => {
     const m = xml.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
-    return m ? m[1].trim() : '';
+    if (!m) return '';
+    // 微信 XML 字段值在 <![CDATA[...]]> 内, 必须剥掉 CDATA 标记
+    // 否则 m[1] 会包含字面 "<![CDATA[" / "]]>", 后续比较会全错
+    return m[1]
+      .replace(/^<!\[CDATA\[/, '')
+      .replace(/\]\]>$/, '')
+      .trim();
   };
 
   const msgType = get('MsgType') as WeChatRecvMessage['msgType'];

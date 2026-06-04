@@ -113,7 +113,10 @@ export function parseWeChatXml(xml: string): WeChatRecvMessage {
         msgId: parseInt(get('MsgId'), 10) || 0,
       } as WeChatRecvMessage;
     case 'event':
-      const event = get('Event') as EventType;
+      // 微信真实下发: <Event>CLICK</Event> / <Event>SCAN</Event> 大写;
+      // <Event>subscribe</Event> / <Event>unsubscribe</Event> 小写。
+      // 全部归一化为小写, 让 switch case 不依赖大小写。
+      const event = (get('Event') || '').toLowerCase() as EventType;
       return {
         ...base,
         event,

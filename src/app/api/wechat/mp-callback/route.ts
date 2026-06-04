@@ -207,6 +207,21 @@ function handleMenuClick(msg: WeChatRecvMessage, key: string): string {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://h5.aiwill-planner.cn';
 
   switch (key) {
+    // 当前 menu-config.ts 在用 (V1001_* 是微信官方示例命名)
+    case 'V1001_HUMAN_SERVICE':
+      return buildTextReply(
+        msg,
+        '工作时间 9:00-21:00,客服微信号: aiwill-cs\n' +
+        '紧急问题请邮件至 support@aiwill-planner.cn\n' +
+        '回复【订单】查询订单 / 回复【绑定】绑定账号'
+      );
+    case 'V1001_BEIAN':
+      return buildTextReply(
+        msg,
+        '沪ICP备2026020925号-1\n备案查询: https://beian.miit.gov.cn'
+      );
+
+    // 保留旧 key 兼容 (如未来菜单换名)
     case 'MENU_CS_CHAT':
       return buildTextReply(
         msg,
@@ -215,6 +230,7 @@ function handleMenuClick(msg: WeChatRecvMessage, key: string): string {
       );
     case 'MENU_BIND_HELP':
       return buildTextReply(msg, `前往绑定: ${baseUrl}/wechat/bind`);
+
     default:
       return buildTextReply(msg, `收到菜单: ${key}`);
   }

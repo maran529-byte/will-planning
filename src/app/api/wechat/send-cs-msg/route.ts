@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { safeSendCsMessage } from '@/lib/wechat/cs-window';
+import { sendCustomerServiceMessage } from '@/lib/wechat/mp-api';
 import { assertWeChatMpConfigured } from '@/lib/wechat/config';
 
 const RequestSchema = z.object({
@@ -46,7 +47,28 @@ export async function POST(req: NextRequest) {
   }
   const { openid, content } = parsed.data;
 
-  // 3. 发送
+  // 3. 发送 (支持 ?force=true 跳过 48h 窗口检查 — 用于测试 / Supabase 未配置时)
+  const force = req.nextUrl.searchParams.get('force') === 'true';
+  if (force) {
+    const result = await sendCustomerServiceMessage(openid, {
+      msgtype: 'text',
+      text: { content },
+    });
+    if (!result.ok) {
+      return NextResponse.json(
+        {
+          sent: false,
+          mode: 'force',
+          reason: 'mp_error',
+          detail: `${result.errcode} ${result.errmsg}`,
+        },
+        { status: 200 }
+      );
+    }
+    return NextResponse.json({ sent: true, mode: 'force' });
+  }
+
+  // 正常模式: 走 48h 窗口检查
   const result = await safeSendCsMessage(openid, {
     msgtype: 'text',
     text: { content },

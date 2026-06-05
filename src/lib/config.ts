@@ -14,12 +14,20 @@ export const WECHAT_MCHID = process.env.WECHAT_MCHID || '';
 export const WECHAT_API_KEY = process.env.WECHAT_API_KEY || '';
 export const WECHAT_NOTIFY_URL = process.env.WECHAT_NOTIFY_URL || '';
 
-// Pricing
+// Pricing (UI display, in 元)
+// 改版 v2: 删除 family 套餐, lawyer 改名为 expert (资产规划专业人士)
 export const PRICING = {
-  aiGuide: { name: 'AI专属版', price: 19.9, description: '问卷+生成草稿+PDF', promo: true, promoText: '限时优惠' },
-  lawyerReview: { name: '律师护航版', price: 999, description: 'AI生成+律师视频审核+签署指引' },
-  familyHeritage: { name: '家庭年度版', price: 4699, description: '全家族规划+年度律师顾问', perTime: true },
+  aiGuide: { name: 'AI智能版', price: 19.9, description: '问卷+生成草稿+PDF', promo: true, promoText: '限时优惠' },
+  expertReview: { name: '专家护航版', price: 999, description: 'AI生成+资产规划专业人士审核+签署指引' },
 } as const;
+
+// 兼容旧 plan 字符串的显示名. UI 渲染订单/历史 plan 时使用。
+export const PLAN_DISPLAY: Record<string, string> = {
+  ai: PRICING.aiGuide.name,
+  expert: PRICING.expertReview.name,
+  lawyer: PRICING.expertReview.name,   // 历史值 → 映射到 expert 显示
+  family: '已下架',                    // 历史值 → 标注已下架
+};
 
 // 文书类型
 export const DOCUMENT_TYPES = [

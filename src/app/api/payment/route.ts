@@ -1,24 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { initiatePayment, PaymentChannel } from '@/lib/payment';
-import { getOrderServer, Order } from '@/lib/orders';
+import {
+  getOrderByIdAndOpenidServer,
+  getOrderByIdAndOpenidLocal,
+  Order,
+} from '@/lib/orders';
 import { supabaseAdmin } from '@/lib/supabase-server';
+import { getOpenidFromCookie } from '@/lib/cookie';
 
 // Extended globalThis type to include the orders array
 type GlobalWithOrders = typeof globalThis & { orders?: Order[] };
 
-// Server-side localStorage fallback using globalThis
 function getServerOrders(): Order[] {
   const g = globalThis as GlobalWithOrders;
-  if (g.orders) {
-    return g.orders;
-  }
-  g.orders = [];
+  if (!g.orders) g.orders = [];
   return g.orders;
-}
-
-function getOrderLocal(orderId: string): Order | undefined {
-  return getServerOrders().find((o) => o.id === orderId);
 }
 
 // P0: zod schema for payment init input.
@@ -29,6 +26,19 @@ const initiatePaymentSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // 1. 必须先登录
+    const openid = await getOpenidFromCookie();
+    if (!openid) {
+      return NextResponse.json(
+        {
+          code: 'UNAUTHENTICATED',
+          error: '请先在公众号绑定微信账号',
+          redirect: '/wechat/bind',
+        },
+        { status: 401 }
+      );
+    }
+
     const json = await request.json();
     const parsed = initiatePaymentSchema.safeParse(json);
 
@@ -45,13 +55,10 @@ export async function POST(request: NextRequest) {
 
     const { order_id, channel } = parsed.data;
 
-    // Get order details
-    let order;
-    if (supabaseAdmin) {
-      order = await getOrderServer(order_id);
-    } else {
-      order = getOrderLocal(order_id);
-    }
+    // 2. Get order details — 用 openid + orderId 双重过滤 (不允许支付别人的订单)
+    const order = supabaseAdmin
+      ? await getOrderByIdAndOpenidServer(order_id, openid)
+      : getOrderByIdAndOpenidLocal(order_id, openid) ?? null;
 
     if (!order) {
       return NextResponse.json(

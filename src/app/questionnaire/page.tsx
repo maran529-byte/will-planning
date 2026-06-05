@@ -93,8 +93,9 @@ function QuestionnaireContent() {
       specialArrangements.push({ type: "digital", description: formData.digitalHeritage });
     }
 
-    // 确认字段: "我同意" -> true
-    const confirmed = formData.confirmed === true || formData.confirmed === "我同意";
+    // 确认字段: "我同意" -> true (formData 字段是 string|boolean 混合类型, 用 unknown 中转)
+    const confirmedRaw = formData.confirmed as unknown;
+    const confirmed = confirmedRaw === true || confirmedRaw === "我同意";
 
     return {
       name: formData.name,

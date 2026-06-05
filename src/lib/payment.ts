@@ -98,11 +98,12 @@ export function verifyPaymentCallback(_data: Record<string, string>, _signature:
 export async function processPaymentCallback(callback: PaymentCallback): Promise<boolean> {
   try {
     if (callback.status === 'SUCCESS') {
-      await updateOrderStatusServer(
-        callback.order_no,
-        'paid',
-        callback.channel
-      );
+      // 渠道收窄: 仅 wechat/alipay 传递给 DAL, 其余 ("demo" 等开发桩) 不持久化 channel
+      const ch =
+        callback.channel === 'wechat' || callback.channel === 'alipay'
+          ? callback.channel
+          : undefined;
+      await updateOrderStatusServer(callback.order_no, 'paid', ch);
       return true;
     }
     return false;

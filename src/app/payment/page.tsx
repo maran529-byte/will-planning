@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { PRICING } from "@/lib/config";
+import { PRICING, PLAN_DISPLAY } from "@/lib/config";
+import { normalizePlan } from "@/lib/pricing";
 
 interface Order {
   id: string;
   order_no: string;
   amount: number;
-  plan: 'ai' | 'lawyer' | 'family';
+  plan: 'ai' | 'expert' | 'lawyer' | 'family';  // 兼容历史 'lawyer' / 'family'
   status: 'pending' | 'paid' | 'refunded' | 'cancelled';
   paid_at?: string;
   payment_channel?: 'wechat' | 'alipay';
@@ -18,9 +19,12 @@ interface Order {
 
 function PaymentContent() {
   const searchParams = useSearchParams();
-  const planParam = searchParams.get("plan") || "ai";
+  // URL ?plan= 支持 'ai' | 'expert' | 旧 'lawyer'; 'family' 已下架 → fallback to 'ai'
+  const rawPlan = searchParams.get("plan");
+  const normalized = normalizePlan(rawPlan);
+  const planParam = normalized ?? 'ai';
   const willId = searchParams.get("will_id");
-  
+
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -30,8 +34,7 @@ function PaymentContent() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [timeout, setTimeout] = useState(false);
 
-  const planData = planParam === 'lawyer' ? PRICING.lawyerReview
-    : planParam === 'family' ? PRICING.familyHeritage
+  const planData = planParam === 'expert' ? PRICING.expertReview
     : PRICING.aiGuide;
 
   const priceInYuan = planData.price;
@@ -214,9 +217,9 @@ function PaymentContent() {
               <span className="text-slate-600">描述</span>
               <span className="text-slate-700 text-sm">{planData.description}</span>
             </div>
-            {planData.perTime && (
+            {'promo' in planData && planData.promo && (
               <div className="inline-flex items-center px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full">
-                按次收费
+                {planData.promoText ?? '限时优惠'}
               </div>
             )}
           </div>

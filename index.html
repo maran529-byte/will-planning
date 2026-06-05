@@ -3,157 +3,593 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>爱的延续 - 专业婚姻文书在线生成</title>
+  <title>爱的延续 · 智能资产规划与遗嘱生成 | aiwill-planner.cn</title>
+  <meta name="description" content="爱的延续是基于人工智能的资产规划与遗嘱文书智能生成参考平台。提供遗嘱模板生成、家庭资产盘点、传承规划等服务。已完成沪ICP备2026020925号-1备案。">
+  <meta name="keywords" content="遗嘱生成,资产规划,家族传承,自书遗嘱,公证遗嘱,民法典继承编,AI法律文书">
+  <meta name="author" content="爱的延续工作室">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://aiwill-planner.cn/">
+  <meta property="og:title" content="爱的延续 · 智能资产规划与遗嘱生成">
+  <meta property="og:description" content="基于人工智能的资产规划与遗嘱文书智能生成参考平台，沪ICP备2026020925号-1。">
+  <meta property="og:url" content="https://aiwill-planner.cn/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="爱的延续">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23d4a574'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='18' fill='white' font-family='sans-serif'%3E爱%3C/text%3E%3C/svg%3E">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: #333; line-height: 1.6; }
-    a { text-decoration: none; color: inherit; }
-    
-    /* 导航 */
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-    .brand { font-size: 1.5rem; font-weight: bold; color: #e74c3c; }
-    .nav-links { display: flex; gap: 30px; }
-    .nav-links a { color: #555; font-size: 0.95rem; transition: color 0.3s; }
-    .nav-links a:hover { color: #e74c3c; }
-    
-    /* Hero */
-    .hero { text-align: center; padding: 80px 5% 60px; background: linear-gradient(135deg, #fff5f5 0%, #fff 100%); }
-    .hero h1 { font-size: 2.8rem; color: #2c3e50; margin-bottom: 16px; }
-    .hero p { font-size: 1.2rem; color: #666; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; }
-    .cta-btn { display: inline-block; background: #e74c3c; color: #fff; padding: 14px 36px; border-radius: 30px; font-size: 1.1rem; font-weight: 500; transition: all 0.3s; }
-    .cta-btn:hover { background: #c0392b; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(231,76,60,0.3); }
-    
-    /* 服务介绍 */
-    .section { padding: 60px 5%; }
-    .section-title { text-align: center; font-size: 1.8rem; color: #2c3e50; margin-bottom: 40px; }
-    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); transition: transform 0.3s, box-shadow 0.3s; }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-    .card h3 { color: #e74c3c; font-size: 1.2rem; margin-bottom: 10px; }
-    .card p { color: #666; font-size: 0.95rem; }
-    
-    /* 流程 */
-    .process { background: #f8f9fa; }
-    .steps { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; max-width: 1000px; margin: 0 auto; }
-    .step { text-align: center; flex: 1; min-width: 150px; max-width: 180px; }
-    .step-num { width: 50px; height: 50px; background: #e74c3c; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: bold; margin: 0 auto 12px; }
-    .step p { color: #555; font-size: 0.9rem; }
-    
-    /* 底部 */
-    .footer { background: #2c3e50; color: #fff; padding: 40px 5%; text-align: center; }
-    .footer .disclaimer { background: #34495e; padding: 20px; border-radius: 8px; max-width: 800px; margin: 0 auto 30px; font-size: 0.9rem; line-height: 1.8; }
-    .footer .icp { font-size: 0.85rem; color: #bdc3c7; margin-top: 15px; }
-    .footer .company { font-size: 0.85rem; color: #bdc3c7; margin-top: 8px; }
-    
-    /* 响应式 */
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 2rem; }
-      .nav-links { display: none; }
-      .navbar { justify-content: center; }
-      .brand { font-size: 1.3rem; }
+    :root {
+      --brand: #d4a574;
+      --brand-dark: #b88a5e;
+      --brand-soft: #faf7f2;
+      --ink: #1f2937;
+      --ink-soft: #4b5563;
+      --line: #e5e7eb;
+      --wechat: #07C160;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                   "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, var(--brand-soft) 0%, #ffffff 100%);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+    a { text-decoration: none; color: inherit; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+    /* 头部导航 */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .brand .logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+    }
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 18px;
+      list-style: none;
+      font-size: 14px;
+    }
+    .nav-links a {
+      color: var(--ink-soft);
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--brand-dark); }
+    .wx-follow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f0fdf4;
+      color: #047857;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid #bbf7d0;
+      font-size: 13px;
+    }
+    .wx-follow:hover { background: #dcfce7; }
+    .wx-follow code {
+      background: #ffffff;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+    .cross-site {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+      color: #92400e;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid #fde68a;
+      font-size: 13px;
+    }
+    .cross-site:hover { background: #fef3c7; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 70px 20px 50px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      color: var(--ink);
+      margin-bottom: 18px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .hero p {
+      font-size: 17px;
+      color: var(--ink-soft);
+      max-width: 640px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+    .hero-cta {
+      display: inline-flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: var(--brand);
+      color: #fff;
+      padding: 14px 36px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--brand-dark); }
+    .btn-secondary {
+      display: inline-block;
+      background: #fff;
+      color: var(--brand-dark);
+      padding: 14px 36px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      border: 1px solid var(--brand);
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: var(--brand-soft); }
+
+    /* 通用 section */
+    section.block {
+      padding: 50px 0;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 28px;
+      color: var(--ink);
+      margin-bottom: 40px;
+      font-weight: 700;
+    }
+
+    /* 套餐卡 */
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .plan-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 32px 28px;
+      text-align: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .plan-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    .plan-card.featured {
+      border-color: var(--brand);
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+      position: relative;
+    }
+    .plan-card.featured::before {
+      content: "推荐";
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: var(--brand);
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    .plan-card h3 {
+      font-size: 18px;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .plan-price {
+      font-size: 36px;
+      color: var(--brand-dark);
+      margin: 16px 0;
+      font-weight: 700;
+    }
+    .plan-price small { font-size: 14px; color: var(--ink-soft); font-weight: 400; }
+    .plan-card ul {
+      list-style: none;
+      text-align: left;
+      margin: 20px 0;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+    .plan-card ul li {
+      padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .plan-card ul li::before { content: "✓ "; color: var(--brand); font-weight: 700; }
+    .plan-card .btn-primary,
+    .plan-card .btn-secondary { display: block; width: 100%; padding: 12px; font-size: 15px; }
+
+    /* 服务流程 */
+    .process {
+      background: var(--brand-soft);
+    }
+    .steps {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 18px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .step {
+      flex: 1;
+      min-width: 160px;
+      max-width: 200px;
+      background: #fff;
+      padding: 24px 18px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--line);
+    }
+    .step-num {
+      width: 44px;
+      height: 44px;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 auto 12px;
+    }
+    .step strong { color: var(--ink); display: block; margin-bottom: 6px; font-size: 15px; }
+    .step p { color: var(--ink-soft); font-size: 13px; line-height: 1.6; }
+
+    /* 知识科普卡 (4 entries -> H5 内容) */
+    .knowledge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .know-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.15s;
+    }
+    .know-card:hover { border-color: var(--brand); background: var(--brand-soft); }
+    .know-card .icon { font-size: 28px; margin-bottom: 12px; }
+    .know-card h4 { color: var(--ink); font-size: 16px; margin-bottom: 8px; font-weight: 600; }
+    .know-card p { color: var(--ink-soft); font-size: 14px; margin-bottom: 10px; }
+    .know-card a { color: var(--brand-dark); font-size: 14px; font-weight: 600; }
+    .know-card a:hover { text-decoration: underline; }
+
+    /* 公众号区块 (highlighted card) */
+    .wx-section {
+      background: linear-gradient(135deg, #07C160 0%, #06ad57 100%);
+      color: #fff;
+      padding: 50px 20px;
+      text-align: center;
+      border-radius: 16px;
+      margin: 50px auto;
+      max-width: 900px;
+    }
+    .wx-section h3 { font-size: 24px; margin-bottom: 14px; }
+    .wx-section p { font-size: 15px; margin-bottom: 22px; opacity: 0.95; }
+    .wx-section code {
+      background: rgba(255,255,255,0.2);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 16px;
+      margin: 0 6px;
+    }
+    .wx-section a.btn {
+      display: inline-block;
+      background: #fff;
+      color: #07C160;
+      padding: 12px 36px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .wx-section a.btn:hover { opacity: 0.9; }
+
+    /* AI 披露 */
+    .ai-disclosure {
+      background: #fef3c7;
+      color: #78350f;
+      padding: 16px 22px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 30px auto;
+      max-width: 1000px;
+      border-left: 4px solid #f59e0b;
+    }
+
+    /* 底部 */
+    footer {
+      background: #1f2937;
+      color: #d1d5db;
+      padding: 50px 0 30px;
+      margin-top: 40px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    @media (max-width: 768px) {
+      .footer-grid { grid-template-columns: 1fr; }
+      .nav { flex-direction: column; align-items: flex-start; }
+      .nav-links { width: 100%; justify-content: flex-start; }
+      section.block { padding: 35px 0; }
+      .section-title { font-size: 22px; margin-bottom: 28px; }
+    }
+    .footer-col h5 { color: #fff; font-size: 14px; margin-bottom: 12px; font-weight: 600; }
+    .footer-col p { color: #9ca3af; font-size: 13px; margin-bottom: 6px; }
+    .footer-col a { color: #d1d5db; }
+    .footer-col a:hover { color: #fff; text-decoration: underline; }
+    .legal-disclaimer {
+      background: #374151;
+      color: #d1d5db;
+      padding: 16px 20px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.7;
+      margin: 20px 0;
+    }
+    .footer-bottom {
+      border-top: 1px solid #374151;
+      padding-top: 18px;
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .footer-bottom p { margin: 6px 0; }
+    .footer-bottom a { color: #d1d5db; }
+    .footer-bottom a:hover { color: #fff; }
   </style>
 </head>
 <body>
 
-<!-- 导航 -->
-<nav class="navbar">
-  <div class="brand">爱的延续</div>
-  <div class="nav-links">
-    <a href="#services">服务介绍</a>
-    <a href="#process">流程</a>
-    <a href="#faq">常见问题</a>
+<!-- 头部导航 -->
+<header>
+  <div class="container">
+    <nav class="nav" aria-label="主导航">
+      <a href="/" class="brand">
+        <span class="logo">爱</span>
+        <span>爱的延续 · 智能规划</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/faq">常见问题</a></li>
+        <li><a href="/tutorial">遗嘱教程</a></li>
+        <li><a href="/compare">工具对比</a></li>
+        <li><a href="/tool">在线生成</a></li>
+        <li>
+          <a class="wx-follow" href="https://h5.aiwill-planner.cn/wechat/bind" target="_blank" rel="noopener">
+            <span>📱</span>
+            <span>关注公众号</span>
+            <code>aiwill-planner</code>
+          </a>
+        </li>
+        <li>
+          <a class="cross-site" href="https://h5.aiwill-planner.cn" target="_blank" rel="noopener">
+            <span>🖥️</span>
+            <span>移动端 H5</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
   </div>
-</nav>
+</header>
 
 <!-- Hero -->
 <section class="hero">
-  <h1>让爱延续，让保障可见</h1>
-  <p>专业婚姻文书、婚内协议、法律协议在线生成，为您的婚姻财产与权益提供清晰保障</p>
-  <a href="https://h5.aiwill-planner.cn" class="cta-btn" rel="noopener">立即使用 →</a>
+  <div class="container">
+    <h1>让爱延续，让规划清晰</h1>
+    <p>基于人工智能的资产规划与遗嘱文书智能生成参考平台。从家庭资产盘点到合规文书模板生成，帮您把"未尽之言"提前讲清楚。</p>
+    <div class="hero-cta">
+      <a href="https://h5.aiwill-planner.cn" class="btn-primary" rel="noopener">立即开始 →</a>
+      <a href="/tutorial" class="btn-secondary">先看教程</a>
+    </div>
+  </div>
 </section>
 
-<!-- 服务介绍 -->
-<section class="section" id="services">
-  <h2 class="section-title">服务介绍</h2>
-  <div class="card-grid">
-    <div class="card">
-      <h3>婚姻协议书</h3>
-      <p>规范婚姻关系存续期间双方权利义务，明确财产归属与责任划分</p>
+<!-- 套餐 (2 个) -->
+<section class="block" id="plans">
+  <div class="container">
+    <h2 class="section-title">服务方案</h2>
+    <div class="plans">
+      <div class="plan-card">
+        <h3>AI 智能指导</h3>
+        <div class="plan-price">¥19.9 <small>/ 单次</small></div>
+        <ul>
+          <li>智能问卷收集资产信息</li>
+          <li>AI 起草自书遗嘱参考模板</li>
+          <li>《民法典》继承编合规要点提示</li>
+          <li>支持在线编辑与下载</li>
+        </ul>
+        <a href="https://h5.aiwill-planner.cn" class="btn-secondary" rel="noopener">在 H5 开始</a>
+      </div>
+      <div class="plan-card featured">
+        <h3>资产规划专业人士</h3>
+        <div class="plan-price">¥999 <small>/ 单次</small></div>
+        <ul>
+          <li>AI 智能指导全部功能</li>
+          <li>资产规划专业人士 1 对 1 在线沟通</li>
+          <li>定制化遗嘱与资产分配建议</li>
+          <li>合规审查 + 文书草稿审阅</li>
+        </ul>
+        <a href="https://h5.aiwill-planner.cn" class="btn-primary" rel="noopener">在 H5 预约</a>
+      </div>
     </div>
-    <div class="card">
-      <h3>婚内财产协议</h3>
-      <p>约定婚后财产管理方式，清晰划分共同财产与个人财产范围</p>
-    </div>
-    <div class="card">
-      <h3>离婚协议</h3>
-      <p>明确子女抚养、财产分割、债务承担等离婚事宜，保障双方权益</p>
-    </div>
-    <div class="card">
-      <h3>子女抚养协议</h3>
-      <p>约定子女抚养权、探望权及抚养费支付等细节，优先考虑子女利益</p>
-    </div>
-    <div class="card">
-      <h3>遗嘱与遗产协议</h3>
-      <p>明确财产传承意愿，保障家族财富有序传递与继承人权益</p>
-    </div>
-    <div class="card">
-      <h3>其他法律文书</h3>
-      <p>涵盖赠与协议、借款协议、保密协议等多种民事法律文书模板</p>
-    </div>
+    <p style="text-align:center;margin-top:24px;color:var(--ink-soft);font-size:13px;">
+      所有支付与订单管理均在 H5 移动端完成。<a href="https://h5.aiwill-planner.cn" style="color:var(--brand-dark);font-weight:600;" target="_blank" rel="noopener">→ 前往 H5</a>
+    </p>
   </div>
 </section>
 
 <!-- 服务流程 -->
-<section class="section process" id="process">
-  <h2 class="section-title">服务流程</h2>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <p>填写问卷</p>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <p>智能生成</p>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <p>在线预览</p>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <p>解锁下载</p>
+<section class="block process">
+  <div class="container">
+    <h2 class="section-title">使用流程</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <strong>关注公众号</strong>
+        <p>微信搜 <code>aiwill-planner</code>，绑定账号</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <strong>填写问卷</strong>
+        <p>在 H5 完成资产、家庭、意愿三项信息</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <strong>AI 生成</strong>
+        <p>智能起草遗嘱模板与资产分配建议</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <strong>编辑下载</strong>
+        <p>在线核对、调整条款、下载留存</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- 常见问题 -->
-<section class="section" id="faq">
-  <h2 class="section-title">常见问题</h2>
-  <div class="card-grid">
-    <div class="card">
-      <h3>生成的文书具有法律效力吗？</h3>
-      <p>生成的文书为参考模板，具体法律效力需根据实际情况及当地法律要求确定，建议必要时咨询专业律师。</p>
-    </div>
-    <div class="card">
-      <h3>我的信息是否安全？</h3>
-      <p>所有信息仅用于文书生成，我们高度重视用户隐私保护，不对外泄露任何个人信息。</p>
-    </div>
-    <div class="card">
-      <h3>可以定制化修改吗？</h3>
-      <p>生成的文书支持在线编辑，您可根据实际情况调整条款内容后再下载使用。</p>
+<!-- 知识科普 (4 entries 引导到 H5 静态页) -->
+<section class="block">
+  <div class="container">
+    <h2 class="section-title">了解更多</h2>
+    <div class="knowledge-grid">
+      <div class="know-card">
+        <div class="icon">❓</div>
+        <h4>常见问题</h4>
+        <p>自书遗嘱的有效条件、公证遗嘱与自书遗嘱区别、失效情形等专业解答。</p>
+        <a href="/faq">查看 FAQ →</a>
+      </div>
+      <div class="know-card">
+        <div class="icon">📚</div>
+        <h4>遗嘱教程</h4>
+        <p>《民法典》第 1134 条标准模板，自书遗嘱手写规范图解。</p>
+        <a href="/tutorial">查看教程 →</a>
+      </div>
+      <div class="know-card">
+        <div class="icon">⚖️</div>
+        <h4>工具对比</h4>
+        <p>自助 vs 资产规划专业人士 vs AI 智能指导，横向对比助您选型。</p>
+        <a href="/compare">查看对比 →</a>
+      </div>
+      <div class="know-card">
+        <div class="icon">🛠️</div>
+        <h4>在线工具</h4>
+        <p>常见模板速览，可在 H5 端继续完整流程。</p>
+        <a href="/tool">查看工具 →</a>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- 公众号大卡 -->
+<div class="container">
+  <div class="wx-section">
+    <h3>📱 关注微信公众号</h3>
+    <p>第一时间获取模板更新、订单状态、规划小贴士</p>
+    <p style="font-size:18px;">微信搜索：<code>aiwill-planner</code></p>
+    <a href="https://h5.aiwill-planner.cn/wechat/bind" class="btn" target="_blank" rel="noopener">立即绑定账号</a>
+  </div>
+</div>
+
+<!-- AI 披露 -->
+<div class="container">
+  <div class="ai-disclosure">
+    <strong>⚠️ AI 内容披露</strong>：本站部分内容由人工智能生成，仅供学习参考，不构成专业法律或财务建议。使用本站生成的任何文书，您需自行核实其准确性和适用性，并对使用结果承担全部责任。本平台已按《互联网信息服务深度合成管理规定》《生成式人工智能服务管理暂行办法》进行 AI 生成内容标识。
+  </div>
+</div>
 
 <!-- 底部 -->
-<footer class="footer">
-  <div class="disclaimer">
-    <strong>法律免责声明</strong><br>
-    本平台仅提供文书模板智能生成参考服务，不构成任何法律专业意见。所有生成的文书仅供个人参考使用，不具有律师函或法律咨询的效力。如需具有法律效力的文书或专业法律建议，请咨询具有相应资质的律师或法律服务机构。因使用本平台生成文书导致的任何直接或间接损失，我们不承担任何法律责任。
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h5>🏷️ 产品</h5>
+        <p><a href="https://h5.aiwill-planner.cn">→ H5 移动端</a></p>
+        <p><a href="https://h5.aiwill-planner.cn/wechat/bind">→ 绑定微信账号</a></p>
+        <p><a href="#plans">→ 服务方案</a></p>
+      </div>
+      <div class="footer-col">
+        <h5>📚 内容</h5>
+        <p><a href="/faq">→ 常见问题</a></p>
+        <p><a href="/tutorial">→ 遗嘱教程</a></p>
+        <p><a href="/compare">→ 工具对比</a></p>
+        <p><a href="/tool">→ 在线工具</a></p>
+      </div>
+      <div class="footer-col">
+        <h5>📱 公众号</h5>
+        <p>微信搜：<code style="background:#374151;color:#fbbf24;padding:2px 6px;border-radius:3px;font-size:12px;">aiwill-planner</code></p>
+        <p>第一时间获取产品更新</p>
+        <p style="margin-top:6px;"><a href="https://h5.aiwill-planner.cn/wechat/bind">→ 立即绑定</a></p>
+      </div>
+    </div>
+
+    <div class="legal-disclaimer">
+      <strong>法律免责声明</strong>：本平台仅提供文书模板智能生成参考服务，不构成任何法律专业意见。所有生成的文书仅供个人参考使用，不具有律师函或法律咨询的效力。如需具有法律效力的文书或专业法律建议，请咨询具有相应资质的<strong>律师</strong>或法律服务机构。因使用本平台生成文书导致的任何直接或间接损失，我们不承担任何法律责任。
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 爱的延续工作室 · 保留所有权利</p>
+      <p>
+        <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">沪ICP备2026020925号-1</a>
+        <span style="margin:0 8px;color:#6b7280;">|</span>
+        上海市
+        <span style="margin:0 8px;color:#6b7280;">|</span>
+        <a href="https://h5.aiwill-planner.cn" target="_blank" rel="noopener">移动端 H5</a>
+      </p>
+    </div>
   </div>
-  <div class="icp"><a href="https://beian.miit.gov.cn" target="_blank" rel="noopener nofollow" style="color:#bdc3c7;">沪ICP备2026020925号-1</a></div>
-  <div class="company">爱的延续工作室 | 上海市</div>
 </footer>
 
 </body>

@@ -2,23 +2,25 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { PRICING } from "@/lib/config";
+import { PRICING, PLAN_DISPLAY } from "@/lib/config";
 
 interface Order {
   id: string;
   order_no: string;
   amount: number;
-  plan: 'ai' | 'lawyer' | 'family';
+  plan: 'ai' | 'expert' | 'lawyer' | 'family';  // 兼容历史 'lawyer' / 'family'
   status: 'pending' | 'paid' | 'refunded' | 'cancelled';
   paid_at?: string;
   payment_channel?: 'wechat' | 'alipay';
   will_id?: string;
+  openid?: string;
   created_at: string;
 }
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState<boolean>(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const fetchOrders = useCallback(async () => {
@@ -27,6 +29,7 @@ export default function OrdersPage() {
       const data = await res.json();
       if (data.success) {
         setOrders(data.orders);
+        setAuthenticated(!!data.authenticated);
       }
     } catch (error) {
       console.error('获取订单失败:', error);
@@ -63,9 +66,7 @@ export default function OrdersPage() {
   };
 
   const getPlanName = (plan: string) => {
-    if (plan === 'lawyer') return PRICING.lawyerReview.name;
-    if (plan === 'family') return PRICING.familyHeritage.name;
-    return PRICING.aiGuide.name;
+    return PLAN_DISPLAY[plan] ?? PRICING.aiGuide.name;
   };
 
   const formatDate = (dateStr: string) => {
@@ -106,14 +107,34 @@ export default function OrdersPage() {
         {orders.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
             <div className="text-6xl mb-4">📋</div>
-            <h2 className="text-xl font-bold text-slate-800 mb-2">暂无订单</h2>
-            <p className="text-slate-500 mb-6">您还没有创建任何订单</p>
-            <Link 
-              href="/" 
-              className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-xl transition"
-            >
-              立即预订
-            </Link>
+            {authenticated ? (
+              <>
+                <h2 className="text-xl font-bold text-slate-800 mb-2">暂无订单</h2>
+                <p className="text-slate-500 mb-6">您还没有创建任何订单</p>
+                <Link
+                  href="/"
+                  className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-xl transition"
+                >
+                  立即预订
+                </Link>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold text-slate-800 mb-2">请先登录</h2>
+                <p className="text-slate-500 mb-6">
+                  绑定微信公众号后查看您的订单
+                </p>
+                <Link
+                  href="/wechat/bind?return=/orders"
+                  className="inline-block bg-[#07C160] hover:bg-[#06B05A] text-white font-semibold px-6 py-3 rounded-xl transition"
+                >
+                  🔗 绑定微信账号
+                </Link>
+                <p className="mt-3 text-xs text-slate-400">
+                  绑定后订单将自动关联到您的微信账号
+                </p>
+              </>
+            )}
           </div>
         ) : (
           <div className="space-y-4">

@@ -66,8 +66,8 @@ function ResultContent() {
 
   const priceMap: Record<string, number> = {
     ai: 19.9,
-    lawyer: 999,
-    family: 4699,
+    expert: 999,
+    lawyer: 999,    // 兼容旧 plan
   };
 
   const price = priceMap[plan] || 19.9;
@@ -164,7 +164,7 @@ function ResultContent() {
             <h2 className="text-lg font-bold text-green-800">遗嘱草稿已生成</h2>
           </div>
           <p className="text-green-700 text-sm">
-            AI已根据您的填写内容生成遗嘱草稿。请仔细阅读内容，如有疑问可预约律师进行1对1审核。
+            AI已根据您的填写内容生成遗嘱草稿。请仔细阅读内容，如有疑问可预约资产规划专业人士进行1对1审核。
           </p>
         </div>
 
@@ -177,19 +177,19 @@ function ResultContent() {
             </pre>
           </div>
           <p className="text-xs text-slate-500 mt-4">
-            * 此为AI生成的草稿版本，不具备法律效力。正式签署前请律师审核。
+            * 此为AI生成的草稿版本，不具备法律效力。正式签署前请专业人士审核。
           </p>
         </div>
 
-        {/* 律师审核服务 */}
+        {/* 专家审核服务 */}
         {plan === "ai" && (
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 mb-6 border border-amber-200">
             <div className="flex items-start gap-4">
               <div className="text-3xl">👨‍⚖️</div>
               <div className="flex-1">
-                <h3 className="font-bold text-amber-800 mb-1">升级：律师专业审核</h3>
+                <h3 className="font-bold text-amber-800 mb-1">升级：资产规划专业人士审核</h3>
                 <p className="text-amber-700 text-sm mb-4">
-                  仅需 +¥500，即可获得专业律师1对1视频审核服务，确保遗嘱合法有效
+                  仅需 +¥500，即可获得资产规划专业人士1对1视频审核服务，确保文书规范有效
                 </p>
                 <div className="flex gap-3">
                   <button
@@ -208,7 +208,7 @@ function ResultContent() {
                   }}
                   className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition"
                 >
-                  预约律师审核
+                  预约专家审核
                 </button>
                   <button className="px-4 py-3 border-2 border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 transition">
                     稍后再说

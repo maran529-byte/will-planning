@@ -1,71 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrderServer, updateOrderStatusServer, Order } from '@/lib/orders';
+import {
+  getOrderServer,
+  getOrderByIdAndOpenidServer,
+  getOrderByIdAndOpenidLocal,
+  updateOrderStatusServer,
+  updateOrderStatusLocal,
+  Order,
+} from '@/lib/orders';
 import { supabaseAdmin } from '@/lib/supabase-server';
+import { getOpenidFromCookie } from '@/lib/cookie';
 
-// Extended globalThis type to include the orders array
+// ---- Server-side localStorage fallback (in-memory, dev only) ----
 type GlobalWithOrders = typeof globalThis & { orders?: Order[] };
 
-// Server-side localStorage fallback using globalThis
 function getServerOrders(): Order[] {
   const g = globalThis as GlobalWithOrders;
-  if (g.orders) {
-    return g.orders;
-  }
-  g.orders = [];
+  if (!g.orders) g.orders = [];
   return g.orders;
 }
 
-function setServerOrders(orders: Order[]) {
-  const g = globalThis as GlobalWithOrders;
-  g.orders = orders;
-}
-
-function getOrderLocal(orderId: string): Order | undefined {
-  const orders = getServerOrders();
-  return orders.find((o) => o.id === orderId);
-}
-
-function updateOrderStatusLocal(
-  orderId: string,
-  status: Order['status'],
-  paymentChannel?: 'wechat' | 'alipay'
-): Order | undefined {
-  const orders = getServerOrders();
-  const index = orders.findIndex((o) => o.id === orderId);
-  if (index === -1) return undefined;
-
-  const updates: Partial<Order> = { status };
-  if (status === 'paid') {
-    updates.paid_at = new Date().toISOString();
-  }
-  if (paymentChannel) {
-    updates.payment_channel = paymentChannel;
-  }
-
-  orders[index] = { ...orders[index], ...updates };
-  setServerOrders(orders);
-  return orders[index];
-}
-
+/**
+ * GET /api/orders/[orderId]
+ * 读取单个订单. 校验 openid 所有权, 不允许读别人的订单.
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
     const { orderId } = await params;
-
     if (!orderId) {
       return NextResponse.json({ error: '缺少订单ID' }, { status: 400 });
     }
 
-    let order;
-    if (supabaseAdmin) {
-      order = await getOrderServer(orderId);
-    } else {
-      order = getOrderLocal(orderId);
+    // 1. 必须先登录
+    const openid = await getOpenidFromCookie();
+    if (!openid) {
+      return NextResponse.json(
+        {
+          code: 'UNAUTHENTICATED',
+          error: '请先在公众号绑定微信账号',
+          redirect: '/wechat/bind',
+        },
+        { status: 401 }
+      );
     }
 
+    // 2. 用 openid + orderId 双重过滤 (不会查到别人的订单)
+    const order = supabaseAdmin
+      ? await getOrderByIdAndOpenidServer(orderId, openid)
+      : getOrderByIdAndOpenidLocal(orderId, openid) ?? null;
+
     if (!order) {
+      // 不区分"不存在"和"非本人" (防枚举攻击)
       return NextResponse.json({ error: '订单不存在' }, { status: 404 });
     }
 
@@ -76,6 +63,13 @@ export async function GET(
   }
 }
 
+/**
+ * PATCH /api/orders/[orderId]
+ * 更新订单状态 (用于支付回调等场景).
+ *
+ * P0 修复: 修复前 PATCH 不校验 openid, 任意用户可改任意订单.
+ * 修复后: 必须 cookie 中的 openid === order.openid 才能更新.
+ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
@@ -89,6 +83,19 @@ export async function PATCH(
       return NextResponse.json({ error: '缺少订单ID' }, { status: 400 });
     }
 
+    // 1. 必须先登录
+    const openid = await getOpenidFromCookie();
+    if (!openid) {
+      return NextResponse.json(
+        {
+          code: 'UNAUTHENTICATED',
+          error: '请先在公众号绑定微信账号',
+          redirect: '/wechat/bind',
+        },
+        { status: 401 }
+      );
+    }
+
     if (!status) {
       return NextResponse.json({ error: '缺少更新字段' }, { status: 400 });
     }
@@ -98,11 +105,40 @@ export async function PATCH(
       return NextResponse.json({ error: '无效的订单状态' }, { status: 400 });
     }
 
+    // 2. 校验所有权 (订单必须存在且属于当前用户)
+    let existingOrder;
+    if (supabaseAdmin) {
+      existingOrder = await getOrderByIdAndOpenidServer(orderId, openid);
+    } else {
+      existingOrder = getOrderByIdAndOpenidLocal(orderId, openid) ?? null;
+    }
+    if (!existingOrder) {
+      return NextResponse.json({ error: '订单不存在' }, { status: 404 });
+    }
+
+    // 3. 执行更新 (本地 fallback 路径上, updateOrderStatusLocal 还会再次校验)
     let order;
     if (supabaseAdmin) {
-      order = await updateOrderStatusServer(orderId, status, payment_channel);
+      // Supabase 路径: 用 .eq('id', id).eq('openid', openid) 做原子 update,
+      // 即使并发请求也无法改别人的订单.
+      const { data, error } = await supabaseAdmin
+        .from('orders')
+        .update({
+          status,
+          paid_at: status === 'paid' ? new Date().toISOString() : existingOrder.paid_at,
+          payment_channel: payment_channel || existingOrder.payment_channel,
+        })
+        .eq('id', orderId)
+        .eq('openid', openid)
+        .select()
+        .maybeSingle();
+      if (error) {
+        console.error('Supabase updateOrder error:', error);
+        return NextResponse.json({ error: '更新订单失败' }, { status: 500 });
+      }
+      order = data as Order | null;
     } else {
-      order = updateOrderStatusLocal(orderId, status, payment_channel);
+      order = updateOrderStatusLocal(orderId, status, payment_channel, openid) ?? null;
     }
 
     if (!order) {

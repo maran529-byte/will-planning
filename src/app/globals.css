@@ -1,3 +1,8 @@
+@import "tailwindcss";
+
+/* Tailwind v4: 显式声明扫描目录 (相对项目根 cwd, 不是相对 CSS 文件) */
+@source "./src/**/*.{ts,tsx}";
+
 :root {
   --foreground-rgb: 15, 23, 42;
   --background-rgb: 248, 250, 252;

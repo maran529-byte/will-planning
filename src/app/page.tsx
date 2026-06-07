@@ -5,6 +5,9 @@ const MAIN_SITE = "https://aiwill-planner.cn";   // 主站 (CN, 合规)
 const H5_SITE   = "https://h5.aiwill-planner.cn"; // 移动端 (overseas)
 
 // 文书类型定义
+// 改版 v3 (2026-06-07): 全部 6 个文书类型统一使用 ai plan 优惠价 ¥19.9
+// (与下方"AI智能版 限时优惠 ¥19.9"保持一致; 真实价格以前端不展示,
+// 服务端 src/lib/pricing.ts PRICING.ai.priceCents=1990 为准)
 const DOCUMENT_TYPES = [
   {
     id: "marriage",
@@ -12,7 +15,7 @@ const DOCUMENT_TYPES = [
     description: "明确婚后财产分配、权利义务",
     icon: "💑",
     color: "rose",
-    price: 99,
+    price: 19.9,
   },
   {
     id: "marital-property",
@@ -20,7 +23,7 @@ const DOCUMENT_TYPES = [
     description: "约定婚姻存续期间财产归属",
     icon: "🏠",
     color: "amber",
-    price: 129,
+    price: 19.9,
   },
   {
     id: "divorce",
@@ -28,7 +31,7 @@ const DOCUMENT_TYPES = [
     description: "子女抚养、财产分割协议",
     icon: "📄",
     color: "slate",
-    price: 159,
+    price: 19.9,
   },
   {
     id: "child-custody",
@@ -36,7 +39,7 @@ const DOCUMENT_TYPES = [
     description: "明确抚养费、探视权安排",
     icon: "👨‍👩‍👧",
     color: "blue",
-    price: 99,
+    price: 19.9,
   },
   {
     id: "gift",
@@ -44,7 +47,7 @@ const DOCUMENT_TYPES = [
     description: "房产、财产赠与公证文书",
     icon: "🎁",
     color: "emerald",
-    price: 89,
+    price: 19.9,
   },
   {
     id: "will",
@@ -131,15 +134,15 @@ export default function HomePage() {
 
       {/* Hero区域 */}
       <section className="hero-section">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="trust-badge mb-6 inline-flex">
             <span>🛡️</span>
             <span>专业资产规划团队 | 数据加密保护</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-center">
             保护您的财富<br />传承您的爱
           </h1>
-          <p className="text-xl text-slate-200 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-slate-200 mb-8 max-w-2xl mx-auto text-center">
             AI智能生成各类法律文书：婚姻协议、婚内财产约定、离婚协议、遗嘱等。
             资产规划专业人士把关，让您的意愿得到妥善安排。
           </p>
@@ -156,11 +159,11 @@ export default function HomePage() {
 
       {/* 文书类型选择 */}
       <section id="documents" className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 text-slate-800">选择您的文书类型</h2>
-          <p className="text-slate-600 text-center mb-12">覆盖婚姻家庭各类法律文书需求</p>
+          <p className="text-slate-600 text-center mb-12">覆盖婚姻家庭各类法律文书需求 · 限时优惠 ¥19.9</p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {DOCUMENT_TYPES.map((doc) => {
               const colors = colorClasses[doc.color];
               return (
@@ -230,24 +233,24 @@ export default function HomePage() {
 
       {/* 定价方案 */}
       <section id="pricing" className="py-16 px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 text-slate-800">透明定价</h2>
           <p className="text-slate-600 text-center mb-12">根据您的需求选择合适的服务方案</p>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto items-stretch">
             {/* AI智能版 */}
-            <div className="pricing-card">
+            <div className="pricing-card flex flex-col h-full">
               <div className="text-center mb-6">
-                <h3 className="text-xl font-bold mb-2">{PRICING.aiGuide.name}</h3>
                 {PRICING.aiGuide.promoText && (
                   <span className="inline-block bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded-full mb-2">{PRICING.aiGuide.promoText}</span>
                 )}
+                <h3 className="text-xl font-bold mb-2">{PRICING.aiGuide.name}</h3>
                 <p className="text-slate-600 text-sm mb-4">{PRICING.aiGuide.description}</p>
                 <div className="text-4xl font-bold text-slate-800">
                   ¥{PRICING.aiGuide.price}
                 </div>
               </div>
-              <ul className="space-y-3 mb-6 text-sm">
+              <ul className="space-y-3 mb-6 text-sm flex-1">
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
                   AI问卷引导
@@ -265,22 +268,22 @@ export default function HomePage() {
                   专家审核（需另付费）
                 </li>
               </ul>
-              <Link href="/questionnaire?plan=ai" className="block text-center bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-lg transition">
+              <Link href="/questionnaire?plan=ai" className="block text-center bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-lg transition mt-auto">
                 立即开始
               </Link>
             </div>
 
             {/* 专家护航版 */}
-            <div className="pricing-card featured">
+            <div className="pricing-card featured flex flex-col h-full">
+              <span className="featured-badge">推荐</span>
               <div className="text-center mb-6">
-                <div className="inline-block bg-amber-500 text-white text-xs px-2 py-1 rounded-full mb-2">推荐</div>
                 <h3 className="text-xl font-bold mb-2">{PRICING.expertReview.name}</h3>
                 <p className="text-slate-600 text-sm mb-4">{PRICING.expertReview.description}</p>
                 <div className="text-4xl font-bold text-amber-600">
                   ¥{PRICING.expertReview.price}
                 </div>
               </div>
-              <ul className="space-y-3 mb-6 text-sm">
+              <ul className="space-y-3 mb-6 text-sm flex-1">
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
                   AI问卷引导
@@ -298,7 +301,7 @@ export default function HomePage() {
                   签署指引文档
                 </li>
               </ul>
-              <Link href="/questionnaire?plan=expert" className="block text-center bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition">
+              <Link href="/questionnaire?plan=expert" className="block text-center bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition mt-auto">
                 立即开始
               </Link>
             </div>

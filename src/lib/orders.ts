@@ -231,6 +231,27 @@ export async function markOrderPaidManually(params: {
     return { success: false, reason: 'DB 更新失败' };
   }
 
+  // 5. Phase 4 推广佣金钩子 (best-effort, 失败不影响主流程)
+  //    - 从 cookie 读 ref_code, 查博主, 写 commissions
+  //    - 静默失败: 推广系统是辅助功能, 不应阻塞支付确认
+  try {
+    const { createCommissionForOrder } = await import('./affiliate');
+    const commissionResult = await createCommissionForOrder({
+      orderId: updated.id,
+      orderAmountCents: updated.amount,
+    });
+    if (commissionResult.success) {
+      console.log(
+        `[markOrderPaidManually] commission created for order ${updated.id}: ` +
+        `${commissionResult.commission?.commission_cents} cents`
+      );
+    } else if (commissionResult.reason !== '佣金已存在' && commissionResult.reason !== '无推广 cookie') {
+      console.warn(`[markOrderPaidManually] commission skipped: ${commissionResult.reason}`);
+    }
+  } catch (err) {
+    console.error('[markOrderPaidManually] commission hook failed:', err);
+  }
+
   return { success: true, order: updated };
 }
 
@@ -257,6 +278,16 @@ export async function markOrderRefunded(params: {
   if (!updated) {
     return { success: false, reason: 'DB 更新失败' };
   }
+
+  // Phase 4 推广佣金撤回钩子 (best-effort)
+  // 订单退款时, voided 该订单的 commission, 扣减博主 available_cents
+  try {
+    const { voidCommissionForOrder } = await import('./affiliate');
+    await voidCommissionForOrder({ orderId, reason: params.reason });
+  } catch (err) {
+    console.error('[markOrderRefunded] commission void hook failed:', err);
+  }
+
   return { success: true, order: updated };
 }
 

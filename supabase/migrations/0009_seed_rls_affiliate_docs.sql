@@ -1,0 +1,52 @@
+-- =============================================================================
+-- Migration 0009: 博主系统 seed 数据 + 文档
+-- =============================================================================
+-- 本次无 seed 数据 (博主需用户主动申请, 无默认账号).
+-- 仅为运维提供说明.
+-- =============================================================================
+
+-- 文档: 启用 pg_cron 后, 可添加定时任务
+--   1. 进入 Supabase Dashboard → Database → Extensions → 启用 pg_cron
+--   2. 跑以下 SQL (一次性):
+--
+--     SELECT cron.schedule(
+--       'sync-commissions',           -- job name
+--       '0 */6 * * *',                -- 每 6 小时
+--       $$SELECT public.sync_commission_availability()$$
+--     );
+--
+--   3. 验证: SELECT * FROM cron.job;
+--   4. 删除: SELECT cron.unschedule('sync-commissions');
+--
+-- 在启用 pg_cron 前, 博主 dashboard 每次加载时会调用 sync_commission_availability() 兜底.
+
+COMMENT ON EXTENSION pg_cron IS '可选扩展. 启用后可定时同步 pending → available. 当前由应用层兜底';
+
+-- =============================================================================
+-- 运营 SOP (供 admin 端 README 引用)
+-- =============================================================================
+--
+-- 博主审核流程:
+--   1. 管理员登录 /admin → 博主审核 (未来)
+--   2. 查看 pending 状态申请, 检查 display_name / contact_phone / bio
+--   3. 点「通过」→ 触发 generate_ref_code() → status='approved'
+--   4. 点「拒绝」→ 填写 review_note → status='rejected'
+--
+-- 提现审批流程:
+--   1. 管理员登录 /admin → 提现管理 (未来)
+--   2. 查看 pending 状态申请
+--   3. 线下转账 (支付宝/微信/银行)
+--   4. 上传转账截图 → 填流水号 → 点「已打款」
+--   5. 系统自动: commission.status='withdrawn' + blogger.total_withdrawn += amount
+--
+-- 反作弊监控:
+--   SELECT ref_code, count(*) as clicks, count(DISTINCT ip) as unique_ips
+--   FROM affiliate_clicks
+--   WHERE created_at > now() - interval '1 day'
+--   GROUP BY ref_code
+--   HAVING count(*) > 1000 OR (count(*)::float / NULLIF(count(DISTINCT ip), 0)) > 50
+--   ORDER BY clicks DESC;
+--
+-- =============================================================================
+-- End of 0009_seed_rls_affiliate_docs.sql
+-- =============================================================================

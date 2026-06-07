@@ -33,7 +33,7 @@ export interface AdminUser {
 /**
  * 内部: 读 admin session cookie
  */
-async function readAdminSession(): Promise<{ access_token: string; expires_at: number } | null> {
+export async function readAdminSession(): Promise<{ access_token: string; expires_at: number } | null> {
   const store = await cookies();
   const raw = store.get(ADMIN_SESSION_COOKIE)?.value;
   if (!raw) return null;
@@ -151,6 +151,42 @@ export async function requireAdmin(): Promise<AdminAuthResult> {
       id: profile.id,
       email: profile.email || userData.user.email || '',
       role: 'admin',
+    },
+  };
+}
+
+/**
+ * 鉴权: 仅检查"已登录" (任意 role), 不要求 admin.
+ * 供博主申请 / 仪表盘等普通用户路由使用.
+ *
+ * 返回: { authenticated, user: { id, email }, reason, status }
+ */
+export async function requireAuth(): Promise<{
+  authenticated: boolean;
+  user?: { id: string; email: string };
+  reason?: string;
+  status: number;
+}> {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+    return { authenticated: false, reason: 'Supabase 未配齐, 无法登录', status: 503 };
+  }
+
+  const session = await readAdminSession();
+  if (!session) {
+    return { authenticated: false, reason: '未登录', status: 401 };
+  }
+
+  const userClient = createUserClient(session.access_token);
+  const { data: userData, error: userError } = await userClient.auth.getUser();
+  if (userError || !userData.user) {
+    return { authenticated: false, reason: '会话已失效, 请重新登录', status: 401 };
+  }
+
+  return {
+    authenticated: true,
+    user: {
+      id: userData.user.id,
+      email: userData.user.email || '',
     },
   };
 }

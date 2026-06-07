@@ -1,0 +1,34 @@
+-- =============================================================================
+-- Migration 0004: 创建首个 admin 账号 (一次性引导)
+--
+-- 用法:
+--   1. 在 Supabase Dashboard → Authentication → Users → Add user
+--      - Email: admin@aiwill.local (或你的真实邮箱)
+--      - Password: 强密码 (≥16 位)
+--      - Auto Confirm User: ON
+--      记下 user_id (UUID)
+--
+--   2. 在 Supabase SQL Editor 跑下面这段 (替换 YOUR_USER_ID):
+--      UPDATE public.users SET role = 'admin' WHERE id = 'YOUR_USER_ID';
+--
+--   3. 在 Vercel env 加 ADMIN_EMAILS 变量 (逗号分隔, 留空则仅 role 校验):
+--      ADMIN_EMAILS = admin@aiwill.local,your@email.com
+--
+-- 后续新增 admin (P1):
+--   - 在 Dashboard 重复步骤 1
+--   - 在 SQL Editor 跑 UPDATE 即可
+--   - 后端无需改动 (requireAdmin 动态查 role)
+-- =============================================================================
+
+-- 仅供文档参考, 此文件不需要在生产跑 (UPDATE 语句按 user_id 走)
+-- 实际命令:
+--
+--   UPDATE public.users
+--   SET role = 'admin',
+--       updated_at = now()
+--   WHERE id = '00000000-0000-0000-0000-000000000000';  -- 替换为真实 UUID
+--
+-- 验证:
+--   SELECT id, email, role FROM public.users WHERE role = 'admin';
+
+-- End of 0004_create_first_admin.sql

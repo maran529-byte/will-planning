@@ -97,6 +97,12 @@ export function DashboardContent({ blogger, stats, withdrawals }: Props) {
             >
               {copied ? '✓ 已复制' : '复制链接'}
             </button>
+            <a
+              href="/affiliate/poster"
+              className="rounded-lg bg-white/20 backdrop-blur hover:bg-white/30 text-white px-5 py-2 text-sm font-semibold whitespace-nowrap text-center"
+            >
+              📱 海报
+            </a>
           </div>
         </div>
 

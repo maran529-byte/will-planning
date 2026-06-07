@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PRICING, PLAN_DISPLAY } from "@/lib/config";
 import { normalizePlan } from "@/lib/pricing";
+import { useABTest } from "@/lib/use-ab-test";
 
 interface Order {
   id: string;
@@ -37,6 +38,12 @@ function PaymentContent() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [timeoutState, setTimeoutState] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false); // manual 模式: 客户点了 "我已支付" 后置 true
+
+  // A/B 测试: 支付 CTA 文案
+  const { variant: abVariant, track: abTrack } = useABTest('payment_cta_v1');
+  const abCtaText = abVariant === 'B' ? '我已支付, 立省 ¥980'
+    : abVariant === 'C' ? '我已支付, 与 1000+ 用户同行'
+    : '我已支付 · 请客服确认';
 
   const planData = planParam === 'expert' ? PRICING.expertReview
     : PRICING.aiGuide;
@@ -153,6 +160,8 @@ function PaymentContent() {
   // 仅展示"等待客服确认"提示, 由管理员在 /admin/orders (Phase 3) mark paid
   const handlePayConfirm = async () => {
     setAcknowledged(true);
+    // A/B 测试: 跟踪 click 事件
+    void abTrack('click', { metadata: { order_no: order?.order_no, plan: planParam } });
     // 注意: 不调用 /api/payment/callback, 由管理员后台 mark paid
   };
 
@@ -372,7 +381,7 @@ function PaymentContent() {
                     onClick={handlePayConfirm}
                     className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-xl transition"
                   >
-                    我已支付 · 请客服确认
+                    {abCtaText}
                   </button>
                   <button
                     onClick={closeQR}

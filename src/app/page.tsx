@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PRICING } from "@/lib/config";
 import { VisitorIdBanner } from "@/components/VisitorIdBanner";
+import { StructuredData } from "@/components/StructuredData";
 
 const MAIN_SITE = "https://aiwill-planner.cn";   // 主站 (CN, 合规)
 const H5_SITE   = "https://h5.aiwill-planner.cn"; // 移动端 (overseas)
@@ -367,6 +368,22 @@ export default function HomePage() {
           </p>
         </div>
       </div>
+
+      {/* SEO: 结构化数据 (Service + FAQ) */}
+      <StructuredData type="service" />
+      <StructuredData
+        type="faq"
+        data={{
+          faqs: [
+            { q: 'AI 生成的文书具有法律效力吗？', a: '不具有。AI 智能版仅供个人参考, 涉及不动产 / 大额资产 / 复杂家庭关系请咨询执业律师并办理公证。' },
+            { q: '需要多长时间生成文书？', a: '填写问卷约 10-15 分钟, AI 生成约 1-2 分钟, 即可下载 PDF/Word 文件。' },
+            { q: '个人信息是否安全？', a: '所有数据存储于中国大陆腾讯云, 符合《数据安全法》; PII 字段加密存储, 30 天可申请彻底删除。' },
+            { q: '专家护航版和 AI 智能版的区别？', a: 'AI 智能版 (¥19.9) 纯 AI 生成; 专家护航版 (¥999) 增加执业律师 1 对 1 审核 + 修改建议, 适合复杂情况。' },
+            { q: '如何修改已生成的文书？', a: '在支付前, 您可以无限次重新填写问卷并生成新草稿。支付后如需修改, 可联系客服。' },
+            { q: '支持哪些文件格式下载？', a: '付费后, 您可以下载 PDF 和 Word 两种格式的文书文件, 方便查看和打印。' },
+          ],
+        }}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import LegalFooter from "@/components/LegalFooter";
+import { StructuredData } from "@/components/StructuredData";
 import "./globals.css";
 
 // 字体策略: 改版后使用 系统字体栈, 避免离线 / 受限网络环境 build 失败.
@@ -26,6 +27,8 @@ export const metadata: Metadata = {
     "继承规划",
   ],
   authors: [{ name: "爱的延续工作室" }],
+  creator: "爱的延续工作室",
+  publisher: "爱的延续工作室",
   robots: "index, follow",
   openGraph: {
     title: "爱的延续 · 智能资产规划与遗嘱生成",
@@ -34,10 +37,46 @@ export const metadata: Metadata = {
     type: "website",
     locale: "zh_CN",
     siteName: "爱的延续",
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "爱的延续 · 让爱与财富安心传承",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "爱的延续 · 智能资产规划与遗嘱生成",
+    description: "AI 问卷 + 资产规划专业人士兜底, 一站生成合规遗嘱",
+    images: ["/og-default.png"],
   },
   alternates: {
     canonical: "https://aiwill-planner.cn",
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/icon-192.png",
+  },
+  verification: {
+    // 百度站长 / Google Search Console 验证, 上线时填
+    // google: "xxx",
+    // baidu: "xxx",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f59e0b" },
+    { media: "(prefers-color-scheme: dark)", color: "#92400e" },
+  ],
 };
 
 export default function RootLayout({
@@ -47,6 +86,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" className="h-full antialiased">
+      <head>
+        <StructuredData type="organization" />
+        <StructuredData type="website" />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
         <LegalFooter />

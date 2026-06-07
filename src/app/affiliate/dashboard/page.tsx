@@ -4,12 +4,14 @@
  * 显示:
  *  - 推广码 + 推广链接 + 一键复制
  *  - 4 张统计卡: 点击 / 转化 / 累计佣金 / 可提现
- *  - 佣金明细 (最近 10 条)
+ *  - tier-1/2 佣金拆分 (二级分销)
+ *  - 我的团队 (下级博主列表)
+ *  - 佣金明细 (最近 10 条, 含 tier 标识)
  *  - 点击明细 (最近 20 条)
  *  - 提现按钮 + 提现记录
  */
 import { cookies } from 'next/headers';
-import { getBloggerByUserId, getBloggerDashboard, listWithdrawals } from '@/lib/affiliate';
+import { getBloggerByUserId, getBloggerDashboard, getDownline, listWithdrawals } from '@/lib/affiliate';
 import { DashboardContent } from './DashboardContent';
 
 export const dynamic = 'force-dynamic';
@@ -109,11 +111,15 @@ export default async function AffiliateDashboardPage() {
   const withdrawalsResult = await listWithdrawals({ bloggerId: blogger.id, limit: 20 });
   const withdrawals = withdrawalsResult.withdrawals;
 
+  // 加载下级博主 (二级分销)
+  const downline = await getDownline(blogger.id);
+
   return (
     <DashboardContent
       blogger={dashboard.blogger}
       stats={dashboard.stats}
       withdrawals={withdrawals}
+      downline={downline}
     />
   );
 }

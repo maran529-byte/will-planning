@@ -3,11 +3,16 @@
  *
  * 申请成为博主.
  * 需登录 (admin_session cookie, 简化版, 与 /admin 共享 Supabase Auth).
+ *
+ * tier-2 关联: 如果用户访问时带 ?ref=XXX 推广码 (cookie aff_ref 留存),
+ * 申请时会自动写入 parent_blogger_id, 成为推荐人 (上级博主) 的下级.
+ * Cookie 在申请后清空, 避免后续申请复用 (虽然 1 个用户 1 个博主约束已防止重复).
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { applyForBlogger } from '@/lib/affiliate';
 import { requireAuth } from '@/lib/admin-auth';
+import { getRefFromCookie, clearRefCookie } from '@/lib/affiliate-cookie';
 
 const applySchema = z.object({
   display_name: z.string().min(2).max(20),
@@ -47,13 +52,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // 读上级推广码 (cookie); 不强制, 没带则成为顶级博主
+  const parentRefCode = await getRefFromCookie();
+
   const result = await applyForBlogger({
     userId: session.user.id,
     displayName: parsed.data.display_name,
     contactPhone: parsed.data.contact_phone,
     bio: parsed.data.bio,
     avatarUrl: parsed.data.avatar_url,
+    parentRefCode: parentRefCode,
   });
+
+  // 不论成功失败, 都清空 cookie (避免下次意外关联)
+  if (parentRefCode) {
+    await clearRefCookie();
+  }
 
   if (!result.success) {
     return NextResponse.json(
@@ -65,5 +79,6 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     success: true,
     blogger: result.blogger,
+    has_parent: !!result.blogger?.parent_blogger_id,
   });
 }

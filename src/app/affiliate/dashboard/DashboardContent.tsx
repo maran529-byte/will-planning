@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import type { Blogger, BloggerDashboard } from '@/lib/affiliate';
+import type { Blogger, BloggerDashboard, DownlineRow } from '@/lib/affiliate';
 import type { Withdrawal } from '@/lib/affiliate';
 
 interface Props {
   blogger: Blogger;
   stats: BloggerDashboard['stats'];
   withdrawals: Withdrawal[];
+  downline: DownlineRow[];
 }
 
 function formatYuan(cents: number): string {
@@ -38,7 +39,14 @@ const WITHDRAWAL_STATUS_MAP: Record<string, { label: string; cls: string }> = {
   cancelled: { label: '已撤销', cls: 'bg-slate-100 text-slate-600' },
 };
 
-export function DashboardContent({ blogger, stats, withdrawals }: Props) {
+const BLOGGER_STATUS_MAP: Record<string, { label: string; cls: string }> = {
+  pending: { label: '⏳ 待审核', cls: 'bg-amber-100 text-amber-700' },
+  approved: { label: '✅ 已通过', cls: 'bg-emerald-100 text-emerald-700' },
+  rejected: { label: '❌ 未通过', cls: 'bg-red-100 text-red-700' },
+  disabled: { label: '🚫 已禁用', cls: 'bg-slate-100 text-slate-500' },
+};
+
+export function DashboardContent({ blogger, stats, withdrawals, downline }: Props) {
   const [copied, setCopied] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -106,8 +114,8 @@ export function DashboardContent({ blogger, stats, withdrawals }: Props) {
           </div>
         </div>
 
-        {/* 4 张统计卡 */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        {/* 6 张统计卡 (含 tier-1/2 拆分) */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
           <StatCard label="总点击" value={stats.total_clicks} unit="次" />
           <StatCard label="转化订单" value={stats.total_conversions} unit="单" />
           <StatCard label="累计佣金" value={formatYuan(stats.total_commission)} />
@@ -115,6 +123,17 @@ export function DashboardContent({ blogger, stats, withdrawals }: Props) {
             label="可提现"
             value={formatYuan(stats.available_commission)}
             highlight
+          />
+          <StatCard
+            label="直接佣金 (tier-1)"
+            value={formatYuan(stats.tier1_commission)}
+            sublabel={`${(blogger.commission_rate / 100).toFixed(0)}% 比例`}
+          />
+          <StatCard
+            label="间推佣金 (tier-2)"
+            value={formatYuan(stats.tier2_commission)}
+            sublabel="来自下级 3%"
+            accent
           />
         </div>
 
@@ -154,6 +173,7 @@ export function DashboardContent({ blogger, stats, withdrawals }: Props) {
                   <tr>
                     <th className="text-left py-2 px-2">订单金额</th>
                     <th className="text-right py-2 px-2">佣金</th>
+                    <th className="text-center py-2 px-2">层级</th>
                     <th className="text-center py-2 px-2">比例</th>
                     <th className="text-center py-2 px-2">状态</th>
                     <th className="text-right py-2 px-2">时间</th>
@@ -162,12 +182,16 @@ export function DashboardContent({ blogger, stats, withdrawals }: Props) {
                 <tbody>
                   {stats.recent_commissions.map((c) => {
                     const s = STATUS_MAP[c.status] || { label: c.status, cls: 'bg-slate-100 text-slate-600' };
+                    const tierBadge = c.tier === 2
+                      ? <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">tier-2</span>
+                      : <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">tier-1</span>;
                     return (
                       <tr key={c.id} className="border-b border-slate-100 last:border-0">
                         <td className="py-2 px-2">{formatYuan(c.order_amount_cents)}</td>
                         <td className="py-2 px-2 text-right font-semibold">
                           {formatYuan(c.commission_cents)}
                         </td>
+                        <td className="py-2 px-2 text-center">{tierBadge}</td>
                         <td className="py-2 px-2 text-center text-slate-500 text-xs">
                           {(c.rate / 100).toFixed(0)}%
                         </td>
@@ -176,6 +200,74 @@ export function DashboardContent({ blogger, stats, withdrawals }: Props) {
                         </td>
                         <td className="py-2 px-2 text-right text-xs text-slate-500">
                           {timeAgo(c.created_at)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* 我的团队 (二级分销) */}
+        <div className="bg-white rounded-xl p-5 shadow-sm mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-bold text-slate-800">
+              👥 我的团队 <span className="text-sm font-normal text-slate-500">({stats.downline_count} 位下级)</span>
+            </h2>
+            {stats.downline_count > 0 && (
+              <span className="text-sm text-amber-600 font-semibold">
+                已获得 tier-2: {formatYuan(stats.tier2_commission)}
+              </span>
+            )}
+          </div>
+          {downline.length === 0 ? (
+            <div className="text-center py-6">
+              <p className="text-slate-400 text-sm mb-3">暂无下级博主</p>
+              <p className="text-xs text-slate-500">
+                分享您的 <code className="font-mono bg-slate-100 px-1.5 py-0.5 rounded">{blogger.ref_code}</code> 推广码邀请其他博主,
+                当他们的订单成交时, 您可获得 3% 的间推奖励
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[500px]">
+                <thead className="text-xs text-slate-500 border-b">
+                  <tr>
+                    <th className="text-left py-2 px-2">博主</th>
+                    <th className="text-center py-2 px-2">状态</th>
+                    <th className="text-right py-2 px-2">TA 的累计佣金</th>
+                    <th className="text-right py-2 px-2">您的 tier-2 收入</th>
+                    <th className="text-right py-2 px-2">注册时间</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {downline.map((d) => {
+                    const s = BLOGGER_STATUS_MAP[d.status] || { label: d.status, cls: 'bg-slate-100 text-slate-600' };
+                    return (
+                      <tr key={d.blogger_id} className="border-b border-slate-100 last:border-0">
+                        <td className="py-2 px-2">
+                          <div className="font-medium text-slate-800">
+                            {d.display_name || '(未命名)'}
+                          </div>
+                          {d.ref_code && (
+                            <div className="text-xs text-slate-500 font-mono">
+                              {d.ref_code}
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-2 px-2 text-center">
+                          <span className={`text-xs px-2 py-0.5 rounded ${s.cls}`}>{s.label}</span>
+                        </td>
+                        <td className="py-2 px-2 text-right text-slate-700">
+                          {formatYuan(d.tier1_commission)}
+                        </td>
+                        <td className="py-2 px-2 text-right font-semibold text-amber-600">
+                          {formatYuan(d.tier2_paid_to_me)}
+                        </td>
+                        <td className="py-2 px-2 text-right text-xs text-slate-500">
+                          {timeAgo(d.created_at)}
                         </td>
                       </tr>
                     );
@@ -281,14 +373,35 @@ export function DashboardContent({ blogger, stats, withdrawals }: Props) {
   );
 }
 
-function StatCard({ label, value, unit, highlight }: { label: string; value: string | number; unit?: string; highlight?: boolean }) {
+function StatCard({ label, value, unit, highlight, accent, sublabel }: {
+  label: string;
+  value: string | number;
+  unit?: string;
+  highlight?: boolean;
+  accent?: boolean;
+  sublabel?: string;
+}) {
+  const bg = highlight
+    ? 'bg-emerald-50 border border-emerald-200'
+    : accent
+      ? 'bg-amber-50 border border-amber-200'
+      : 'bg-white';
+  const valueColor = highlight
+    ? 'text-emerald-600'
+    : accent
+      ? 'text-amber-600'
+      : 'text-slate-800';
+
   return (
-    <div className={`rounded-xl p-4 ${highlight ? 'bg-emerald-50 border border-emerald-200' : 'bg-white'} shadow-sm`}>
+    <div className={`rounded-xl p-4 ${bg} shadow-sm`}>
       <div className="text-xs text-slate-600 mb-1">{label}</div>
-      <div className={`text-2xl font-bold ${highlight ? 'text-emerald-600' : 'text-slate-800'}`}>
+      <div className={`text-2xl font-bold ${valueColor}`}>
         {value}
         {unit && <span className="text-sm text-slate-500 ml-1">{unit}</span>}
       </div>
+      {sublabel && (
+        <div className="text-xs text-slate-500 mt-1">{sublabel}</div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PRICING } from "@/lib/config";
+import { VisitorIdBanner } from "@/components/VisitorIdBanner";
 
 const MAIN_SITE = "https://aiwill-planner.cn";   // 主站 (CN, 合规)
 const H5_SITE   = "https://h5.aiwill-planner.cn"; // 移动端 (overseas)
@@ -108,6 +109,8 @@ const colorClasses: Record<string, { bg: string; border: string; text: string; h
 export default function HomePage() {
   return (
     <div className="landing-page">
+      {/* 访客编号提示横幅 (Phase 2) - 仅在未绑定时显示 */}
+      <VisitorIdBanner />
       {/* 顶部导航 */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">

@@ -15,8 +15,10 @@ import { requireAdmin } from '@/lib/admin-auth';
 const NAV_ITEMS = [
   { href: '/admin', label: '概览' },
   { href: '/admin/orders', label: '订单' },
-  { href: '/admin/users', label: '用户' },
   { href: '/admin/refunds', label: '退款' },
+  { href: '/admin/users', label: '用户' },
+  { href: '/admin/affiliates', label: '博主' },
+  { href: '/admin/withdrawals', label: '提现审批' },
   { href: '/admin/lawyers', label: '律师预约' },
   { href: '/admin/payments', label: '支付流水' },
 ];

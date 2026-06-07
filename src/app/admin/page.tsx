@@ -2,14 +2,7 @@ import Link from 'next/link';
 import { requireAdmin } from '@/lib/admin-auth';
 import { supabaseAdmin } from '@/lib/supabase-server';
 
-/**
- * /admin 概览页
- *
- * 显示 4 个指标卡 (今日订单 / 今日 GMV / 待支付 / 异常) + 最近 10 单
- * 数据从 supabase 直查 (避免 round trip 额外 API)
- */
-
-export const dynamic = 'force-dynamic'; // 不缓存, 实时数据
+export const dynamic = 'force-dynamic';
 
 interface OrderRow {
   id: string;
@@ -24,6 +17,26 @@ interface OrderRow {
   openid: string | null;
 }
 
+interface AffiliateRow {
+  id: string;
+  display_name: string | null;
+  ref_code: string | null;
+  status: string;
+  total_earned_cents: number;
+  available_cents: number;
+  applied_at: string;
+}
+
+interface WithdrawalRow {
+  id: string;
+  blogger_id: string;
+  amount_cents: number;
+  contact_method: string;
+  status: string;
+  requested_at: string;
+  blogger_display_name?: string;
+}
+
 async function loadStats() {
   if (!supabaseAdmin) return null;
   const now = new Date();
@@ -36,6 +49,11 @@ async function loadStats() {
     { count: pendingOrders },
     { data: recentOrders },
     { count: errorOrders },
+    { count: pendingBloggers },
+    { count: approvedBloggers },
+    { data: pendingWithdrawals },
+    { data: pendingWithdrawalsList },
+    { data: pendingBloggerList },
   ] = await Promise.all([
     supabaseAdmin.from('orders').select('id', { count: 'exact', head: true }).gte('created_at', todayStart),
     supabaseAdmin.from('orders').select('amount').eq('status', 'paid').gte('paid_at', todayStart),
@@ -50,16 +68,57 @@ async function loadStats() {
       .select('id', { count: 'exact', head: true })
       .eq('status', 'pending')
       .lt('created_at', oneHourAgo),
+    supabaseAdmin.from('bloggers').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabaseAdmin.from('bloggers').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
+    supabaseAdmin.from('withdrawals').select('amount_cents').eq('status', 'pending'),
+    supabaseAdmin
+      .from('withdrawals')
+      .select('id, blogger_id, amount_cents, contact_method, status, requested_at')
+      .eq('status', 'pending')
+      .order('requested_at', { ascending: true })
+      .limit(5),
+    supabaseAdmin
+      .from('bloggers')
+      .select('id, display_name, ref_code, status, total_earned_cents, available_cents, applied_at')
+      .eq('status', 'pending')
+      .order('applied_at', { ascending: true })
+      .limit(5),
   ]);
 
   const todayGmvCents = (todayPaid || []).reduce((s, o) => s + (Number(o.amount) || 0), 0);
+  const pendingWithdrawTotal = (pendingWithdrawals || []).reduce((s, w) => s + w.amount_cents, 0);
+
+  // 关联博主名 (一笔 IO)
+  const bloggerIds = Array.from(
+    new Set([
+      ...(pendingWithdrawalsList || []).map((w) => w.blogger_id),
+      ...(pendingBloggerList || []).map((b) => b.id),
+    ])
+  );
+  let bloggerMap = new Map<string, string>();
+  if (bloggerIds.length > 0) {
+    const { data: bloggers } = await supabaseAdmin
+      .from('bloggers')
+      .select('id, display_name')
+      .in('id', bloggerIds);
+    bloggerMap = new Map((bloggers || []).map((b: any) => [b.id, b.display_name || '-']));
+  }
+
   return {
     today_orders: todayOrders || 0,
     today_gmv_cents: todayGmvCents,
-    today_gmv_yuan: (todayGmvCents / 100).toFixed(2),
     pending_orders: pendingOrders || 0,
     error_orders: errorOrders || 0,
+    pending_bloggers: pendingBloggers || 0,
+    approved_bloggers: approvedBloggers || 0,
+    pending_withdraw_total_cents: pendingWithdrawTotal,
+    pending_withdraw_count: (pendingWithdrawals || []).length,
     recent_orders: (recentOrders || []) as OrderRow[],
+    pending_withdrawals: ((pendingWithdrawalsList || []) as WithdrawalRow[]).map((w) => ({
+      ...w,
+      blogger_display_name: bloggerMap.get(w.blogger_id) || '-',
+    })),
+    pending_blogger_list: (pendingBloggerList || []) as AffiliateRow[],
   };
 }
 
@@ -74,12 +133,10 @@ function timeAgo(iso: string): string {
   if (m < 60) return `${m}分钟前`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}小时前`;
-  const d = Math.floor(h / 24);
-  return `${d}天前`;
+  return `${Math.floor(h / 24)}天前`;
 }
 
 export default async function AdminHomePage() {
-  // 鉴权 (layout 已做, 这里再校验一次, 防止 layout 失效)
   const auth = await requireAdmin();
   if (!auth.authenticated) {
     return <div>无权访问</div>;
@@ -96,11 +153,21 @@ export default async function AdminHomePage() {
     );
   }
 
+  const todoCount =
+    stats.pending_bloggers + stats.pending_withdraw_count + stats.error_orders;
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">📊 概览</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-slate-800">📊 概览</h1>
+        {todoCount > 0 && (
+          <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg">
+            ⚠️ 您有 <strong>{todoCount}</strong> 项待处理
+          </div>
+        )}
+      </div>
 
-      {/* 4 指标卡 */}
+      {/* 主指标 4 卡 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="今日订单" value={stats.today_orders} accent="blue" />
         <StatCard label="今日 GMV" value={formatYuan(stats.today_gmv_cents)} accent="emerald" />
@@ -110,6 +177,100 @@ export default async function AdminHomePage() {
           value={stats.error_orders}
           accent={stats.error_orders > 0 ? 'red' : 'slate'}
         />
+      </div>
+
+      {/* 博主 + 提现 指标 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatCard
+          label="待审核博主"
+          value={stats.pending_bloggers}
+          accent={stats.pending_bloggers > 0 ? 'pink' : 'slate'}
+          link="/admin/affiliates?status=pending"
+        />
+        <StatCard
+          label="已通过博主"
+          value={stats.approved_bloggers}
+          accent="slate"
+          link="/admin/affiliates?status=approved"
+        />
+        <StatCard
+          label="待打款 (提现)"
+          value={formatYuan(stats.pending_withdraw_total_cents)}
+          subValue={`${stats.pending_withdraw_count} 笔待审批`}
+          accent={stats.pending_withdraw_count > 0 ? 'amber' : 'slate'}
+          link="/admin/withdrawals?status=pending"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 待办: 待审核博主 */}
+        {stats.pending_bloggers > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-bold text-slate-800">
+                🎁 待审核博主 ({stats.pending_blogger_list.length})
+              </h2>
+              <Link href="/admin/affiliates?status=pending" className="text-xs text-amber-600 hover:underline">
+                全部 →
+              </Link>
+            </div>
+            <div className="rounded-xl bg-white shadow-sm divide-y divide-slate-100">
+              {stats.pending_blogger_list.map((b) => (
+                <Link
+                  key={b.id}
+                  href="/admin/affiliates?status=pending"
+                  className="block px-4 py-3 hover:bg-slate-50"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0">
+                      <div className="font-medium text-slate-800 text-sm">{b.display_name || '(匿名)'}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{timeAgo(b.applied_at)}</div>
+                    </div>
+                    <span className="text-xs text-amber-600">审核 →</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 待办: 待审批提现 */}
+        {stats.pending_withdraw_count > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-bold text-slate-800">
+                💸 待审批提现 ({stats.pending_withdrawals.length})
+              </h2>
+              <Link href="/admin/withdrawals?status=pending" className="text-xs text-amber-600 hover:underline">
+                全部 →
+              </Link>
+            </div>
+            <div className="rounded-xl bg-white shadow-sm divide-y divide-slate-100">
+              {stats.pending_withdrawals.map((w) => (
+                <Link
+                  key={w.id}
+                  href="/admin/withdrawals?status=pending"
+                  className="block px-4 py-3 hover:bg-slate-50"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-slate-800 text-sm truncate">{w.blogger_display_name}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">
+                        {w.contact_method === 'alipay' ? '支付宝' : w.contact_method === 'wechat' ? '微信' : '银行卡'}
+                        {' · '}
+                        {timeAgo(w.requested_at)}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold text-amber-600">{formatYuan(w.amount_cents)}</div>
+                      <div className="text-xs text-amber-600">审批 →</div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       {/* 最近 10 单 */}
@@ -170,20 +331,36 @@ export default async function AdminHomePage() {
   );
 }
 
-function StatCard({ label, value, accent }: { label: string; value: number | string; accent: string }) {
+function StatCard({
+  label,
+  value,
+  subValue,
+  accent,
+  link,
+}: {
+  label: string;
+  value: number | string;
+  subValue?: string;
+  accent: string;
+  link?: string;
+}) {
   const colorMap: Record<string, string> = {
     blue: 'bg-blue-50 text-blue-900 border-blue-200',
     emerald: 'bg-emerald-50 text-emerald-900 border-emerald-200',
     amber: 'bg-amber-50 text-amber-900 border-amber-200',
     red: 'bg-red-50 text-red-900 border-red-200',
+    pink: 'bg-pink-50 text-pink-900 border-pink-200',
     slate: 'bg-slate-50 text-slate-900 border-slate-200',
   };
-  return (
-    <div className={`rounded-xl border p-4 ${colorMap[accent] || colorMap.slate}`}>
+  const cls = colorMap[accent] || colorMap.slate;
+  const content = (
+    <div className={`rounded-xl border p-4 ${cls} ${link ? 'hover:shadow-sm cursor-pointer transition' : ''}`}>
       <p className="text-xs font-medium opacity-80 mb-1">{label}</p>
       <p className="text-2xl font-bold">{value}</p>
+      {subValue && <p className="text-xs opacity-70 mt-1">{subValue}</p>}
     </div>
   );
+  return link ? <Link href={link}>{content}</Link> : content;
 }
 
 function PlanBadge({ plan }: { plan: string }) {

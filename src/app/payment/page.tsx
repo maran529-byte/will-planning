@@ -35,7 +35,7 @@ function PaymentContent() {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [paymentNote, setPaymentNote] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [timeout, setTimeout] = useState(false);
+  const [timeoutState, setTimeoutState] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false); // manual 模式: 客户点了 "我已支付" 后置 true
 
   const planData = planParam === 'expert' ? PRICING.expertReview
@@ -82,7 +82,7 @@ function PaymentContent() {
     setPaymentMethod(method);
     setShowQR(true);
     setPaying(true);
-    setTimeout(false);
+    setTimeoutState(false);
     setAcknowledged(false);
 
     // 调用 /api/payment 拿二维码 (manual 模式会返回管理员收款码)
@@ -115,6 +115,8 @@ function PaymentContent() {
     if (!paying || !order) return;
 
     let count = 0;
+    // Phase 1 manual 模式: admin 确认可能需要 1-5 分钟, 延长到 5 分钟
+    const MAX_POLLS = 300; // 300 * 1s = 5 min
     const pollInterval = setInterval(async () => {
       count += 1;
       try {
@@ -137,8 +139,8 @@ function PaymentContent() {
         console.error('轮询订单状态失败:', error);
       }
 
-      if (count >= 30) { // 30次轮询约30秒
-        setTimeout(true);
+      if (count >= MAX_POLLS) {
+        setTimeoutState(true);
         setPaying(false);
         clearInterval(pollInterval);
       }
@@ -350,7 +352,7 @@ function PaymentContent() {
                     关闭
                   </button>
                 </div>
-              ) : timeout ? (
+              ) : timeoutState ? (
                 <div className="text-center">
                   <div className="text-4xl mb-2">⏰</div>
                   <p className="text-red-600 font-medium mb-4">支付确认超时</p>

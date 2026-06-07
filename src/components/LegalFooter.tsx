@@ -29,6 +29,8 @@ export default function LegalFooter() {
             <Link href="/" className="hover:text-white transition">首页</Link>
             <Link href="/questionnaire" className="hover:text-white transition">开始生成</Link>
             <Link href="/orders" className="hover:text-white transition">我的订单</Link>
+            <Link href="/affiliate" className="hover:text-white transition">博主计划</Link>
+            <Link href="/about" className="hover:text-white transition">关于我们</Link>
             <a
               href={H5_SITE}
               target="_blank"
@@ -63,6 +65,10 @@ export default function LegalFooter() {
             >
               沪ICP备2026020925号-1
             </a>
+            <span className="mx-2">|</span>
+            <Link href="/privacy" className="hover:text-slate-300">隐私政策</Link>
+            <span className="mx-2">|</span>
+            <Link href="/terms" className="hover:text-slate-300">服务条款</Link>
             <span className="mx-2">|</span>
             爱的延续工作室 · 上海市
             <span className="mx-2">|</span>

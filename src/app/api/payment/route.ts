@@ -19,9 +19,10 @@ function getServerOrders(): Order[] {
 }
 
 // P0: zod schema for payment init input.
+// 改版 v3 (2026-06-07): channel 扩展 'manual' (Phase 1 个人微信收款 + 人工确认)
 const initiatePaymentSchema = z.object({
   order_id: z.string().min(1).max(128),
-  channel: z.enum(['wechat', 'alipay', 'demo']).default('demo'),
+  channel: z.enum(['wechat', 'alipay', 'demo', 'manual']).default('manual'),
 });
 
 export async function POST(request: NextRequest) {
@@ -75,10 +76,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Plan descriptions for payment
+    // 改版 v3: 加 'expert' 套餐 (原 'lawyer' 显示名升级为 '资产规划专业人士审核')
     const planDescriptions: Record<string, string> = {
-      ai: '遗嘱规划 AI 指导服务',
-      lawyer: '律师审核服务',
-      family: '家族传承综合服务',
+      ai: 'AI智能版 · 文书生成',
+      expert: '专家护航版 · 资产规划专业人士审核',
+      lawyer: '专家护航版 · 资产规划专业人士审核',  // 历史值兼容
+      family: '家族传承综合服务',                      // 已下架
     };
 
     const description = planDescriptions[order.plan] || '遗嘱规划服务';
@@ -104,6 +107,9 @@ export async function POST(request: NextRequest) {
       payment_url: result.payment_url,
       qr_code_url: result.qr_code_url,
       order_id: result.order_id,
+      // 改版 v3: 透传 note (manual 模式: 客户需知 - 留言订单号等)
+      note: result.note,
+      channel: result.success ? channel : undefined,
     });
   } catch (error) {
     console.error('发起支付失败:', error);

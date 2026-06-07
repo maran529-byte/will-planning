@@ -13,7 +13,7 @@ interface Order {
   plan: 'ai' | 'expert' | 'lawyer' | 'family';  // 兼容历史 'lawyer' / 'family'
   status: 'pending' | 'paid' | 'refunded' | 'cancelled';
   paid_at?: string;
-  payment_channel?: 'wechat' | 'alipay';
+  payment_channel?: 'wechat' | 'alipay' | 'manual' | 'demo';
   created_at: string;
 }
 
@@ -30,9 +30,13 @@ function PaymentContent() {
   const [creating, setCreating] = useState(false);
   const [paying, setPaying] = useState(false);
   const [showQR, setShowQR] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'wechat' | 'alipay' | null>(null);
+  // 改版 v3: paymentMethod 扩展 'manual' (Phase 1 收款码 + 人工确认)
+  const [paymentMethod, setPaymentMethod] = useState<'wechat' | 'alipay' | 'manual' | null>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [paymentNote, setPaymentNote] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [timeout, setTimeout] = useState(false);
+  const [acknowledged, setAcknowledged] = useState(false); // manual 模式: 客户点了 "我已支付" 后置 true
 
   const planData = planParam === 'expert' ? PRICING.expertReview
     : PRICING.aiGuide;
@@ -71,11 +75,39 @@ function PaymentContent() {
     });
   }, [createNewOrder]);
 
-  const startPayment = async (method: 'wechat' | 'alipay') => {
+  // 改版 v3: 客户点 "微信扫码支付" 时, 默认走 manual 模式 (Phase 1)
+  // - 即便真实 WECHAT_* 已配, Phase 1 也走 manual
+  // - 客户扫码 → 管理员后台 mark paid → 30s 轮询看到状态变化
+  const startPayment = async (method: 'wechat' | 'alipay' | 'manual') => {
     setPaymentMethod(method);
     setShowQR(true);
     setPaying(true);
     setTimeout(false);
+    setAcknowledged(false);
+
+    // 调用 /api/payment 拿二维码 (manual 模式会返回管理员收款码)
+    try {
+      const res = await fetch('/api/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: order?.id,
+          order_no: order?.order_no,
+          amount: priceInFen,
+          description: planData.name,
+          channel: 'manual',  // Phase 1: 固定 manual
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.qr_code_url) {
+        setQrCodeUrl(data.qr_code_url);
+        setPaymentNote(data.note || null);
+      } else {
+        console.error('支付初始化失败:', data.error);
+      }
+    } catch (error) {
+      console.error('支付初始化异常:', error);
+    }
   };
 
   // 轮询订单状态
@@ -115,27 +147,19 @@ function PaymentContent() {
     return () => clearInterval(pollInterval);
   }, [paying, order]);
 
+  // 改版 v3: manual 模式下, 客户点 "我已支付" 不实际调 callback (避免与管理员后台冲突)
+  // 仅展示"等待客服确认"提示, 由管理员在 /admin/orders (Phase 3) mark paid
   const handlePayConfirm = async () => {
-    if (!order || !paymentMethod) return;
-
-    try {
-      await fetch('/api/payment/callback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          order_id: order.id,
-          status: 'paid',
-          payment_channel: paymentMethod,
-        }),
-      });
-    } catch (error) {
-      console.error('确认支付失败:', error);
-    }
+    setAcknowledged(true);
+    // 注意: 不调用 /api/payment/callback, 由管理员后台 mark paid
   };
 
   const closeQR = () => {
     setShowQR(false);
     setPaymentMethod(null);
+    setQrCodeUrl(null);
+    setPaymentNote(null);
+    setAcknowledged(false);
   };
 
   if (loading || creating) {
@@ -156,7 +180,7 @@ function PaymentContent() {
           <div className="text-6xl mb-4">🎉</div>
           <h1 className="text-2xl font-bold text-slate-800 mb-2">支付成功</h1>
           <p className="text-slate-600 mb-6">您的订单已支付成功</p>
-          
+
           <div className="bg-slate-50 rounded-xl p-4 mb-6 text-left">
             <div className="flex justify-between mb-2">
               <span className="text-slate-500">订单号</span>
@@ -173,13 +197,13 @@ function PaymentContent() {
           </div>
 
           <div className="space-y-3">
-            <Link 
-              href="/orders" 
+            <Link
+              href="/orders"
               className="block w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl transition"
             >
               查看订单
             </Link>
-            <Link 
+            <Link
               href={`/result?id=${willId}&plan=${planParam}`}
               className="block w-full border-2 border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 rounded-xl transition"
             >
@@ -207,7 +231,7 @@ function PaymentContent() {
         {/* 订单摘要 */}
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
           <h2 className="text-lg font-bold text-slate-800 mb-4">订单详情</h2>
-          
+
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-slate-600">套餐</span>
@@ -231,7 +255,7 @@ function PaymentContent() {
             <span className="text-slate-600">应付金额</span>
             <span className="text-3xl font-bold text-amber-600">¥{priceInYuan}</span>
           </div>
-          
+
           {order && (
             <div className="mt-4 pt-4 border-t border-slate-100 text-sm text-slate-500">
               订单号: {order.order_no}
@@ -239,75 +263,114 @@ function PaymentContent() {
           )}
         </div>
 
-        {/* 支付方式选择 */}
+        {/* 支付方式选择 - 改版 v3: 主推扫码支付 (manual) */}
         <div className="bg-white rounded-2xl shadow-sm p-6">
-          <h3 className="text-lg font-bold text-slate-800 mb-4">选择支付方式</h3>
-          
+          <h3 className="text-lg font-bold text-slate-800 mb-2">选择支付方式</h3>
+          <p className="text-sm text-slate-500 mb-4">
+            扫码支付 · 微信/支付宝均可 · 支付后客服将在数分钟内确认
+          </p>
+
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={() => startPayment('wechat')}
+              onClick={() => startPayment('manual')}
               disabled={paying}
-              className="flex flex-col items-center gap-2 p-6 border-2 border-green-200 rounded-xl hover:bg-green-50 transition disabled:opacity-50"
+              className="flex flex-col items-center gap-2 p-6 border-2 border-emerald-200 rounded-xl hover:bg-emerald-50 transition disabled:opacity-50"
             >
-              <div className="text-4xl">💚</div>
-              <span className="font-medium text-slate-800">微信支付</span>
+              <div className="text-4xl">📱</div>
+              <span className="font-medium text-slate-800">扫码支付</span>
+              <span className="text-xs text-slate-500">微信/支付宝</span>
             </button>
-            
-            <button
-              onClick={() => startPayment('alipay')}
-              disabled={paying}
-              className="flex flex-col items-center gap-2 p-6 border-2 border-blue-200 rounded-xl hover:bg-blue-50 transition disabled:opacity-50"
+
+            <Link
+              href="/orders"
+              className="flex flex-col items-center gap-2 p-6 border-2 border-slate-200 rounded-xl hover:bg-slate-50 transition"
             >
-              <div className="text-4xl">💙</div>
-              <span className="font-medium text-slate-800">支付宝</span>
-            </button>
+              <div className="text-4xl">📋</div>
+              <span className="font-medium text-slate-800">查看订单</span>
+              <span className="text-xs text-slate-500">稍后支付</span>
+            </Link>
           </div>
         </div>
 
-        {/* 支付二维码弹窗 */}
-        {showQR && paymentMethod && (
+        {/* 支付二维码弹窗 - 改版 v3: 显示管理员收款码 (manual 模式) */}
+        {showQR && paymentMethod === 'manual' && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
               <div className="text-center mb-4">
-                <h3 className="text-lg font-bold text-slate-800">
-                  {paymentMethod === 'wechat' ? '微信' : '支付宝'}支付
-                </h3>
-                <p className="text-slate-500 text-sm mt-1">请扫描下方二维码完成支付</p>
+                <h3 className="text-lg font-bold text-slate-800">扫码支付</h3>
+                <p className="text-slate-500 text-sm mt-1">请使用微信/支付宝扫描下方二维码</p>
+              </div>
+
+              {/* 订单号水印 - 让客户留言时附上, 客服对账 */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-center">
+                <p className="text-xs text-amber-700 mb-1">请在付款时留言订单号</p>
+                <p className="font-mono text-lg font-bold text-amber-800">{order?.order_no}</p>
               </div>
 
               <div className="bg-slate-100 rounded-xl p-4 mb-4">
-                {/* 模拟二维码图片 */}
-                <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">📱</div>
-                    <p className="text-xs text-slate-500">模拟二维码</p>
-                    <p className="text-xs text-slate-400 mt-1">支付 ¥{priceInYuan}</p>
+                {qrCodeUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={qrCodeUrl}
+                    alt="支付二维码"
+                    className="w-48 h-48 mx-auto bg-white rounded-lg object-contain"
+                  />
+                ) : (
+                  <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="animate-spin text-4xl mb-2">⏳</div>
+                      <p className="text-xs text-slate-500">加载收款码...</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
-              <div className="text-center text-sm text-slate-500 mb-4">
-                支付成功后点击下方按钮确认
+              {/* 支付金额醒目展示 */}
+              <div className="text-center mb-4">
+                <p className="text-3xl font-bold text-amber-600">¥{priceInYuan}</p>
+                <p className="text-xs text-slate-500 mt-1">付款后请点下方按钮</p>
               </div>
 
-              {timeout ? (
-                <div className="text-center">
-                  <div className="text-4xl mb-2">⏰</div>
-                  <p className="text-red-600 font-medium mb-4">支付超时</p>
+              {acknowledged ? (
+                // 客户已点 "我已支付" - 显示等待确认状态
+                <div className="space-y-3">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <div className="text-3xl mb-2">⏳</div>
+                    <p className="text-blue-700 font-medium text-sm">已收到您的支付提醒</p>
+                    <p className="text-blue-600 text-xs mt-1">客服将在数分钟内确认, 页面将自动跳转</p>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
+                    <div className="animate-pulse w-2 h-2 bg-green-500 rounded-full"></div>
+                    正在等待订单确认...
+                  </div>
                   <button
                     onClick={closeQR}
                     className="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-3 rounded-xl transition"
                   >
-                    重新选择支付方式
+                    关闭
+                  </button>
+                </div>
+              ) : timeout ? (
+                <div className="text-center">
+                  <div className="text-4xl mb-2">⏰</div>
+                  <p className="text-red-600 font-medium mb-4">支付确认超时</p>
+                  <p className="text-slate-500 text-sm mb-4">
+                    若已支付, 请加客服微信并提供订单号 <span className="font-mono font-bold">{order?.order_no}</span>
+                  </p>
+                  <button
+                    onClick={closeQR}
+                    className="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-3 rounded-xl transition"
+                  >
+                    重新选择
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3">
                   <button
                     onClick={handlePayConfirm}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition"
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-xl transition"
                   >
-                    我已支付成功
+                    我已支付 · 请客服确认
                   </button>
                   <button
                     onClick={closeQR}
@@ -319,7 +382,8 @@ function PaymentContent() {
               )}
 
               <div className="mt-4 text-center text-xs text-slate-400">
-                <p>模拟环境：无需真实支付</p>
+                <p>支付即视为同意《服务协议》</p>
+                <p className="mt-1">客服微信: 见网站底部</p>
               </div>
             </div>
           </div>
@@ -327,7 +391,7 @@ function PaymentContent() {
 
         {/* 底部提示 */}
         <div className="mt-8 text-center text-sm text-slate-500">
-          <p>支付过程中如有疑问，请联系客服</p>
+          <p>支付过程中如有疑问, 请联系客服</p>
         </div>
       </main>
     </div>

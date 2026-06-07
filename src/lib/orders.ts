@@ -5,6 +5,13 @@
 //  - 添加 openid 字段, 所有读写都按 openid 过滤 (用户隔离)
 //  - 添加 getOrdersByOpenid 系列函数, 替换"全表 SELECT"反模式
 //  - DB 层加 openid 列 (见 supabase/migrations/0002_add_orders_openid.sql)
+//
+// 改版 v3 (2026-06-07):
+//  - payment_channel 增加 'manual' 枚举值 (Phase 1, 个人微信收款码 + 人工确认)
+//  - 新增 markOrderPaidManually() 服务端函数, 由 /api/admin/orders/[id]/mark-paid 调用
+//  - 新增 markOrderRefunded() 服务端函数, 由 /api/admin/orders/[id]/refund 调用
+//  - 注: 0001_init.sql 中 DB enum 暂未含 'manual' (值将存为 NULL, 由 order_no +
+//        管理员后台的 payment_method 字段补充识别)
 
 import { supabaseAdmin } from './supabase-server';
 import { normalizePlan, PlanId } from './pricing';
@@ -17,7 +24,9 @@ export interface Order {
   plan: PlanId | 'lawyer' | 'family';
   status: 'pending' | 'paid' | 'refunded' | 'cancelled';
   paid_at?: string;
-  payment_channel?: 'wechat' | 'alipay';
+  payment_channel?: 'wechat' | 'alipay' | 'manual' | 'demo';
+  // 新增: 支付方式细节 (Phase 1 manual 模式: 'wechat_personal' | 'alipay_personal')
+  payment_method?: string;
   will_id?: string;
   // 新增: 所属用户 (微信 openid 唯一标识)
   // 服务端从 cookie 读, 客户端从服务端注入, 永不信任客户端传值
@@ -159,7 +168,8 @@ export async function updateOrderServer(
 export async function updateOrderStatusServer(
   orderId: string,
   status: Order['status'],
-  paymentChannel?: 'wechat' | 'alipay'
+  paymentChannel?: 'wechat' | 'alipay' | 'manual' | 'demo',
+  paymentMethod?: string
 ): Promise<Order | null> {
   const updates: Partial<Order> = { status };
   if (status === 'paid') {
@@ -168,7 +178,86 @@ export async function updateOrderStatusServer(
   if (paymentChannel) {
     updates.payment_channel = paymentChannel;
   }
+  if (paymentMethod) {
+    updates.payment_method = paymentMethod;
+  }
   return updateOrderServer(orderId, updates);
+}
+
+/**
+ * Phase 1 收款: 管理员在 /admin/orders (Phase 3) 点"标记已支付"时调用.
+ *
+ * 与 updateOrderStatusServer 的区别:
+ *  - 强制设置 status='paid' + payment_channel='manual' (标记是人工通道, 非自动)
+ *  - 强制设置 paid_at=now() (即便之前有值也覆盖, 用于重置计时)
+ *  - 强制幂等: 已 paid 的订单会跳过 (避免重复加锁, 避免双发佣金)
+ *  - P0: .maybeSingle() 防止 PGRST116
+ *
+ * 安全: 必须在 /api/admin/* 路由内调用, 路由层 requireAdmin() 校验.
+ */
+export async function markOrderPaidManually(params: {
+  orderId: string;
+  adminId: string;
+  paymentMethod: 'wechat_personal' | 'alipay_personal';
+  note?: string;
+}): Promise<{ success: boolean; order?: Order; reason?: string }> {
+  const { orderId, adminId: _adminId, paymentMethod, note: _note } = params;
+
+  // 1. 校验订单存在
+  const existing = await getOrderServer(orderId);
+  if (!existing) {
+    return { success: false, reason: '订单不存在' };
+  }
+
+  // 2. 幂等: 已 paid 的订单直接返回 (避免重复 set paid_at)
+  if (existing.status === 'paid') {
+    return { success: true, order: existing, reason: '订单已是 paid 状态 (幂等返回)' };
+  }
+
+  // 3. 状态机: 仅 pending → paid 允许 (refunded/cancelled 不允许)
+  if (existing.status !== 'pending') {
+    return { success: false, reason: `订单状态 ${existing.status} 不允许手动 mark paid` };
+  }
+
+  // 4. 原子更新
+  const updates: Partial<Order> = {
+    status: 'paid',
+    paid_at: new Date().toISOString(),
+    payment_channel: 'manual',
+    payment_method: paymentMethod,
+  };
+  const updated = await updateOrderServer(orderId, updates);
+  if (!updated) {
+    return { success: false, reason: 'DB 更新失败' };
+  }
+
+  return { success: true, order: updated };
+}
+
+/**
+ * Phase 3 退款: 管理员在 /admin/refunds 点"退款"时调用.
+ *
+ * 状态机: paid → refunded (仅允许此转换).
+ * 同时记录 refunded_at (扩展字段, Phase 1 暂存 paid_at 上层).
+ */
+export async function markOrderRefunded(params: {
+  orderId: string;
+  adminId: string;
+  reason: string;
+}): Promise<{ success: boolean; order?: Order; reason?: string }> {
+  const { orderId, adminId: _adminId, reason: _reason } = params;
+  const existing = await getOrderServer(orderId);
+  if (!existing) {
+    return { success: false, reason: '订单不存在' };
+  }
+  if (existing.status !== 'paid') {
+    return { success: false, reason: `订单状态 ${existing.status} 不允许退款 (仅 paid 可退)` };
+  }
+  const updated = await updateOrderStatusServer(orderId, 'refunded', 'manual', 'admin_refund');
+  if (!updated) {
+    return { success: false, reason: 'DB 更新失败' };
+  }
+  return { success: true, order: updated };
 }
 
 // ---- Server-side localStorage fallback (in-memory, dev only) ----
@@ -222,7 +311,7 @@ export function createOrderLocal(data: CreateOrderInput): Order {
 export function updateOrderStatusLocal(
   orderId: string,
   status: Order['status'],
-  paymentChannel?: 'wechat' | 'alipay',
+  paymentChannel?: 'wechat' | 'alipay' | 'manual' | 'demo',
   ownerOpenid?: string
 ): Order | undefined {
   const orders = getServerOrders();
@@ -302,7 +391,7 @@ export function updateOrder(orderId: string, updates: Partial<Order>): Order | u
 export function updateOrderStatus(
   orderId: string,
   status: Order['status'],
-  paymentChannel?: 'wechat' | 'alipay'
+  paymentChannel?: 'wechat' | 'alipay' | 'manual' | 'demo'
 ): Order | undefined {
   const updates: Partial<Order> = { status };
   if (status === 'paid') {

@@ -184,7 +184,7 @@ export default async function DocTypePage({ searchParams }: PageProps) {
         <div className="mt-10 sm:mt-12 bg-blue-50 border border-blue-200 rounded-xl p-5 text-sm text-slate-700">
           <div className="font-semibold text-slate-800 mb-2 flex items-center gap-2">
             <span>💡</span>
-            <span>为什么只有"遗嘱"可填写?</span>
+            <span>为什么只有「遗嘱」可填写?</span>
           </div>
           <p className="leading-relaxed">
             其他 5 类文书 (婚姻/婚内财产/离婚/抚养/赠与) 的问卷正在开发中。

@@ -19,7 +19,7 @@
  *   - 生产环境需在 UI 上告知用户 ("您的语音将由浏览器发送到识别服务")
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 interface VoiceInputProps {
   /** 当前值 (用于"追加"模式 — 不会替换, 而是在末尾追加) */
@@ -32,8 +32,6 @@ interface VoiceInputProps {
   size?: 'sm' | 'md';
   /** 自定义 className */
   className?: string;
-  /** 是否在 textarea 上使用 (调整图标位置) */
-  multiline?: boolean;
 }
 
 // 浏览器 API 类型 (lib.dom.d.ts 里没有, 手动声明)
@@ -84,16 +82,16 @@ export function VoiceInput({
   lang = 'zh-CN',
   size = 'md',
   className = '',
-  multiline = false,
 }: VoiceInputProps) {
-  const [supported, setSupported] = useState(false);
+  // Feature detection 在初始 state 阶段 (SSR-safe: typeof window 检查避免服务端报错)
+  const [supported] = useState(() => !!getSpeechRecognitionCtor());
   const [listening, setListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
-  useEffect(() => {
-    setSupported(!!getSpeechRecognitionCtor());
-  }, []);
+  // 注: 不需要 useEffect, 因为 useState 的 lazy initializer 在 client mount 时
+  //  会跑一次, 拿到正确值. SSR 阶段 window 不存在, getSpeechRecognitionCtor
+  //  返回 null → supported = false → 按钮不渲染 (与服务端 HTML 一致, 无 hydration mismatch)
 
   const startListening = () => {
     setError(null);
@@ -142,7 +140,7 @@ export function VoiceInput({
     try {
       recognition.start();
       recognitionRef.current = recognition;
-    } catch (e) {
+    } catch {
       setError('启动语音识别失败');
       setListening(false);
     }

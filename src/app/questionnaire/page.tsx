@@ -270,7 +270,6 @@ function QuestionnaireContent() {
                 value={(value as string) || ""}
                 onChange={(v) => updateFormData(question.key as keyof typeof INITIAL_DATA, v)}
                 size="md"
-                multiline
               />
             </div>
           </div>

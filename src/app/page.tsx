@@ -128,7 +128,7 @@ export default function HomePage() {
             </a>
           </nav>
           <Link
-            href="/questionnaire"
+            href="/doc-type"
             className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition"
           >
             立即开始
@@ -151,7 +151,7 @@ export default function HomePage() {
             资产规划专业人士把关，让您的意愿得到妥善安排。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/questionnaire" className="btn-primary">
+            <Link href="/doc-type" className="btn-primary">
               开始创建文书 · ¥19.9起
             </Link>
             <a href="#documents" className="btn-secondary" style={{ background: 'transparent', border: '2px solid white', color: 'white' }}>
@@ -173,7 +173,7 @@ export default function HomePage() {
               return (
                 <Link
                   key={doc.id}
-                  href={`/questionnaire?type=${doc.id}`}
+                  href={`/doc-type?type=${doc.id}`}
                   className={`${colors.bg} ${colors.border} border-2 rounded-2xl p-6 transition-all duration-200 ${colors.hover} group`}
                 >
                   <div className={`w-14 h-14 ${colors.icon} rounded-xl flex items-center justify-center text-2xl mb-4`}>
@@ -186,7 +186,7 @@ export default function HomePage() {
                   <div className="flex items-center justify-between">
                     <span className="text-amber-600 font-semibold">¥{doc.price}</span>
                     <span className="text-slate-400 text-sm group-hover:translate-x-1 transition-transform">
-                      开始填写 →
+                      选择 →
                     </span>
                   </div>
                 </Link>
@@ -272,7 +272,7 @@ export default function HomePage() {
                   专家审核（需另付费）
                 </li>
               </ul>
-              <Link href="/questionnaire?plan=ai" className="block text-center bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-lg transition mt-auto">
+              <Link href="/doc-type?plan=ai" className="block text-center bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-lg transition mt-auto">
                 立即开始
               </Link>
             </div>
@@ -305,7 +305,7 @@ export default function HomePage() {
                   签署指引文档
                 </li>
               </ul>
-              <Link href="/questionnaire?plan=expert" className="block text-center bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition mt-auto">
+              <Link href="/doc-type?plan=expert" className="block text-center bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition mt-auto">
                 立即开始
               </Link>
             </div>

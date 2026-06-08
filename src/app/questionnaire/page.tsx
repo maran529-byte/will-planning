@@ -46,6 +46,12 @@ function QuestionnaireContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") || "ai";
+  const docType = searchParams.get("type") || "will";
+
+  // 当前支持的文书类型白名单 (与 /doc-type/page.tsx 同步)
+  // 问卷仅实装了 will, 其他类型引导用户选择 will 或返回
+  const SUPPORTED_TYPES = ["will"] as const;
+  const isSupportedType = SUPPORTED_TYPES.includes(docType as (typeof SUPPORTED_TYPES)[number]);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<typeof INITIAL_DATA>(INITIAL_DATA);
@@ -136,7 +142,7 @@ function QuestionnaireContent() {
       }
 
       const result = await response.json();
-      router.push(`/result?id=${result.id}&plan=${plan}`);
+      router.push(`/result?id=${result.id}&plan=${plan}&type=${docType}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "提交失败");
       setIsSubmitting(false);
@@ -265,8 +271,8 @@ function QuestionnaireContent() {
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-2">
-            <Link href="/" className="text-slate-600 hover:text-amber-600 transition">
-              ← 返回
+            <Link href="/doc-type" className="text-slate-600 hover:text-amber-600 transition">
+              ← 返回选择
             </Link>
             <span className="text-sm text-slate-500">
               第 {currentStep + 1} / {totalSteps} 部分
@@ -287,6 +293,37 @@ function QuestionnaireContent() {
 
       {/* 问题区域 */}
       <main className="max-w-2xl mx-auto px-4 py-8">
+        {!isSupportedType && (
+          <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-8 text-center">
+            <div className="text-5xl mb-4">🚧</div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-3">
+              本类文书问卷开发中
+            </h2>
+            <p className="text-slate-600 mb-6 leading-relaxed">
+              您选择的文书类型 <code className="px-2 py-0.5 bg-white rounded text-amber-700 font-mono">{docType}</code> 问卷正在开发中。
+              <br />
+              目前已实装的完整文书类型: <strong>遗嘱</strong> (7 大模块 25 道题)。
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/doc-type?type=will"
+                className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-lg transition"
+              >
+                改为创建遗嘱
+              </Link>
+              <Link
+                href="/doc-type"
+                className="inline-block bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold px-6 py-3 rounded-lg transition"
+              >
+                返回选择其他类型
+              </Link>
+            </div>
+            <p className="text-xs text-slate-500 mt-6">
+              其他类型问卷预计 2-3 周上线, 关注公众号「爱的延续」获取通知
+            </p>
+          </div>
+        )}
+        {isSupportedType && (<>
         <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
@@ -343,6 +380,7 @@ function QuestionnaireContent() {
             />
           ))}
         </div>
+        </>)}
       </main>
     </div>
   );

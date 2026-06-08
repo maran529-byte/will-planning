@@ -14,7 +14,8 @@ interface Order {
   plan: 'ai' | 'expert' | 'lawyer' | 'family';  // 兼容历史 'lawyer' / 'family'
   status: 'pending' | 'paid' | 'refunded' | 'cancelled';
   paid_at?: string;
-  payment_channel?: 'wechat' | 'alipay' | 'manual' | 'demo';
+  // 改版 v4 (2026-06-08): 扩展 'hupijiao' 通道 (虎皮椒个人微信聚合)
+  payment_channel?: 'wechat' | 'alipay' | 'manual' | 'demo' | 'hupijiao';
   created_at: string;
 }
 
@@ -31,8 +32,9 @@ function PaymentContent() {
   const [creating, setCreating] = useState(false);
   const [paying, setPaying] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  // 改版 v4 (2026-06-08): paymentMethod 扩展 'hupijiao' (虎皮椒个人微信聚合, 改为主推通道)
   // 改版 v3: paymentMethod 扩展 'manual' (Phase 1 收款码 + 人工确认)
-  const [paymentMethod, setPaymentMethod] = useState<'wechat' | 'alipay' | 'manual' | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'wechat' | 'alipay' | 'manual' | 'hupijiao' | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [paymentNote, setPaymentNote] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -82,17 +84,21 @@ function PaymentContent() {
     });
   }, [createNewOrder]);
 
+  // 改版 v4 (2026-06-08): 客户点 "微信支付" 时, 默认走 hupijiao 通道 (虎皮椒收银台跳转)
+  //   - 走 hupijiao 通道: 后端构造跳转 URL → window.location 跳到虎皮椒收银台 → 支付完成 → 虎皮椒回调
+  //   - 走 manual 通道: 客户看到管理员收款码 → 留言订单号 → 客服人工确认
+  //
   // 改版 v3: 客户点 "微信扫码支付" 时, 默认走 manual 模式 (Phase 1)
   // - 即便真实 WECHAT_* 已配, Phase 1 也走 manual
   // - 客户扫码 → 管理员后台 mark paid → 30s 轮询看到状态变化
-  const startPayment = async (method: 'wechat' | 'alipay' | 'manual') => {
+  const startPayment = async (method: 'wechat' | 'alipay' | 'manual' | 'hupijiao') => {
     setPaymentMethod(method);
     setShowQR(true);
     setPaying(true);
     setTimeoutState(false);
     setAcknowledged(false);
 
-    // 调用 /api/payment 拿二维码 (manual 模式会返回管理员收款码)
+    // 调用 /api/payment 拿二维码 / 跳转 URL
     try {
       const res = await fetch('/api/payment', {
         method: 'POST',
@@ -102,13 +108,22 @@ function PaymentContent() {
           order_no: order?.order_no,
           amount: priceInFen,
           description: planData.name,
-          channel: 'manual',  // Phase 1: 固定 manual
+          channel: method,  // 改版 v4: 透传 method (hupijiao/manual/wechat/alipay)
         }),
       });
       const data = await res.json();
-      if (data.success && data.qr_code_url) {
-        setQrCodeUrl(data.qr_code_url);
-        setPaymentNote(data.note || null);
+      if (data.success) {
+        // 改版 v4: hupijiao 通道返回 payment_url, 浏览器直接跳转到虎皮椒收银台
+        if (method === 'hupijiao' && data.payment_url) {
+          window.location.href = data.payment_url;
+          // 不重置 setPaying(false) — 跳转过程中仍处于"支付中"
+          return;
+        }
+        // manual / wechat 通道: 返回 qr_code_url, 在弹窗里显示
+        if (data.qr_code_url) {
+          setQrCodeUrl(data.qr_code_url);
+          setPaymentNote(data.note || null);
+        }
       } else {
         console.error('支付初始化失败:', data.error);
       }
@@ -274,34 +289,69 @@ function PaymentContent() {
           )}
         </div>
 
-        {/* 支付方式选择 - 改版 v3: 主推扫码支付 (manual) */}
+        {/* 支付方式选择 - 改版 v4: 主推虎皮椒 (hupijiao), 备选 manual */}
         <div className="bg-white rounded-2xl shadow-sm p-6">
           <h3 className="text-lg font-bold text-slate-800 mb-2">选择支付方式</h3>
           <p className="text-sm text-slate-500 mb-4">
-            扫码支付 · 微信/支付宝均可 · 支付后客服将在数分钟内确认
+            微信支付 · 实时到账 · 推荐 · 由虎皮椒 (持牌支付机构) 处理
           </p>
 
           <div className="grid grid-cols-2 gap-4">
+            {/* 主推: 虎皮椒 (hupijiao) - 改版 v4 */}
+            <button
+              onClick={() => startPayment('hupijiao')}
+              disabled={paying}
+              className="flex flex-col items-center gap-2 p-6 border-2 border-emerald-500 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition disabled:opacity-50 relative"
+            >
+              <div className="absolute -top-2 -right-2 bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full">
+                推荐
+              </div>
+              <div className="text-4xl">💚</div>
+              <span className="font-medium text-slate-800">微信支付</span>
+              <span className="text-xs text-slate-500">实时到账</span>
+            </button>
+
+            {/* 备选: manual 模式 - 收款码 + 人工确认 */}
             <button
               onClick={() => startPayment('manual')}
               disabled={paying}
-              className="flex flex-col items-center gap-2 p-6 border-2 border-emerald-200 rounded-xl hover:bg-emerald-50 transition disabled:opacity-50"
+              className="flex flex-col items-center gap-2 p-6 border-2 border-slate-200 rounded-xl hover:bg-slate-50 transition disabled:opacity-50"
             >
               <div className="text-4xl">📱</div>
               <span className="font-medium text-slate-800">扫码支付</span>
-              <span className="text-xs text-slate-500">微信/支付宝</span>
+              <span className="text-xs text-slate-500">人工确认</span>
             </button>
+          </div>
 
-            <Link
-              href="/orders"
-              className="flex flex-col items-center gap-2 p-6 border-2 border-slate-200 rounded-xl hover:bg-slate-50 transition"
-            >
-              <div className="text-4xl">📋</div>
-              <span className="font-medium text-slate-800">查看订单</span>
-              <span className="text-xs text-slate-500">稍后支付</span>
+          <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
+            <Link href="/orders" className="hover:text-slate-600 transition">
+              查看订单
             </Link>
+            <span>支付即视为同意《服务协议》</span>
           </div>
         </div>
+
+        {/* 支付二维码弹窗 - 改版 v4: hupijiao 模式只显示"跳转中"状态, 然后浏览器自动跳转 */}
+        {showQR && paymentMethod === 'hupijiao' && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+              <div className="animate-spin text-5xl mb-4">⏳</div>
+              <h3 className="text-lg font-bold text-slate-800 mb-2">正在跳转支付</h3>
+              <p className="text-slate-500 text-sm">
+                将为您打开虎皮椒收银台, 请在微信内完成支付
+              </p>
+              <p className="text-slate-400 text-xs mt-3">
+                如未自动跳转, 请检查浏览器是否拦截了弹窗
+              </p>
+              <button
+                onClick={closeQR}
+                className="mt-4 w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-3 rounded-xl transition"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 支付二维码弹窗 - 改版 v3: 显示管理员收款码 (manual 模式) */}
         {showQR && paymentMethod === 'manual' && (

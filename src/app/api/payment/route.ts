@@ -19,10 +19,11 @@ function getServerOrders(): Order[] {
 }
 
 // P0: zod schema for payment init input.
+// 改版 v4 (2026-06-08): channel 扩展 'hupijiao' (虎皮椒个人微信聚合, 改为主推通道)
 // 改版 v3 (2026-06-07): channel 扩展 'manual' (Phase 1 个人微信收款 + 人工确认)
 const initiatePaymentSchema = z.object({
   order_id: z.string().min(1).max(128),
-  channel: z.enum(['wechat', 'alipay', 'demo', 'manual']).default('manual'),
+  channel: z.enum(['wechat', 'alipay', 'demo', 'manual', 'hupijiao']).default('hupijiao'),
 });
 
 export async function POST(request: NextRequest) {

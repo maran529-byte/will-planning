@@ -24,7 +24,8 @@ export interface Order {
   plan: PlanId | 'lawyer' | 'family';
   status: 'pending' | 'paid' | 'refunded' | 'cancelled';
   paid_at?: string;
-  payment_channel?: 'wechat' | 'alipay' | 'manual' | 'demo';
+  // 改版 v4 (2026-06-08): payment_channel 增加 'hupijiao' (虎皮椒个人微信聚合)
+  payment_channel?: 'wechat' | 'alipay' | 'manual' | 'demo' | 'hupijiao';
   // 新增: 支付方式细节 (Phase 1 manual 模式: 'wechat_personal' | 'alipay_personal')
   payment_method?: string;
   will_id?: string;
@@ -115,6 +116,22 @@ export async function getOrderServer(orderId: string): Promise<Order | null> {
   return data as Order | null;
 }
 
+/**
+ * 改版 v4 (2026-06-08): 按商户订单号 (order_no) 查询订单.
+ * 主要用于支付回调 (Hupijiao / WeChat V3 都传 out_trade_no, 不传 order_id).
+ * .maybeSingle() 防 PGRST116.
+ */
+export async function getOrderByOrderNoServer(orderNo: string): Promise<Order | null> {
+  if (!supabaseAdmin) return null;
+  const { data, error } = await supabaseAdmin
+    .from('orders')
+    .select('*')
+    .eq('order_no', orderNo)
+    .maybeSingle();
+  if (error) return null;
+  return data as Order | null;
+}
+
 export interface CreateOrderInput {
   amount: number;
   plan: PlanId | 'lawyer' | 'family';
@@ -168,7 +185,8 @@ export async function updateOrderServer(
 export async function updateOrderStatusServer(
   orderId: string,
   status: Order['status'],
-  paymentChannel?: 'wechat' | 'alipay' | 'manual' | 'demo',
+  // 改版 v4 (2026-06-08): 增加 'hupijiao' (虎皮椒个人微信聚合)
+  paymentChannel?: 'wechat' | 'alipay' | 'manual' | 'demo' | 'hupijiao',
   paymentMethod?: string
 ): Promise<Order | null> {
   const updates: Partial<Order> = { status };

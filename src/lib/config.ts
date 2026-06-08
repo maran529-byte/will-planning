@@ -20,6 +20,19 @@ export const WECHAT_NOTIFY_URL =
   process.env.WECHAT_NOTIFY_URL ||
   (process.env.SITE_URL ? `${process.env.SITE_URL.replace(/\/+$/, '')}/api/payment/callback` : '');
 
+// Hupijiao (虎皮椒 / xunhupay) 个人微信聚合支付配置
+// 改版 v4 (2026-06-08): MVP 上线主通道. 个人微信收款, 适合无营业执照的小团队.
+// API 文档: https://www.xunhupay.com/doc/api/pay.html
+// 签名: MD5(按 key 字母排序的非空参数 + app_secret)
+// 未配齐 4 项时, isHupijiaoConfigured() 返回 false, 走 manual 通道 (二维码人工确认).
+export const HUPIJIAO_APPID = process.env.HUPIJIAO_APPID || '';
+export const HUPIJIAO_APP_SECRET = process.env.HUPIJIAO_APP_SECRET || '';
+export const HUPIJIAO_GATEWAY_URL =
+  process.env.HUPIJIAO_GATEWAY_URL || 'https://api.xunhupay.com/payment/do.html';
+export const HUPIJIAO_NOTIFY_URL =
+  process.env.HUPIJIAO_NOTIFY_URL ||
+  (process.env.SITE_URL ? `${process.env.SITE_URL.replace(/\/+$/, '')}/api/payment/hupijiao-callback` : '');
+
 // Pricing (UI display, in 元)
 // 改版 v2: 删除 family 套餐, lawyer 改名为 expert (资产规划专业人士)
 export const PRICING = {

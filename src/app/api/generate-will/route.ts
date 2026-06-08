@@ -19,6 +19,11 @@ function getSupabaseClient() {
 // the existing questionnaire shape, but every field that contains PII
 // (name, idCard, phone, address, spouseIdCard) is bounded and typed so a
 // malicious client cannot inject arbitrary keys or giant blobs.
+//
+// 改版 v2 (2026-06-08): plan 扩展 'expert' (从 'lawyer' 改名而来, 与 pricing.ts 一致).
+//   - 旧值 'lawyer' / 'family' 仍兼容 (历史数据)
+//   - 'family' 已下架, 但 schema 仍接受 (避免老链接 400)
+//   - 实际价格由 getPriceCents(plan) 决定, family 走 fallback
 const generateWillSchema = z.object({
   name: z.string().min(1).max(64),
   age: z.number().int().min(0).max(150),
@@ -35,7 +40,8 @@ const generateWillSchema = z.object({
   heirs: z.array(z.any()).optional(),
   specialArrangements: z.record(z.string(), z.any()).optional(),
   medicalWishes: z.record(z.string(), z.any()).optional(),
-  plan: z.enum(['ai', 'lawyer', 'family']).default('ai'),
+  // 改版 v2: 加 'expert' 通道 (从 'lawyer' 改名). 'family' 历史值仍接受.
+  plan: z.enum(['ai', 'expert', 'lawyer', 'family']).default('ai'),
 });
 
 export async function POST(request: NextRequest) {

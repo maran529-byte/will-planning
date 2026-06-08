@@ -120,16 +120,19 @@ export async function getOrderServer(orderId: string): Promise<Order | null> {
  * 改版 v4 (2026-06-08): 按商户订单号 (order_no) 查询订单.
  * 主要用于支付回调 (Hupijiao / WeChat V3 都传 out_trade_no, 不传 order_id).
  * .maybeSingle() 防 PGRST116.
+ * Supabase 未配时降级到 local in-memory store (保持与 createOrder 一致).
  */
 export async function getOrderByOrderNoServer(orderNo: string): Promise<Order | null> {
-  if (!supabaseAdmin) return null;
-  const { data, error } = await supabaseAdmin
-    .from('orders')
-    .select('*')
-    .eq('order_no', orderNo)
-    .maybeSingle();
-  if (error) return null;
-  return data as Order | null;
+  if (supabaseAdmin) {
+    const { data, error } = await supabaseAdmin
+      .from('orders')
+      .select('*')
+      .eq('order_no', orderNo)
+      .maybeSingle();
+    if (error) return null;
+    return data as Order | null;
+  }
+  return getOrderByOrderNoLocal(orderNo) ?? null;
 }
 
 export interface CreateOrderInput {
@@ -199,7 +202,11 @@ export async function updateOrderStatusServer(
   if (paymentMethod) {
     updates.payment_method = paymentMethod;
   }
-  return updateOrderServer(orderId, updates);
+  // 改版 v4: Supabase 未配时降级 local (与 createOrder 一致). 否则回调会 fail.
+  if (supabaseAdmin) {
+    return updateOrderServer(orderId, updates);
+  }
+  return updateOrderStatusLocal(orderId, status, paymentChannel) ?? null;
 }
 
 /**
@@ -340,6 +347,13 @@ export function getOrderByIdAndOpenidLocal(
   return getServerOrders().find((o) => o.id === orderId && o.openid === openid);
 }
 
+/**
+ * 改版 v4 (2026-06-08): 按 order_no 查本地 in-memory 订单 (Hupijiao 回调 fallback).
+ */
+export function getOrderByOrderNoLocal(orderNo: string): Order | undefined {
+  return getServerOrders().find((o) => o.order_no === orderNo);
+}
+
 export function createOrderLocal(data: CreateOrderInput): Order {
   const orders = getServerOrders();
   const newOrder: Order = {
@@ -360,7 +374,8 @@ export function createOrderLocal(data: CreateOrderInput): Order {
 export function updateOrderStatusLocal(
   orderId: string,
   status: Order['status'],
-  paymentChannel?: 'wechat' | 'alipay' | 'manual' | 'demo',
+  // 改版 v4 (2026-06-08): 增加 'hupijiao' (虎皮椒个人微信聚合)
+  paymentChannel?: 'wechat' | 'alipay' | 'manual' | 'demo' | 'hupijiao',
   ownerOpenid?: string
 ): Order | undefined {
   const orders = getServerOrders();

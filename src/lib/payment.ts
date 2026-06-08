@@ -128,15 +128,18 @@ export function verifyHupijiaoCallback(params: Record<string, string>): boolean 
  *   GET 方式提交, 浏览器跳转到 `https://api.xunhupay.com/payment/do.html?<query>` 即可.
  *   收银台会按 UA 判断: 微信内 → JSAPI 调起微信支付; 非微信内 → 显示聚合收款码 (含微信/支付宝).
  *
+ * 单位: `params.amount` 是分 (cents), 与全代码订单金额单位保持一致.
+ *       Hupijiao 要求元, 函数内部自动 `/ 100` 转换.
+ *
  * @param params.order_no      商户订单号 (我们的 orders.order_no, 客户付款时附加)
- * @param params.amount        金额, 单位: 元 (Hupijiao 接受两位小数字符串, 如 "19.90")
+ * @param params.amount        金额, 单位: 分 (例如 1990 = ¥19.90)
  * @param params.description   商品标题
  * @param params.return_url    支付完成后浏览器同步跳转 URL (业务方)
  * @returns 成功时返回 payment_url (供前端 window.location 跳转)
  */
 export function buildHupijiaoPayment(params: {
   order_no: string;
-  amount: number;
+  amount: number;     // 单位: 分
   description: string;
   return_url?: string;
 }): PaymentResult {
@@ -144,8 +147,8 @@ export function buildHupijiaoPayment(params: {
     return { success: false, error: '虎皮椒支付未配置 (HUPIJIAO_* env 缺失)' };
   }
 
-  // Hupijiao 要求金额格式: 字符串, 2 位小数
-  const totalAmount = params.amount.toFixed(2);
+  // 分 → 元, 2 位小数 (Hupijiao 严格要求这个格式)
+  const totalAmountYuan = (params.amount / 100).toFixed(2);
   const time = Math.floor(Date.now() / 1000).toString();
 
   // 业务参数 (不含 sign)
@@ -153,7 +156,7 @@ export function buildHupijiaoPayment(params: {
     version: '1.1',
     appid: HUPIJIAO_APPID,
     trade_order_id: params.order_no,
-    total_amount: totalAmount,
+    total_amount: totalAmountYuan,
     title: params.description.slice(0, 64), // Hupijiao 限制 64 字符
     time,
     notify_url: HUPIJIAO_NOTIFY_URL,

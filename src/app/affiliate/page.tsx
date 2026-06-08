@@ -1,35 +1,29 @@
 /**
  * /affiliate - 博主计划公开页.
  *
+ * 改版 v2 (2026-06-08, Phase B):
+ *   - 鉴权改用 user_session cookie (统一用户体系)
+ *   - "请先登录" 链接指向 /login (不是 /admin/login)
+ *   - 已申请博主 → 显示申请状态 (pending/approved/rejected/disabled)
+ *   - 已登录但未申请 → 显示申请表单
+ *   - 未登录 → 引导去登录
+ *
  * 包含:
  *  - 计划介绍 (佣金比例, 结算规则, T+7 防退款)
  *  - 申请表单 (姓名/手机/简介, 需登录)
  *  - 当前申请状态 (如已申请)
  */
-import { cookies } from 'next/headers';
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { requireUser } from '@/lib/user-auth';
 import { getBloggerByUserId } from '@/lib/affiliate';
 import { ApplyForm } from './ApplyForm';
 
 export const dynamic = 'force-dynamic';
 
-async function getCurrentUser() {
-  // 检查 admin_session cookie
-  const adminStore = await cookies();
-  const adminCookie = adminStore.get('admin_session');
-  if (adminCookie) {
-    try {
-      const payload = JSON.parse(Buffer.from(adminCookie.value, 'base64').toString());
-      return { id: payload.sub, email: payload.email, role: 'admin' as const };
-    } catch {
-      // 忽略
-    }
-  }
-  return null;
-}
-
 export default async function AffiliatePage() {
-  const user = await getCurrentUser();
+  const auth = await requireUser();
+  const user = auth.authenticated && auth.user
+    ? { id: auth.user.id, email: auth.user.email, role: auth.user.role }
+    : null;
   let existingBlogger = null;
 
   if (user?.id) {
@@ -119,13 +113,21 @@ export default async function AffiliatePage() {
         ) : (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
             <p className="text-amber-900 mb-2 font-medium">请先登录</p>
-            <p className="text-sm text-amber-700 mb-4">您需要登录后才能申请成为博主</p>
-            <a
-              href="/admin/login?return=/affiliate"
-              className="inline-block bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg text-sm font-medium"
-            >
-              前往登录
-            </a>
+            <p className="text-sm text-amber-700 mb-4">您需要登录后才能申请成为博主 (没有账号可免费注册)</p>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <a
+                href="/login?return=/affiliate"
+                className="inline-block bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg text-sm font-medium"
+              >
+                前往登录
+              </a>
+              <a
+                href="/register?return=/affiliate"
+                className="inline-block bg-white border border-amber-300 hover:border-amber-400 text-amber-700 px-6 py-2 rounded-lg text-sm font-medium"
+              >
+                免费注册
+              </a>
+            </div>
           </div>
         )}
 

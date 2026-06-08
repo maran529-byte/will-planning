@@ -1,6 +1,10 @@
 /**
  * /affiliate/dashboard - 博主工作台.
  *
+ * 改版 v2 (2026-06-08, Phase B):
+ *   - 鉴权改用 user_session cookie (统一用户体系)
+ *   - "请先登录" 链接指向 /login (不是 /admin/login)
+ *
  * 显示:
  *  - 推广码 + 推广链接 + 一键复制
  *  - 4 张统计卡: 点击 / 转化 / 累计佣金 / 可提现
@@ -10,26 +14,18 @@
  *  - 点击明细 (最近 20 条)
  *  - 提现按钮 + 提现记录
  */
-import { cookies } from 'next/headers';
+import { requireUser } from '@/lib/user-auth';
 import { getBloggerByUserId, getBloggerDashboard, getDownline, listWithdrawals } from '@/lib/affiliate';
 import { DashboardContent } from './DashboardContent';
 
 export const dynamic = 'force-dynamic';
 
-async function getCurrentUser() {
-  const adminStore = await cookies();
-  const adminCookie = adminStore.get('admin_session');
-  if (!adminCookie) return null;
-  try {
-    const payload = JSON.parse(Buffer.from(adminCookie.value, 'base64').toString());
-    return { id: payload.sub, email: payload.email };
-  } catch {
-    return null;
-  }
-}
-
 export default async function AffiliateDashboardPage() {
-  const user = await getCurrentUser();
+  const auth = await requireUser();
+  const user = auth.authenticated && auth.user
+    ? { id: auth.user.id, email: auth.user.email }
+    : null;
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
@@ -38,7 +34,7 @@ export default async function AffiliateDashboardPage() {
           <h1 className="text-xl font-bold text-slate-800 mb-2">请先登录</h1>
           <p className="text-sm text-slate-600 mb-5">您需要登录才能查看博主工作台</p>
           <a
-            href="/admin/login?return=/affiliate/dashboard"
+            href="/login?return=/affiliate/dashboard"
             className="inline-block bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg text-sm font-medium"
           >
             前往登录

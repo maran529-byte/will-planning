@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PRICING } from "@/lib/config";
 import { VisitorIdBanner } from "@/components/VisitorIdBanner";
 import { StructuredData } from "@/components/StructuredData";
+import { readUserSession } from "@/lib/user-auth";
 
 const MAIN_SITE = "https://aiwill-planner.cn";   // 主站 (CN, 合规)
 const H5_SITE   = "https://h5.aiwill-planner.cn"; // 移动端 (overseas)
@@ -107,7 +108,13 @@ const colorClasses: Record<string, { bg: string; border: string; text: string; h
   },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  // 改版 v4 (2026-06-08, Phase B): 顶部 nav 根据登录状态切换
+  // - 已登录 → "我的" 链接 (→ /dashboard)
+  // - 未登录 → "登录" 链接 (→ /login) + 单独的"注册"链接
+  const session = await readUserSession();
+  const isLoggedIn = !!session;
+
   return (
     <div className="landing-page">
       {/* 访客编号提示横幅 (Phase 2) - 仅在未绑定时显示 */}
@@ -119,20 +126,39 @@ export default function HomePage() {
             <span className="text-2xl">⚖️</span>
             <span className="text-xl font-bold text-slate-800">爱的延续</span>
           </div>
-          <nav className="hidden md:flex gap-6 text-slate-600 text-sm">
+          <nav className="hidden md:flex gap-6 text-slate-600 text-sm items-center">
             <a href="#documents" className="hover:text-amber-600 transition">文书类型</a>
             <a href="#pricing" className="hover:text-amber-600 transition">定价</a>
-            <a href="#about" className="hover:text-amber-600 transition">关于</a>
+            <a href="/affiliate" className="hover:text-amber-600 transition">博主计划</a>
             <a href={H5_SITE} className="hover:text-amber-600 transition" target="_blank" rel="noopener noreferrer">
               移动端
             </a>
           </nav>
-          <Link
-            href="/doc-type"
-            className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition"
-          >
-            立即开始
-          </Link>
+          <div className="flex items-center gap-2">
+            {isLoggedIn ? (
+              <Link
+                href="/dashboard"
+                className="text-slate-600 hover:text-amber-600 text-sm font-medium transition px-3 py-2"
+              >
+                我的
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-slate-600 hover:text-amber-600 text-sm font-medium transition px-3 py-2 hidden sm:inline"
+                >
+                  登录
+                </Link>
+                <Link
+                  href="/register"
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+                >
+                  注册
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </header>
 

@@ -181,15 +181,15 @@ export default async function DocTypePage({ searchParams }: PageProps) {
         </div>
 
         {/* 底部信息 */}
-        <div className="mt-10 sm:mt-12 bg-blue-50 border border-blue-200 rounded-xl p-5 text-sm text-slate-700">
+        <div className="mt-10 sm:mt-12 bg-emerald-50 border border-emerald-200 rounded-xl p-5 text-sm text-slate-700">
           <div className="font-semibold text-slate-800 mb-2 flex items-center gap-2">
-            <span>💡</span>
-            <span>为什么只有「遗嘱」可填写?</span>
+            <span>✅</span>
+            <span>6 类文书已全部实装</span>
           </div>
           <p className="leading-relaxed">
-            其他 5 类文书 (婚姻/婚内财产/离婚/抚养/赠与) 的问卷正在开发中。
-            您可以先关注公众号 <code className="px-1.5 py-0.5 bg-white rounded text-xs">爱的延续</code> 获取上线通知;
-            目前可创建的完整文书类型为「遗嘱」, 7 大模块 25 道题, 约 10-15 分钟完成。
+            遗嘱 (7 大模块 25 题) + 婚姻/婚内财产/离婚/抚养/赠与 5 类新文书均已上线。
+            全部使用 AI 根据《中华人民共和国民法典》生成专业草稿, ¥19.9 起。
+            关注公众号 <code className="px-1.5 py-0.5 bg-white rounded text-xs">爱的延续</code> 获取加项通知。
           </p>
         </div>
 

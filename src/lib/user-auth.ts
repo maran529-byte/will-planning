@@ -174,6 +174,7 @@ export async function requireUser(): Promise<UserAuthResult> {
   // 默认 role=user
   return {
     authenticated: true,
+    status: 200,
     user: {
       id: userData.user.id,
       email: profile?.email || userData.user.email || '',
@@ -210,6 +211,7 @@ export async function requireAuth(): Promise<{
   }
   return {
     authenticated: true,
+    status: 200,
     user: { id: result.user.id, email: result.user.email },
   };
 }

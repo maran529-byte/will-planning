@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { modules } from "@/lib/questionnaire";
 import type { Question } from "@/lib/questionnaire";
+import { VoiceInput } from "@/components/VoiceInput";
 
 // 初始表单数据 — 扁平结构，对应各字段
 const INITIAL_DATA = {
@@ -217,13 +218,20 @@ function QuestionnaireContent() {
         return (
           <div>
             <p className="font-medium text-slate-800 mb-3">{question.question}</p>
-            <input
-              type="text"
-              value={(value as string) || ""}
-              onChange={(e) => updateFormData(question.key as keyof typeof INITIAL_DATA, e.target.value)}
-              placeholder={question.placeholder}
-              className="w-full p-4 border-2 border-slate-200 rounded-lg focus:border-amber-500 focus:outline-none transition"
-            />
+            <div className="flex gap-2 items-start">
+              <input
+                type="text"
+                value={(value as string) || ""}
+                onChange={(e) => updateFormData(question.key as keyof typeof INITIAL_DATA, e.target.value)}
+                placeholder={question.placeholder}
+                className="flex-1 p-4 border-2 border-slate-200 rounded-lg focus:border-amber-500 focus:outline-none transition"
+              />
+              <VoiceInput
+                value={(value as string) || ""}
+                onChange={(v) => updateFormData(question.key as keyof typeof INITIAL_DATA, v)}
+                size="md"
+              />
+            </div>
           </div>
         );
 
@@ -250,13 +258,21 @@ function QuestionnaireContent() {
         return (
           <div>
             <p className="font-medium text-slate-800 mb-3">{question.question}</p>
-            <textarea
-              value={(value as string) || ""}
-              onChange={(e) => updateFormData(question.key as keyof typeof INITIAL_DATA, e.target.value)}
-              placeholder={question.placeholder}
-              rows={4}
-              className="w-full p-4 border-2 border-slate-200 rounded-lg focus:border-amber-500 focus:outline-none transition resize-none"
-            />
+            <div className="flex gap-2 items-start">
+              <textarea
+                value={(value as string) || ""}
+                onChange={(e) => updateFormData(question.key as keyof typeof INITIAL_DATA, e.target.value)}
+                placeholder={question.placeholder}
+                rows={4}
+                className="flex-1 p-4 border-2 border-slate-200 rounded-lg focus:border-amber-500 focus:outline-none transition resize-none"
+              />
+              <VoiceInput
+                value={(value as string) || ""}
+                onChange={(v) => updateFormData(question.key as keyof typeof INITIAL_DATA, v)}
+                size="md"
+                multiline
+              />
+            </div>
           </div>
         );
 

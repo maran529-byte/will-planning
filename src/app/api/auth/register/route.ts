@@ -35,8 +35,8 @@ const registerSchema = z.object({
   email: z.string().email('请输入有效邮箱'),
   password: z.string().min(8, '密码至少 8 位').max(128),
   display_name: z.string().min(1).max(40).optional(),
-  acceptTerms: z.literal(true, {
-    errorMap: () => ({ message: '请先同意服务条款与隐私政策' }),
+  acceptTerms: z.boolean().refine((v) => v === true, {
+    message: '请先同意服务条款与隐私政策',
   }),
 });
 

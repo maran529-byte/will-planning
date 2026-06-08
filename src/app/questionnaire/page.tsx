@@ -3,8 +3,9 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { modules } from "@/lib/questionnaire";
-import type { Question } from "@/lib/questionnaire";
+import { modules as willModules } from "@/lib/questionnaire";
+import type { Question, Module } from "@/lib/questionnaire";
+import { getModulesForType } from "@/lib/questionnaire-shared";
 import { VoiceInput } from "@/components/VoiceInput";
 
 // 初始表单数据 — 扁平结构，对应各字段
@@ -50,9 +51,12 @@ function QuestionnaireContent() {
   const docType = searchParams.get("type") || "will";
 
   // 当前支持的文书类型白名单 (与 /doc-type/page.tsx 同步)
-  // 问卷仅实装了 will, 其他类型引导用户选择 will 或返回
-  const SUPPORTED_TYPES = ["will"] as const;
+  // Day 2: 6 类文书问卷全部实装 (will + 5 个新加)
+  const SUPPORTED_TYPES = ["will", "marriage", "marital-property", "divorce", "child-custody", "gift"] as const;
   const isSupportedType = SUPPORTED_TYPES.includes(docType as (typeof SUPPORTED_TYPES)[number]);
+
+  // 根据 type 选问卷模块: will 走老模块 (25 题), 其他走新增模块
+  const modules: Module[] = docType === "will" ? willModules : (getModulesForType(docType) || willModules);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<typeof INITIAL_DATA>(INITIAL_DATA);
@@ -136,7 +140,12 @@ function QuestionnaireContent() {
 
     try {
       const payload = transformForApi();
-      const response = await fetch("/api/generate-will", {
+      // will 走 /api/generate-will (老接口, schema 已锁定)
+      // 其他 5 类走新接口 /api/generate-document?type=xxx
+      const endpoint = docType === "will"
+        ? "/api/generate-will"
+        : `/api/generate-document?type=${docType}`;
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -147,7 +156,7 @@ function QuestionnaireContent() {
       }
 
       const result = await response.json();
-      router.push(`/result?id=${result.id}&plan=${plan}&type=${docType}`);
+      router.push(`/result?id=${result.id}&plan=${plan}&type=${docType}&docType=${docType}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "提交失败");
       setIsSubmitting(false);

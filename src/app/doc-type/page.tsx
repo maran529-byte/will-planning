@@ -8,8 +8,8 @@
  *  - 现在: 强制走 /doc-type 选择器, 用户明确选择后再进问卷
  *
  * 文书状态:
- *  - ✅ will (遗嘱): /api/generate-will 已实装, 7 模块 25 题完整
- *  - ⏳ 其他 5 类: 问卷开发中, 暂不可填写
+ *  - ✅ 6 类全部实装 (will + 5 个新增): /api/generate-will + /api/generate-document?type=xxx
+ *  - ✅ 5 类新加 (Day 2 上线): 婚姻/婚内/离婚/抚养/赠与, 各 4-5 模块, 13-17 题
  *
  * 设计:
  *  - Server Component (纯展示 + Link, 不需要客户端 JS)
@@ -27,7 +27,7 @@ const DOCUMENT_TYPES = [
     name: '婚姻协议书',
     description: '明确婚后财产分配、权利义务',
     icon: '💑',
-    available: false,
+    available: true,
     color: 'rose',
   },
   {
@@ -35,7 +35,7 @@ const DOCUMENT_TYPES = [
     name: '婚内财产协议',
     description: '约定婚姻存续期间财产归属',
     icon: '🏠',
-    available: false,
+    available: true,
     color: 'amber',
   },
   {
@@ -43,7 +43,7 @@ const DOCUMENT_TYPES = [
     name: '离婚协议',
     description: '子女抚养、财产分割协议',
     icon: '📄',
-    available: false,
+    available: true,
     color: 'slate',
   },
   {
@@ -51,7 +51,7 @@ const DOCUMENT_TYPES = [
     name: '子女抚养协议',
     description: '明确抚养费、探视权安排',
     icon: '👨‍👩‍👧',
-    available: false,
+    available: true,
     color: 'blue',
   },
   {
@@ -59,7 +59,7 @@ const DOCUMENT_TYPES = [
     name: '赠与协议',
     description: '房产、财产赠与公证文书',
     icon: '🎁',
-    available: false,
+    available: true,
     color: 'emerald',
   },
   {

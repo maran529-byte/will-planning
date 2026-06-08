@@ -7,15 +7,27 @@ import Link from "next/link";
 interface ResultData {
   id: string;
   willContent: string;
+  docContent?: string;        // Day 2: 5 类新文书用 docContent 字段
   plan: string;
   price: number;
 }
+
+const DOC_LABELS: Record<string, string> = {
+  will: "遗嘱",
+  marriage: "婚姻协议书",
+  "marital-property": "婚内财产协议",
+  divorce: "离婚协议书",
+  "child-custody": "子女抚养协议",
+  gift: "赠与协议",
+};
 
 function ResultContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const plan = searchParams.get("plan") || "ai";
+  const docType = searchParams.get("docType") || searchParams.get("type") || "will";
+  const docLabel = DOC_LABELS[docType] || "法律文书";
   const [result, setResult] = useState<ResultData | null>(null);
   const [error, setError] = useState("");
   const loading = !result && !error;
@@ -28,15 +40,23 @@ function ResultContent() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/generate-will?id=${id}`)
+    // will 走 /api/generate-will, 其他 5 类走 /api/generate-document?type=xxx
+    const endpoint = docType === "will"
+      ? `/api/generate-will?id=${id}`
+      : `/api/generate-document?type=${docType}&id=${id}`;
+    fetch(endpoint)
       .then((res) => res.json())
       .then((data) => {
+        // 统一 willContent 字段 (新接口返 docContent)
+        if (data.docContent && !data.willContent) {
+          data.willContent = data.docContent;
+        }
         setResult(data);
       })
       .catch(() => {
         setError("加载失败，请重试");
       });
-  }, [id]);
+  }, [id, docType]);
 
   // 轮询订单状态
   useEffect(() => {
@@ -75,14 +95,16 @@ function ResultContent() {
   // 处理支付
   const handlePayment = async () => {
     try {
-      // 创建订单
+      // 创建订单 (兼容 will_id 和 doc_id 两种命名)
       const orderRes = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: price * 100, // 转为分
           plan,
-          will_id: id,
+          will_id: id,        // 老字段 (兼容 will)
+          doc_id: id,         // 新字段 (5 类新文书)
+          doc_type: docType,  // 新字段
         }),
       });
       const orderData = await orderRes.json();
@@ -151,7 +173,7 @@ function ResultContent() {
           <Link href="/" className="text-slate-600 hover:text-amber-600 transition">
             ← 返回首页
           </Link>
-          <span className="font-semibold text-slate-800">遗嘱草稿</span>
+          <span className="font-semibold text-slate-800">{docLabel}草稿</span>
           <div className="w-16" />
         </div>
       </header>
@@ -161,16 +183,16 @@ function ResultContent() {
         <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-2xl">✅</span>
-            <h2 className="text-lg font-bold text-green-800">遗嘱草稿已生成</h2>
+            <h2 className="text-lg font-bold text-green-800">{docLabel}草稿已生成</h2>
           </div>
           <p className="text-green-700 text-sm">
-            AI已根据您的填写内容生成遗嘱草稿。请仔细阅读内容，如有疑问可预约资产规划专业人士进行1对1审核。
+            AI已根据您的填写内容生成{docLabel}草稿。请仔细阅读内容，如有疑问可咨询专业律师进行审核。
           </p>
         </div>
 
-        {/* 遗嘱预览 */}
+        {/* 文书预览 */}
         <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8 mb-6">
-          <h3 className="text-lg font-bold text-slate-800 mb-4">遗嘱内容预览</h3>
+          <h3 className="text-lg font-bold text-slate-800 mb-4">{docLabel}内容预览</h3>
           <div className="prose prose-slate max-w-none">
             <pre className="whitespace-pre-wrap text-sm text-slate-700 font-mono bg-slate-50 p-4 rounded-lg border border-slate-200 overflow-auto max-h-96">
               {result.willContent || "（草稿内容）"}

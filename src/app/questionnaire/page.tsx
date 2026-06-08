@@ -108,6 +108,20 @@ function QuestionnaireContent() {
     const confirmedRaw = formData.confirmed as unknown;
     const confirmed = confirmedRaw === true || confirmedRaw === "我同意";
 
+    // P0 fix: route schema expects Array<{name, relation}> for children,
+    // Array<{name, relation, share}> for heirs. Frontend collects plain strings
+    // (free-text textarea), so we wrap as a single object with relation="子女" / "继承人".
+    const childrenArr = formData.children && String(formData.children).trim()
+      ? String(formData.children).split(/[、,,;;\n]/).map(s => s.trim()).filter(Boolean).map(name => ({ name, relation: "子女" }))
+      : [];
+    const heirsArr = formData.heirs && String(formData.heirs).trim()
+      ? String(formData.heirs).split(/[、,,;;\n]/).map(s => s.trim()).filter(Boolean).map((name, i, arr) => ({
+          name,
+          relation: "继承人",
+          share: arr.length > 0 ? Math.floor(100 / arr.length) : 100,
+        }))
+      : [];
+
     return {
       name: formData.name,
       age: formData.age,
@@ -115,10 +129,10 @@ function QuestionnaireContent() {
       phone: formData.phone,
       maritalStatus: formData.maritalStatus,
       hasMinorChildren: formData.hasMinorChildren === "是",
-      children: formData.children,
+      children: childrenArr,
       parents: [],
       assets,
-      heirs: formData.heirs,
+      heirs: heirsArr,
       // P0 fix: route schema expects Record<string, any>, not array.
       // Convert [{type, description}] into {type1: desc1, type2: desc2}.
       specialArrangements: specialArrangements.length

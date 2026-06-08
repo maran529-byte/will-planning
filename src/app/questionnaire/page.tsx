@@ -112,10 +112,14 @@ function QuestionnaireContent() {
       maritalStatus: formData.maritalStatus,
       hasMinorChildren: formData.hasMinorChildren === "是",
       children: formData.children,
-      parents: "",
+      parents: [],
       assets,
       heirs: formData.heirs,
-      specialArrangements,
+      // P0 fix: route schema expects Record<string, any>, not array.
+      // Convert [{type, description}] into {type1: desc1, type2: desc2}.
+      specialArrangements: specialArrangements.length
+        ? Object.fromEntries(specialArrangements.map(s => [s.type, s.description]))
+        : {},
       medicalWishes: {
         lifeSupport: formData.lifeSupport,
         organDonation: formData.organDonation,

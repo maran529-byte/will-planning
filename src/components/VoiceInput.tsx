@@ -154,6 +154,10 @@ export function VoiceInput({
   };
 
   const handleClick = () => {
+    if (!supported) {
+      setError('请用 Chrome / Edge 浏览器 (或允许麦克风权限)');
+      return;
+    }
     if (listening) {
       stopListening();
     } else {
@@ -161,11 +165,7 @@ export function VoiceInput({
     }
   };
 
-  // 不支持时, 按钮不渲染
-  if (!supported) {
-    return null;
-  }
-
+  // 不支持时, 仍然渲染按钮 (让用户知道有这个功能), 但点击时显示提示
   const sizeClasses = size === 'sm'
     ? 'h-8 w-8 text-sm'
     : 'h-10 w-10 text-base';

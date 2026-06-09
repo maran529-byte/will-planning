@@ -6,10 +6,13 @@ import Link from "next/link";
 import { modules as willModules } from "@/lib/questionnaire";
 import type { Question, Module } from "@/lib/questionnaire";
 import { getModulesForType } from "@/lib/questionnaire-shared";
-import { VoiceInput } from "@/components/VoiceInput";
+import { PageVoiceInput } from "@/components/PageVoiceInput";
 
 // 初始表单数据 — 扁平结构，对应各字段
-const INITIAL_DATA = {
+// 注: 用 Record<string, unknown> 兼容 6 类文书 (will + 5 个非 will 模块有不同 key)
+type FormData = Record<string, unknown>;
+
+const INITIAL_DATA: FormData = {
   // 基本信息
   name: "",
   age: undefined as number | undefined,
@@ -70,7 +73,7 @@ function QuestionnaireContent() {
 
   // ── P0-3: localStorage 自动保存 + 恢复 ──
   const [hydrated, setHydrated] = useState(false);
-  const [formData, setFormData] = useState<typeof INITIAL_DATA>(INITIAL_DATA);
+  const [formData, setFormData] = useState<FormData>(INITIAL_DATA);
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -118,7 +121,7 @@ function QuestionnaireContent() {
   const currentModule = modules[currentStep];
   const remainingSteps = totalSteps - currentStep - 1;
 
-  const updateFormData = (key: keyof typeof INITIAL_DATA, value: unknown) => {
+  const updateFormData = (key: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
     // 清除该字段的错误提示 (用户改了就别再红)
     if (fieldErrors[key]) {
@@ -135,7 +138,7 @@ function QuestionnaireContent() {
     const requiredQs = currentModule.questions.filter((q) => q.required);
     const newErrors: Record<string, string> = {};
     for (const q of requiredQs) {
-      const v = formData[q.key as keyof typeof INITIAL_DATA];
+      const v = formData[q.key];
       if (isEmpty(v)) {
         newErrors[q.key] = "此项必填";
       }
@@ -221,10 +224,11 @@ function QuestionnaireContent() {
 
   // 将表单数据转换为 API 期望的格式
   const transformForApi = () => {
-    const assets = (formData.assetTypes || []).map((type) => ({
+    const assetTypes = (formData.assetTypes as string[] | undefined) || [];
+    const assets = assetTypes.map((type) => ({
       type,
-      description: type === "房产" ? formData.propertyDesc : "",
-      estimatedValue: type === "房产" ? 0 : formData.otherAssetsValue || 0,
+      description: type === "房产" ? String(formData.propertyDesc || "") : "",
+      estimatedValue: type === "房产" ? 0 : Number(formData.otherAssetsValue || 0),
       location: "",
     }));
 
@@ -236,7 +240,7 @@ function QuestionnaireContent() {
       specialArrangements.push({ type: "pet", description: "宠物安排" });
     }
     if (formData.digitalHeritage) {
-      specialArrangements.push({ type: "digital", description: formData.digitalHeritage });
+      specialArrangements.push({ type: "digital", description: String(formData.digitalHeritage) });
     }
 
     const confirmedRaw = formData.confirmed as unknown;
@@ -313,7 +317,7 @@ function QuestionnaireContent() {
 
   // ── 渲染单题: 整行可点 + 错误状态 + 必填星号 ──
   const renderQuestion = (question: Question) => {
-    const value = formData[question.key as keyof typeof INITIAL_DATA];
+    const value = formData[question.key];
     const err = fieldErrors[question.key];
 
     const baseInputClass =
@@ -364,7 +368,7 @@ function QuestionnaireContent() {
                     name={question.key}
                     value={opt.value}
                     checked={selected}
-                    onChange={() => updateFormData(question.key as keyof typeof INITIAL_DATA, opt.value)}
+                    onChange={() => updateFormData(question.key, opt.value)}
                     className="sr-only"
                   />
                 </label>
@@ -411,7 +415,7 @@ function QuestionnaireContent() {
                           const newValues = e.target.checked
                             ? [...checkedValues, opt.value]
                             : checkedValues.filter((v) => v !== opt.value);
-                          updateFormData(question.key as keyof typeof INITIAL_DATA, newValues);
+                          updateFormData(question.key, newValues);
                         }}
                         className="sr-only"
                       />
@@ -424,21 +428,14 @@ function QuestionnaireContent() {
         )}
 
         {question.type === "text" && (
-          <div className="flex gap-2 items-start mt-2">
-            <input
-              type="text"
-              value={(value as string) || ""}
-              onChange={(e) => updateFormData(question.key as keyof typeof INITIAL_DATA, e.target.value)}
-              placeholder={question.placeholder}
-              inputMode="text"
-              className={baseInputClass + " flex-1"}
-            />
-            <VoiceInput
-              value={(value as string) || ""}
-              onChange={(v) => updateFormData(question.key as keyof typeof INITIAL_DATA, v)}
-              size="md"
-            />
-          </div>
+          <input
+            type="text"
+            value={(value as string) || ""}
+            onChange={(e) => updateFormData(question.key, e.target.value)}
+            placeholder={question.placeholder}
+            inputMode="text"
+            className={baseInputClass + " mt-2"}
+          />
         )}
 
         {question.type === "number" && (
@@ -449,7 +446,7 @@ function QuestionnaireContent() {
             value={(value as number) ?? ""}
             onChange={(e) =>
               updateFormData(
-                question.key as keyof typeof INITIAL_DATA,
+                question.key,
                 e.target.value ? parseInt(e.target.value) : undefined
               )
             }
@@ -459,20 +456,13 @@ function QuestionnaireContent() {
         )}
 
         {question.type === "textarea" && (
-          <div className="flex gap-2 items-start mt-2">
-            <textarea
-              value={(value as string) || ""}
-              onChange={(e) => updateFormData(question.key as keyof typeof INITIAL_DATA, e.target.value)}
-              placeholder={question.placeholder}
-              rows={4}
-              className={baseInputClass + " flex-1 resize-none leading-relaxed-cn"}
-            />
-            <VoiceInput
-              value={(value as string) || ""}
-              onChange={(v) => updateFormData(question.key as keyof typeof INITIAL_DATA, v)}
-              size="md"
-            />
-          </div>
+          <textarea
+            value={(value as string) || ""}
+            onChange={(e) => updateFormData(question.key, e.target.value)}
+            placeholder={question.placeholder}
+            rows={4}
+            className={baseInputClass + " mt-2 resize-none leading-relaxed-cn"}
+          />
         )}
 
         {err && (
@@ -531,6 +521,17 @@ function QuestionnaireContent() {
           )}
         </div>
       </header>
+
+      {/* P1: 整页 1 个语音按钮 (取代每字段 1 个) — 固定在顶部下方, 滚动时仍可见 */}
+      <div className="sticky top-[152px] sm:top-[170px] z-40 bg-slate-50/95 backdrop-blur-sm border-b border-slate-200">
+        <div className="max-w-2xl mx-auto px-4 py-3">
+          <PageVoiceInput
+            module={currentModule}
+            formData={formData}
+            onApply={setFormData}
+          />
+        </div>
+      </div>
 
       {/* 问题区域 */}
       <main className="max-w-2xl mx-auto px-4 py-6 sm:py-8 pb-32 sm:pb-8">

@@ -13,6 +13,7 @@ export interface Question {
   question: string;      // 问题文字
   options?: QuestionOption[];  // radio/checkbox 的选项
   placeholder?: string;
+  hint?: string;         // 可选的提示文字
   required: boolean;
 }
 

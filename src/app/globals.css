@@ -43,10 +43,38 @@ html {
   text-rendering: optimizeLegibility;
 }
 
-* {
+/* 改版 v5.1 (2026-06-10): box-sizing 用 universal (这是 normalize 推荐写法,
+   但 margin/padding 不用 * — 否则 .mx-auto / .mt-* / .p-* 等 Tailwind 工具类
+   会被 * { margin: 0 } 全部覆盖, 出现 main 不居中、间距丢失的严重 bug) */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  padding: 0;
+}
+
+/* 改版 v5.1 (2026-06-10): 限定到需要 reset 的传统块级元素,
+   保持 Tailwind 工具类 (mx-auto / px-4 / py-6) 在 <main> / <div> / <form> 等容器上生效 */
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ul,
+ol {
   margin: 0;
+  padding: 0;
+}
+
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
 }
 
 html {

@@ -6,16 +6,41 @@
 :root {
   --foreground-rgb: 15, 23, 42;
   --background-rgb: 248, 250, 252;
-  /* 字体: 系统字体栈, 不依赖 Google Fonts (离线 build 友好, 中文体验更好) */
-  --font-geist-sans: -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue",
-    Arial, sans-serif;
-  --font-geist-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Liberation Mono", "Courier New", monospace;
+
+  /* ─────────────────────────────────────────────────────────
+     字体策略 v2 (2026-06-09 优化)
+     ─────────────────────────────────────────────────────────
+     1. 中文 H5 场景优先级:
+        - iOS Safari: 苹方 PingFang SC  (理想, 但 macOS 优先)
+        - 微信内置 (Android X5 内核): 系统默认中文 sans
+        - 国内 Android 默认: 思源黑体 / Noto Sans CJK
+        - 微信内置 (iOS WKWebView): PingFang SC
+        - PC Chrome/Safari: 苹方 / 微软雅黑
+        2. 不依赖 Google Fonts, 避免 FOIT/CLS 与离线 build 失败
+     3. 西文优先 SF Pro / Segoe UI (苹方渲染西文不优)
+     4. 等宽字体: SF Mono / Cascadia Code
+     5. font-feature-settings: 启用中文标点挤压 + 数字等宽
+        - palt  (proportional alternates)  中文标点按字宽压缩
+        - tnum  (tabular numerals)        数字等宽 (价格 / 表单)
+     ───────────────────────────────────────────────────────── */
+  --font-geist-sans: -apple-system, BlinkMacSystemFont, "SF Pro SC",
+    "SF Pro Display", "SF Pro Text", "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Microsoft YaHei UI",
+    "Source Han Sans CN", "Noto Sans CJK SC", "WenQuanYi Micro Hei",
+    "Helvetica Neue", Arial, sans-serif;
+  --font-geist-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo,
+    Consolas, "Cascadia Code", "Liberation Mono", "Courier New", monospace;
+  --font-geist-serif: "Noto Serif SC", "Source Han Serif CN",
+    "Songti SC", "STSong", "SimSun", serif;
 }
 
 html {
   font-family: var(--font-geist-sans);
+  /* 启用中文标点压缩 + 数字等宽 (H5 价格/表单场景必备) */
+  font-feature-settings: "tnum" 1, "palt" 1, "kern" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -32,11 +57,62 @@ body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(to bottom, transparent, rgb(var(--background-rgb)))
     rgb(var(--background-rgb));
+  /* 中文字符行高比西文高 1.3-1.5 倍, 设 1.6 避免 6+字行视觉拥挤 */
+  line-height: 1.6;
+  /* 防止 iOS 长按选中, 提升 H5 按钮/卡片体验 */
+  -webkit-tap-highlight-color: transparent;
+  /* 系统字号: 16px 防止 iOS 自动放大 input */
+  font-size: 16px;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+   排版工具类 (Tailwind v4 通过 @layer utilities 注入)
+   ───────────────────────────────────────────────────────── */
+@layer utilities {
+  /* 中文标题: 字重 700 + 字距收紧, 适合 h1-h3 */
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  /* 中文紧凑行高 (单行标题/按钮) */
+  .leading-tight-cn {
+    line-height: 1.3;
+  }
+  /* 中文舒展行高 (段落/正文) */
+  .leading-relaxed-cn {
+    line-height: 1.75;
+  }
+  /* 数字等宽 (价格/数量场景) */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  /* 禁止 iOS 自动把数字识别成电话 */
+  .tel-hide {
+    -webkit-touch-callout: none;
+  }
+  /* input 16px 防 iOS 自动放大 (H5 表单必备) */
+  .input-ios-fix {
+    font-size: 16px;
+  }
+  /* 滚动容器: 平滑 + 隐藏滚动条 (H5 弹窗) */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  /* 安全区适配 (iPhone X+ 底部) */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 /* 落地页专用样式 */

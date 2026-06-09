@@ -1,30 +1,42 @@
 'use client';
 
-import { Suspense, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 /**
  * /admin/login - 管理员登录页
  *
- * 改版 v2 (2026-06-09, UI polish):
- *   - input 加 style={{ fontSize: '16px' }} 防 iOS 自动放大
- *   - input 加 inputMode / autoComplete
- *   - label 用 htmlFor 关联 id
- *   - error 区域加 role="alert"
- *   - leading-tight-cn / leading-relaxed-cn 中文排版
- *   - 卡片加 pb-safe
+ * 改版 v3 (2026-06-09, fix '加载中...' stuck state):
+ *   - 不再用 useSearchParams() (会触发 Next.js 16 BAILOUT_TO_CLIENT_SIDE_RENDERING)
+ *   - 改为 useEffect 读 window.location.search → 表单可完整 SSR, 首屏直接可见
+ *   - 改版 v2 (2026-06-09, UI polish):
+ *       - input 加 style={{ fontSize: '16px' }} 防 iOS 自动放大
+ *       - input 加 inputMode / autoComplete
+ *       - label 用 htmlFor 关联 id
+ *       - error 区域加 role="alert"
+ *       - leading-tight-cn / leading-relaxed-cn 中文排版
+ *       - 卡片加 pb-safe
  */
 
-function LoginInner() {
+export default function AdminLoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const returnTo = searchParams.get('return') || '/admin';
+  const [returnTo, setReturnTo] = useState('/admin');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 客户端 mount 后读 ?return=, 避免 useSearchParams 触发 SSR bail-out
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    const ret = sp.get('return');
+    if (ret && ret.startsWith('/') && !ret.startsWith('//')) {
+      setReturnTo(ret);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,21 +156,5 @@ function LoginInner() {
         </p>
       </div>
     </main>
-  );
-}
-
-function LoginFallback() {
-  return (
-    <main className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="text-sm text-slate-400 leading-relaxed-cn">加载中…</div>
-    </main>
-  );
-}
-
-export default function AdminLoginPage() {
-  return (
-    <Suspense fallback={<LoginFallback />}>
-      <LoginInner />
-    </Suspense>
   );
 }

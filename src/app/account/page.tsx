@@ -47,14 +47,16 @@ export default async function AccountPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-amber-50 to-white">
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 sm:py-10">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 sm:py-10 pb-safe">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">👤 我的账户</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight-cn text-balance">
+            <span aria-hidden>👤 </span>我的账户
+          </h1>
           <Link
             href="/"
             className="text-sm text-slate-600 hover:text-amber-600 transition"
           >
-            ← 返回首页
+            <span aria-hidden>← </span>返回首页
           </Link>
         </div>
 
@@ -74,11 +76,14 @@ export default async function AccountPage() {
 function NotLoggedInView() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-amber-50 to-white">
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-sm p-8 text-center">
-          <div className="text-5xl mb-4">🔒</div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">请先登录</h1>
-          <p className="text-sm text-slate-600 mb-6">
+      <main className="flex-1 flex items-center justify-center px-4 py-12 pb-safe">
+        <div
+          className="max-w-md w-full bg-white rounded-2xl shadow-sm p-8 text-center"
+          role="status"
+        >
+          <div className="text-5xl mb-4" aria-hidden>🔒</div>
+          <h1 className="text-2xl font-bold text-slate-800 mb-2 leading-tight-cn">请先登录</h1>
+          <p className="text-sm text-slate-600 mb-6 leading-relaxed-cn">
             查看订单 / 下载文书 / 申请发票, 需要先关注公众号「爱的延续」并完成绑定
           </p>
           <div className="space-y-3">
@@ -86,16 +91,16 @@ function NotLoggedInView() {
               href="/wechat/bind"
               className="block w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl transition"
             >
-              🔗 绑定公众号登录
+              <span aria-hidden>🔗 </span>绑定公众号登录
             </a>
             <Link
               href="/"
               className="block w-full border-2 border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 rounded-xl transition"
             >
-              返回首页
+              <span aria-hidden>← </span>返回首页
             </Link>
           </div>
-          <p className="text-xs text-slate-500 mt-6">
+          <p className="text-xs text-slate-500 mt-6 leading-relaxed-cn">
             遇到问题? 联系客服微信 (见网站底部)
           </p>
         </div>

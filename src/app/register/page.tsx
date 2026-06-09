@@ -37,14 +37,14 @@ export default async function RegisterPage({ searchParams }: PageProps) {
             href="/"
             className="inline-flex items-center gap-2 text-slate-600 hover:text-amber-600 transition"
           >
-            <span className="text-2xl">⚖️</span>
-            <span className="text-lg font-semibold">爱的延续</span>
+            <span className="text-2xl" aria-hidden>⚖️</span>
+            <span className="text-lg font-semibold leading-tight-cn">爱的延续</span>
           </Link>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">创建您的账号</h1>
-          <p className="text-sm text-slate-500 mb-6">
+          <h1 className="text-2xl font-bold text-slate-800 mb-2 leading-tight-cn">创建您的账号</h1>
+          <p className="text-sm text-slate-500 mb-6 leading-relaxed-cn">
             几秒钟即可完成, 立即管理您的法律文书
           </p>
 
@@ -61,9 +61,10 @@ export default async function RegisterPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        <div className="mt-6 text-center text-xs text-slate-500">
+        <div className="mt-6 text-center text-xs text-slate-500 leading-relaxed-cn">
           <p>
-            管理员请去 <a href="/admin/login" className="text-slate-700 hover:text-amber-600 underline">管理员入口</a>
+            管理员请去{' '}
+            <a href="/admin/login" className="text-slate-700 hover:text-amber-600 underline">管理员入口</a>
           </p>
         </div>
       </div>

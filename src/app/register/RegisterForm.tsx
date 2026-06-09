@@ -77,8 +77,11 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-          邮箱 <span className="text-red-500">*</span>
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-slate-700 mb-1 leading-tight-cn"
+        >
+          邮箱 <span className="text-red-500" aria-label="必填">*</span>
         </label>
         <input
           id="email"
@@ -88,13 +91,18 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="your@email.com"
           autoComplete="email"
+          inputMode="email"
+          style={{ fontSize: '16px' }}
           className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
         />
       </div>
 
       <div>
-        <label htmlFor="displayName" className="block text-sm font-medium text-slate-700 mb-1">
-          昵称 <span className="text-slate-400 text-xs">(选填)</span>
+        <label
+          htmlFor="displayName"
+          className="block text-sm font-medium text-slate-700 mb-1 leading-tight-cn"
+        >
+          昵称 <span className="text-slate-400 text-xs font-normal">(选填)</span>
         </label>
         <input
           id="displayName"
@@ -103,13 +111,17 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder="您希望被如何称呼?"
+          style={{ fontSize: '16px' }}
           className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
         />
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-          密码 <span className="text-red-500">*</span>
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-slate-700 mb-1 leading-tight-cn"
+        >
+          密码 <span className="text-red-500" aria-label="必填">*</span>
         </label>
         <input
           id="password"
@@ -120,10 +132,16 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="至少 8 位, 建议字母+数字"
           autoComplete="new-password"
+          style={{ fontSize: '16px' }}
           className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
         />
         {password.length > 0 && (
-          <div className="mt-1.5 flex items-center gap-2">
+          <div
+            className="mt-1.5 flex items-center gap-2"
+            role="status"
+            aria-live="polite"
+            aria-label={`密码强度: ${strengthLabel}`}
+          >
             <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
               <div
                 className={`h-full transition-all ${strengthColor}`}
@@ -136,8 +154,11 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
       </div>
 
       <div>
-        <label htmlFor="passwordConfirm" className="block text-sm font-medium text-slate-700 mb-1">
-          确认密码 <span className="text-red-500">*</span>
+        <label
+          htmlFor="passwordConfirm"
+          className="block text-sm font-medium text-slate-700 mb-1 leading-tight-cn"
+        >
+          确认密码 <span className="text-red-500" aria-label="必填">*</span>
         </label>
         <input
           id="passwordConfirm"
@@ -148,6 +169,7 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
           onChange={(e) => setPasswordConfirm(e.target.value)}
           placeholder="再输入一次"
           autoComplete="new-password"
+          style={{ fontSize: '16px' }}
           className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
         />
       </div>
@@ -159,17 +181,20 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
           onChange={(e) => setAcceptTerms(e.target.checked)}
           className="mt-0.5 w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500"
         />
-        <span className="text-xs text-slate-600 leading-relaxed">
+        <span className="text-xs text-slate-600 leading-relaxed-cn">
           我已阅读并同意{' '}
-          <a href="/terms" target="_blank" className="text-amber-600 underline">服务条款</a>
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline">服务条款</a>
           {' '}与{' '}
-          <a href="/privacy" target="_blank" className="text-amber-600 underline">隐私政策</a>
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline">隐私政策</a>
         </span>
       </label>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
-          ⚠️ {error}
+        <div
+          className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 leading-relaxed-cn"
+          role="alert"
+        >
+          <span aria-hidden>⚠️ </span>{error}
         </div>
       )}
 

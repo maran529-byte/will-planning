@@ -43,9 +43,12 @@ export function LoginForm({ returnTo }: LoginFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate={false}>
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-slate-700 mb-1 leading-tight-cn"
+        >
           邮箱
         </label>
         <input
@@ -56,12 +59,19 @@ export function LoginForm({ returnTo }: LoginFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="your@email.com"
           autoComplete="email"
+          inputMode="email"
+          // 改版 v5 (2026-06-09): input-ios-fix = font-size 16px 防止 iOS 自动放大
+          // 默认 globals.css 已是 16px, 这里 redundant 但明确化 (input attr vs CSS)
+          style={{ fontSize: '16px' }}
           className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
         />
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-slate-700 mb-1 leading-tight-cn"
+        >
           密码
         </label>
         <input
@@ -73,13 +83,17 @@ export function LoginForm({ returnTo }: LoginFormProps) {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="至少 8 位"
           autoComplete="current-password"
+          style={{ fontSize: '16px' }}
           className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
         />
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
-          ⚠️ {error}
+        <div
+          className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 leading-relaxed-cn"
+          role="alert"
+        >
+          <span aria-hidden>⚠️ </span>{error}
         </div>
       )}
 
@@ -92,16 +106,15 @@ export function LoginForm({ returnTo }: LoginFormProps) {
       </button>
 
       <div className="text-right">
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
+        <button
+          type="button"
+          onClick={() => {
             alert('忘记密码功能开发中, 请联系客服微信 wxid_xxx');
           }}
           className="text-xs text-slate-500 hover:text-amber-600"
         >
           忘记密码?
-        </a>
+        </button>
       </div>
     </form>
   );

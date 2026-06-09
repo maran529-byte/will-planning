@@ -10,6 +10,11 @@
  *   - 编号作为用户在系统中的唯一标识, 用于订单隔离、博主归因等
  *   - 同一编号绑定的所有订单/草稿可在 /orders 查看
  *
+ * 改版 v3 (2026-06-09, UI polish):
+ *   - 添加 aria-label / aria-hidden / role="alert" / role="status"
+ *   - input 加 style={{ fontSize: '16px' }} 防 iOS 自动放大
+ *   - leading-relaxed-cn 中文长文本优化
+ *
  * Dev 模式 (NODE_ENV !== 'production'):
  *   - 保留原"手动设置"入口, 但现在是生产主路径
  *
@@ -106,31 +111,44 @@ function WechatBindInner() {
   if (loading) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
-        <div className="text-sm text-slate-500">加载中…</div>
+        <div className="text-sm text-slate-500 leading-relaxed-cn">加载中…</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white px-4 py-8">
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white px-4 py-8 pb-safe">
       <div className="mx-auto max-w-md">
         <header className="mb-6 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+          <div
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100"
+            aria-hidden
+          >
             <span className="text-3xl">🔖</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">设置访客编号</h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-slate-900 leading-tight-cn text-balance">
+            设置访客编号
+          </h1>
+          <p className="mt-2 text-sm text-slate-500 leading-relaxed-cn">
             用于在本站关联您的订单、草稿和咨询记录
           </p>
         </header>
 
         {/* 已绑定: 显示当前编号 + 退出按钮 */}
         {currentOpenid && (
-          <section className="mb-6 rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+          <section
+            className="mb-6 rounded-xl bg-emerald-50 border border-emerald-200 p-4"
+            aria-label="已绑定访客编号"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-emerald-700 font-medium mb-1">✓ 当前已绑定</p>
-                <p className="font-mono text-base text-emerald-900 break-all">
+                <p
+                  className="text-xs text-emerald-700 font-medium mb-1"
+                  role="status"
+                >
+                  <span aria-hidden>✓ </span>当前已绑定
+                </p>
+                <p className="font-mono text-base text-emerald-900 break-all tabular-nums">
                   {currentOpenid}
                 </p>
               </div>
@@ -138,6 +156,7 @@ function WechatBindInner() {
                 type="button"
                 onClick={handleClear}
                 className="flex-shrink-0 text-xs text-emerald-700 hover:text-emerald-900 underline"
+                aria-label="退出当前访客编号"
               >
                 退出
               </button>
@@ -147,7 +166,7 @@ function WechatBindInner() {
                 href={returnTo}
                 className="block w-full text-center bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 rounded-lg text-sm transition"
               >
-                返回 {returnTo}
+                <span aria-hidden>← </span>返回 {returnTo}
               </Link>
             </div>
           </section>
@@ -155,16 +174,24 @@ function WechatBindInner() {
 
         {/* 绑定表单 */}
         <section className="rounded-xl bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-700 mb-3">
+          <h2 className="text-sm font-medium text-slate-700 mb-3 leading-tight-cn">
             {currentOpenid ? '切换为新编号' : '设置您的访客编号'}
           </h2>
-          <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-            推荐使用 <span className="font-mono bg-slate-100 px-1 rounded">手机后4位 + 4位数字</span> (如 alice2024)；
+          <p className="text-xs text-slate-500 mb-4 leading-relaxed-cn">
+            推荐使用{' '}
+            <span className="font-mono bg-slate-100 px-1 rounded tabular-nums">
+              手机后4位 + 4位数字
+            </span>{' '}
+            (如 alice2024)；
             或任意 4-32 位字母数字组合。请记牢, 后续查询订单需用此编号。
           </p>
 
           <form onSubmit={handleBind} className="space-y-3">
+            <label htmlFor="openid-input" className="sr-only">
+              访客编号
+            </label>
             <input
+              id="openid-input"
               type="text"
               value={devOpenid}
               onChange={(e) => setDevOpenid(e.target.value)}
@@ -173,7 +200,14 @@ function WechatBindInner() {
               autoComplete="off"
               spellCheck={false}
               maxLength={32}
+              // 改版 v3 (2026-06-09): 16px 防 iOS 自动放大
+              style={{ fontSize: '16px' }}
+              inputMode="text"
+              aria-describedby="openid-hint"
             />
+            <p id="openid-hint" className="text-xs text-slate-400 leading-relaxed-cn">
+              4-32 位字母、数字、下划线或连字符
+            </p>
             <button
               type="submit"
               disabled={!devOpenid.trim()}
@@ -184,21 +218,30 @@ function WechatBindInner() {
           </form>
 
           {error && (
-            <div className="mt-3 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-              {error}
+            <div
+              className="mt-3 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700 leading-relaxed-cn"
+              role="alert"
+            >
+              <span aria-hidden>⚠️ </span>{error}
             </div>
           )}
 
           {devStatus && (
-            <div className="mt-3 rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700">
+            <div
+              className="mt-3 rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700 leading-relaxed-cn"
+              role="status"
+              aria-live="polite"
+            >
               {devStatus}
             </div>
           )}
         </section>
 
         {/* 说明 */}
-        <section className="mt-6 rounded-xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900 leading-relaxed">
-          <p className="font-medium mb-2">📌 什么是访客编号?</p>
+        <section className="mt-6 rounded-xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900 leading-relaxed-cn">
+          <p className="font-medium mb-2">
+            <span aria-hidden>📌 </span>什么是访客编号?
+          </p>
           <p>
             访客编号是您在本站的唯一标识。设置后, 您创建的草稿、订单都将关联到此编号,
             之后用同一浏览器访问即自动识别。
@@ -208,20 +251,31 @@ function WechatBindInner() {
           </p>
         </section>
 
-        <p className="mt-6 text-center text-xs text-slate-400">
+        <p className="mt-6 text-center text-xs text-slate-400 leading-relaxed-cn">
           绑定即同意
-          <a href="/privacy" className="mx-1 text-blue-600 hover:underline">
+          <a
+            href="/privacy"
+            className="mx-1 text-blue-600 hover:underline"
+            rel="noopener"
+          >
             《隐私政策》
           </a>
           和
-          <a href="/terms" className="mx-1 text-blue-600 hover:underline">
+          <a
+            href="/terms"
+            className="mx-1 text-blue-600 hover:underline"
+            rel="noopener"
+          >
             《用户协议》
           </a>
         </p>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-slate-500 hover:text-slate-700">
-            ← 返回首页
+          <Link
+            href="/"
+            className="text-sm text-slate-500 hover:text-slate-700"
+          >
+            <span aria-hidden>← </span>返回首页
           </Link>
         </div>
       </div>
@@ -232,7 +286,7 @@ function WechatBindInner() {
 function BindFallback() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-50 to-white px-4 py-8">
-      <div className="text-sm text-slate-500">加载中…</div>
+      <div className="text-sm text-slate-500 leading-relaxed-cn">加载中…</div>
     </main>
   );
 }

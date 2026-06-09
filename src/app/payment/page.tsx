@@ -192,8 +192,8 @@ function PaymentContent() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">⏳</div>
-          <p className="text-slate-600">正在创建订单...</p>
+          <div className="animate-spin text-4xl mb-4" aria-hidden>⏳</div>
+          <p className="text-slate-600 leading-relaxed-cn">正在创建订单...</p>
         </div>
       </div>
     );
@@ -201,11 +201,11 @@ function PaymentContent() {
 
   if (paymentSuccess) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md text-center">
-          <div className="text-6xl mb-4">🎉</div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">支付成功</h1>
-          <p className="text-slate-600 mb-6">您的订单已支付成功</p>
+          <div className="text-6xl mb-4" aria-hidden>🎉</div>
+          <h1 className="text-2xl font-bold text-slate-800 mb-2 leading-tight-cn">支付成功</h1>
+          <p className="text-slate-600 mb-6 leading-relaxed-cn">您的订单已支付成功</p>
 
           <div className="bg-slate-50 rounded-xl p-4 mb-6 text-left">
             <div className="flex justify-between mb-2">
@@ -214,11 +214,11 @@ function PaymentContent() {
             </div>
             <div className="flex justify-between mb-2">
               <span className="text-slate-500">套餐</span>
-              <span className="text-slate-800">{planData.name}</span>
+              <span className="text-slate-800 leading-tight-cn">{planData.name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">金额</span>
-              <span className="font-bold text-amber-600">¥{priceInYuan}</span>
+              <span className="font-bold text-amber-600 tabular-nums">¥{priceInYuan}</span>
             </div>
           </div>
 
@@ -242,30 +242,33 @@ function PaymentContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pb-safe">
       <header className="bg-white shadow-sm">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href={willId ? `/result?id=${willId}&plan=${planParam}` : '/'} className="text-slate-600 hover:text-amber-600 transition">
+          <Link
+            href={willId ? `/result?id=${willId}&plan=${planParam}` : '/'}
+            className="text-slate-600 hover:text-amber-600 transition leading-tight-cn"
+          >
             ← 返回
           </Link>
-          <span className="font-semibold text-slate-800">订单支付</span>
-          <div className="w-16" />
+          <span className="font-semibold text-slate-800 leading-tight-cn">订单支付</span>
+          <div className="w-16" aria-hidden />
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8">
         {/* 订单摘要 */}
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-bold text-slate-800 mb-4">订单详情</h2>
+          <h2 className="text-lg font-bold text-slate-800 mb-4 leading-tight-cn">订单详情</h2>
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-slate-600">套餐</span>
-              <span className="font-semibold text-slate-800">{planData.name}</span>
+              <span className="font-semibold text-slate-800 leading-tight-cn">{planData.name}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-600">描述</span>
-              <span className="text-slate-700 text-sm">{planData.description}</span>
+              <span className="text-slate-700 text-sm leading-relaxed-cn">{planData.description}</span>
             </div>
             {'promo' in planData && planData.promo && (
               <div className="inline-flex items-center px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full">
@@ -279,11 +282,11 @@ function PaymentContent() {
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
           <div className="flex justify-between items-center">
             <span className="text-slate-600">应付金额</span>
-            <span className="text-3xl font-bold text-amber-600">¥{priceInYuan}</span>
+            <span className="text-3xl font-bold text-amber-600 tabular-nums">¥{priceInYuan}</span>
           </div>
 
           {order && (
-            <div className="mt-4 pt-4 border-t border-slate-100 text-sm text-slate-500">
+            <div className="mt-4 pt-4 border-t border-slate-100 text-sm text-slate-500 font-mono">
               订单号: {order.order_no}
             </div>
           )}
@@ -291,8 +294,8 @@ function PaymentContent() {
 
         {/* 支付方式选择 - 改版 v4: 主推虎皮椒 (hupijiao), 备选 manual */}
         <div className="bg-white rounded-2xl shadow-sm p-6">
-          <h3 className="text-lg font-bold text-slate-800 mb-2">选择支付方式</h3>
-          <p className="text-sm text-slate-500 mb-4">
+          <h3 className="text-lg font-bold text-slate-800 mb-2 leading-tight-cn">选择支付方式</h3>
+          <p className="text-sm text-slate-500 mb-4 leading-relaxed-cn">
             微信支付 · 实时到账 · 推荐 · 由虎皮椒 (持牌支付机构) 处理
           </p>
 
@@ -302,12 +305,13 @@ function PaymentContent() {
               onClick={() => startPayment('hupijiao')}
               disabled={paying}
               className="flex flex-col items-center gap-2 p-6 border-2 border-emerald-500 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition disabled:opacity-50 relative"
+              aria-label="使用微信支付 (推荐, 实时到账)"
             >
-              <div className="absolute -top-2 -right-2 bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full">
+              <div className="absolute -top-2 -right-2 bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full" aria-hidden>
                 推荐
               </div>
-              <div className="text-4xl">💚</div>
-              <span className="font-medium text-slate-800">微信支付</span>
+              <div className="text-4xl" aria-hidden>💚</div>
+              <span className="font-medium text-slate-800 leading-tight-cn">微信支付</span>
               <span className="text-xs text-slate-500">实时到账</span>
             </button>
 
@@ -316,9 +320,10 @@ function PaymentContent() {
               onClick={() => startPayment('manual')}
               disabled={paying}
               className="flex flex-col items-center gap-2 p-6 border-2 border-slate-200 rounded-xl hover:bg-slate-50 transition disabled:opacity-50"
+              aria-label="使用扫码支付, 人工确认"
             >
-              <div className="text-4xl">📱</div>
-              <span className="font-medium text-slate-800">扫码支付</span>
+              <div className="text-4xl" aria-hidden>📱</div>
+              <span className="font-medium text-slate-800 leading-tight-cn">扫码支付</span>
               <span className="text-xs text-slate-500">人工确认</span>
             </button>
           </div>
@@ -333,14 +338,21 @@ function PaymentContent() {
 
         {/* 支付二维码弹窗 - 改版 v4: hupijiao 模式只显示"跳转中"状态, 然后浏览器自动跳转 */}
         {showQR && paymentMethod === 'hupijiao' && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="hupijiao-modal-title"
+          >
             <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
-              <div className="animate-spin text-5xl mb-4">⏳</div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">正在跳转支付</h3>
-              <p className="text-slate-500 text-sm">
+              <div className="animate-spin text-5xl mb-4" aria-hidden>⏳</div>
+              <h3 id="hupijiao-modal-title" className="text-lg font-bold text-slate-800 mb-2 leading-tight-cn">
+                正在跳转支付
+              </h3>
+              <p className="text-slate-500 text-sm leading-relaxed-cn">
                 将为您打开虎皮椒收银台, 请在微信内完成支付
               </p>
-              <p className="text-slate-400 text-xs mt-3">
+              <p className="text-slate-400 text-xs mt-3 leading-relaxed-cn">
                 如未自动跳转, 请检查浏览器是否拦截了弹窗
               </p>
               <button
@@ -355,17 +367,22 @@ function PaymentContent() {
 
         {/* 支付二维码弹窗 - 改版 v3: 显示管理员收款码 (manual 模式) */}
         {showQR && paymentMethod === 'manual' && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="manual-modal-title"
+          >
             <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
               <div className="text-center mb-4">
-                <h3 className="text-lg font-bold text-slate-800">扫码支付</h3>
-                <p className="text-slate-500 text-sm mt-1">请使用微信/支付宝扫描下方二维码</p>
+                <h3 id="manual-modal-title" className="text-lg font-bold text-slate-800 leading-tight-cn">扫码支付</h3>
+                <p className="text-slate-500 text-sm mt-1 leading-relaxed-cn">请使用微信/支付宝扫描下方二维码</p>
               </div>
 
               {/* 订单号水印 - 让客户留言时附上, 客服对账 */}
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-center">
                 <p className="text-xs text-amber-700 mb-1">请在付款时留言订单号</p>
-                <p className="font-mono text-lg font-bold text-amber-800">{order?.order_no}</p>
+                <p className="font-mono text-lg font-bold text-amber-800 tabular-nums">{order?.order_no}</p>
               </div>
 
               <div className="bg-slate-100 rounded-xl p-4 mb-4">
@@ -379,7 +396,7 @@ function PaymentContent() {
                 ) : (
                   <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center">
                     <div className="text-center">
-                      <div className="animate-spin text-4xl mb-2">⏳</div>
+                      <div className="animate-spin text-4xl mb-2" aria-hidden>⏳</div>
                       <p className="text-xs text-slate-500">加载收款码...</p>
                     </div>
                   </div>
@@ -388,7 +405,7 @@ function PaymentContent() {
 
               {/* 支付金额醒目展示 */}
               <div className="text-center mb-4">
-                <p className="text-3xl font-bold text-amber-600">¥{priceInYuan}</p>
+                <p className="text-3xl font-bold text-amber-600 tabular-nums">¥{priceInYuan}</p>
                 <p className="text-xs text-slate-500 mt-1">付款后请点下方按钮</p>
               </div>
 
@@ -396,13 +413,13 @@ function PaymentContent() {
                 // 客户已点 "我已支付" - 显示等待确认状态
                 <div className="space-y-3">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                    <div className="text-3xl mb-2">⏳</div>
-                    <p className="text-blue-700 font-medium text-sm">已收到您的支付提醒</p>
-                    <p className="text-blue-600 text-xs mt-1">客服将在数分钟内确认, 页面将自动跳转</p>
+                    <div className="text-3xl mb-2" aria-hidden>⏳</div>
+                    <p className="text-blue-700 font-medium text-sm leading-relaxed-cn">已收到您的支付提醒</p>
+                    <p className="text-blue-600 text-xs mt-1 leading-relaxed-cn">客服将在数分钟内确认, 页面将自动跳转</p>
                   </div>
                   <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
-                    <div className="animate-pulse w-2 h-2 bg-green-500 rounded-full"></div>
-                    正在等待订单确认...
+                    <div className="animate-pulse w-2 h-2 bg-green-500 rounded-full" aria-hidden></div>
+                    <span>正在等待订单确认...</span>
                   </div>
                   <button
                     onClick={closeQR}
@@ -413,10 +430,10 @@ function PaymentContent() {
                 </div>
               ) : timeoutState ? (
                 <div className="text-center">
-                  <div className="text-4xl mb-2">⏰</div>
+                  <div className="text-4xl mb-2" aria-hidden>⏰</div>
                   <p className="text-red-600 font-medium mb-4">支付确认超时</p>
-                  <p className="text-slate-500 text-sm mb-4">
-                    若已支付, 请加客服微信并提供订单号 <span className="font-mono font-bold">{order?.order_no}</span>
+                  <p className="text-slate-500 text-sm mb-4 leading-relaxed-cn">
+                    若已支付, 请加客服微信并提供订单号 <span className="font-mono font-bold tabular-nums">{order?.order_no}</span>
                   </p>
                   <button
                     onClick={closeQR}
@@ -442,7 +459,7 @@ function PaymentContent() {
                 </div>
               )}
 
-              <div className="mt-4 text-center text-xs text-slate-400">
+              <div className="mt-4 text-center text-xs text-slate-400 leading-relaxed-cn">
                 <p>支付即视为同意《服务协议》</p>
                 <p className="mt-1">客服微信: 见网站底部</p>
               </div>
@@ -451,7 +468,7 @@ function PaymentContent() {
         )}
 
         {/* 底部提示 */}
-        <div className="mt-8 text-center text-sm text-slate-500">
+        <div className="mt-8 text-center text-sm text-slate-500 leading-relaxed-cn">
           <p>支付过程中如有疑问, 请联系客服</p>
         </div>
       </main>
@@ -461,7 +478,13 @@ function PaymentContent() {
 
 export default function PaymentPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><p className="text-slate-500">加载中...</p></div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-slate-500">加载中...</p>
+        </div>
+      }
+    >
       <PaymentContent />
     </Suspense>
   );

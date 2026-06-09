@@ -84,33 +84,36 @@ export default function OrdersPage() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">⏳</div>
-          <p className="text-slate-600">加载中...</p>
+          <div className="animate-spin text-4xl mb-4" aria-hidden>⏳</div>
+          <p className="text-slate-600 leading-relaxed-cn">加载中...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pb-safe">
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-slate-600 hover:text-amber-600 transition">
+          <Link
+            href="/"
+            className="text-slate-600 hover:text-amber-600 transition leading-tight-cn"
+          >
             ← 返回首页
           </Link>
-          <span className="font-bold text-slate-800 text-lg">我的订单</span>
-          <div className="w-24" />
+          <span className="font-bold text-slate-800 text-lg leading-tight-cn">我的订单</span>
+          <div className="w-24" aria-hidden />
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {orders.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-            <div className="text-6xl mb-4">📋</div>
+            <div className="text-6xl mb-4" aria-hidden>📋</div>
             {authenticated ? (
               <>
-                <h2 className="text-xl font-bold text-slate-800 mb-2">暂无订单</h2>
-                <p className="text-slate-500 mb-6">您还没有创建任何订单</p>
+                <h2 className="text-xl font-bold text-slate-800 mb-2 leading-tight-cn">暂无订单</h2>
+                <p className="text-slate-500 mb-6 leading-relaxed-cn">您还没有创建任何订单</p>
                 <Link
                   href="/"
                   className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-xl transition"
@@ -120,17 +123,17 @@ export default function OrdersPage() {
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-slate-800 mb-2">请先登录</h2>
-                <p className="text-slate-500 mb-6">
+                <h2 className="text-xl font-bold text-slate-800 mb-2 leading-tight-cn">请先登录</h2>
+                <p className="text-slate-500 mb-6 leading-relaxed-cn">
                   绑定微信公众号后查看您的订单
                 </p>
                 <Link
                   href="/wechat/bind?return=/orders"
                   className="inline-block bg-[#07C160] hover:bg-[#06B05A] text-white font-semibold px-6 py-3 rounded-xl transition"
                 >
-                  🔗 绑定微信账号
+                  <span aria-hidden>🔗 </span>绑定微信账号
                 </Link>
-                <p className="mt-3 text-xs text-slate-400">
+                <p className="mt-3 text-xs text-slate-400 leading-relaxed-cn">
                   绑定后订单将自动关联到您的微信账号
                 </p>
               </>
@@ -139,17 +142,19 @@ export default function OrdersPage() {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <div
+              <button
                 key={order.id}
-                className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition cursor-pointer"
+                type="button"
+                className="w-full text-left bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500"
                 onClick={() => setSelectedOrder(order)}
+                aria-label={`订单 ${order.order_no}, ${getPlanName(order.plan)}, 状态 ${order.status}`}
               >
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <div className="font-mono text-sm text-slate-500 mb-1">
+                    <div className="font-mono text-sm text-slate-500 mb-1 tabular-nums">
                       {order.order_no}
                     </div>
-                    <div className="font-semibold text-slate-800">
+                    <div className="font-semibold text-slate-800 leading-tight-cn">
                       {getPlanName(order.plan)}
                     </div>
                   </div>
@@ -157,10 +162,10 @@ export default function OrdersPage() {
                 </div>
 
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500">
+                  <span className="text-slate-500 leading-relaxed-cn">
                     {formatDate(order.created_at)}
                   </span>
-                  <span className="font-bold text-amber-600">
+                  <span className="font-bold text-amber-600 tabular-nums">
                     ¥{(order.amount / 100).toFixed(2)}
                   </span>
                 </div>
@@ -176,20 +181,31 @@ export default function OrdersPage() {
                     </Link>
                   </div>
                 )}
-              </div>
+              </button>
             ))}
           </div>
         )}
 
         {/* 订单详情弹窗 */}
         {selectedOrder && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="order-modal-title"
+          >
             <div className="bg-white rounded-2xl p-6 max-w-md w-full">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-slate-800">订单详情</h3>
+                <h3
+                  id="order-modal-title"
+                  className="text-lg font-bold text-slate-800 leading-tight-cn"
+                >
+                  订单详情
+                </h3>
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="text-slate-400 hover:text-slate-600 transition"
+                  className="text-slate-400 hover:text-slate-600 transition w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100"
+                  aria-label="关闭订单详情"
                 >
                   ✕
                 </button>
@@ -198,15 +214,15 @@ export default function OrdersPage() {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-slate-500">订单号</span>
-                  <span className="font-mono text-sm">{selectedOrder.order_no}</span>
+                  <span className="font-mono text-sm tabular-nums">{selectedOrder.order_no}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">套餐</span>
-                  <span className="text-slate-800">{getPlanName(selectedOrder.plan)}</span>
+                  <span className="text-slate-800 leading-tight-cn">{getPlanName(selectedOrder.plan)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">金额</span>
-                  <span className="font-bold text-amber-600">
+                  <span className="font-bold text-amber-600 tabular-nums">
                     ¥{(selectedOrder.amount / 100).toFixed(2)}
                   </span>
                 </div>
@@ -225,12 +241,12 @@ export default function OrdersPage() {
                 {selectedOrder.paid_at && (
                   <div className="flex justify-between">
                     <span className="text-slate-500">支付时间</span>
-                    <span className="text-slate-800">{formatDate(selectedOrder.paid_at)}</span>
+                    <span className="text-slate-800 leading-relaxed-cn">{formatDate(selectedOrder.paid_at)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-slate-500">创建时间</span>
-                  <span className="text-slate-800">{formatDate(selectedOrder.created_at)}</span>
+                  <span className="text-slate-800 leading-relaxed-cn">{formatDate(selectedOrder.created_at)}</span>
                 </div>
               </div>
 
@@ -263,8 +279,8 @@ export default function OrdersPage() {
         )}
 
         {/* 底部提示 */}
-        <div className="mt-8 text-center text-sm text-slate-500">
-          <p>这是模拟订单数据，实际支付功能需对接微信/支付宝商户</p>
+        <div className="mt-8 text-center text-sm text-slate-500 leading-relaxed-cn">
+          <p>这是模拟订单数据,实际支付功能需对接微信/支付宝商户</p>
         </div>
       </main>
     </div>

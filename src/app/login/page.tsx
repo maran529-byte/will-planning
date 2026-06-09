@@ -37,21 +37,24 @@ export default async function LoginPage({ searchParams }: PageProps) {
             href="/"
             className="inline-flex items-center gap-2 text-slate-600 hover:text-amber-600 transition"
           >
-            <span className="text-2xl">⚖️</span>
-            <span className="text-lg font-semibold">爱的延续</span>
+            <span className="text-2xl" aria-hidden>⚖️</span>
+            <span className="text-lg font-semibold leading-tight-cn">爱的延续</span>
           </Link>
         </div>
 
         {/* 登录卡片 */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">欢迎回来</h1>
-          <p className="text-sm text-slate-500 mb-6">
+          <h1 className="text-2xl font-bold text-slate-800 mb-2 leading-tight-cn">欢迎回来</h1>
+          <p className="text-sm text-slate-500 mb-6 leading-relaxed-cn">
             登录后可以管理您的草稿、订单和博主推广
           </p>
 
           {justRegistered && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-lg p-3 mb-5">
-              🎉 注册成功, 请用刚注册的邮箱密码登录
+            <div
+              className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-lg p-3 mb-5 leading-relaxed-cn"
+              role="status"
+            >
+              <span aria-hidden>🎉 </span>注册成功, 请用刚注册的邮箱密码登录
             </div>
           )}
 
@@ -70,12 +73,15 @@ export default async function LoginPage({ searchParams }: PageProps) {
         </div>
 
         {/* 底部提示 */}
-        <div className="mt-6 text-center text-xs text-slate-500">
+        <div className="mt-6 text-center text-xs text-slate-500 leading-relaxed-cn">
           <p>
-            管理员请去 <a href="/admin/login" className="text-slate-700 hover:text-amber-600 underline">管理员入口</a>
+            管理员请去{' '}
+            <a href="/admin/login" className="text-slate-700 hover:text-amber-600 underline">管理员入口</a>
           </p>
           <p className="mt-2">
-            登录即表示同意 <a href="/terms" className="underline">服务条款</a> 与 <a href="/privacy" className="underline">隐私政策</a>
+            登录即表示同意{' '}
+            <a href="/terms" className="underline">服务条款</a> 与{' '}
+            <a href="/privacy" className="underline">隐私政策</a>
           </p>
         </div>
       </div>

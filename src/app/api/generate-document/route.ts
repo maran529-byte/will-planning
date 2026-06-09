@@ -15,6 +15,8 @@ import { v4 as uuidv4 } from "uuid";
 import { MINIMAX_API_KEY, MINIMAX_BASE_URL, MINIMAX_MODEL } from "@/lib/config";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { getPriceCents } from "@/lib/pricing";
+// Batch B (2026-06-09): 需求 #3 - 生成文书前自动过滤无效/占位信息
+import { sanitizeFormData, countDroppedFields } from "@/lib/form-data-filter";
 
 const SUPPORTED_TYPES = new Set([
   "marriage", "marital-property", "divorce", "child-custody", "gift",
@@ -124,12 +126,19 @@ export async function POST(request: NextRequest) {
     // P0: PIPL §51 — 不打印 PII
     console.log("Generate document: type=", docType, "answers_count=", Object.keys(formData).length, "plan=", plan);
 
+    // Batch B (2026-06-09): 需求 #3 - 自动过滤无效/占位信息 (在 LLM prompt 之前)
+    const filterStats = countDroppedFields(formData);
+    const sanitizedFormData = sanitizeFormData(formData);
+    if (filterStats.dropped > 0) {
+      console.log(`[${docType}] Auto-filtered ${filterStats.dropped}/${filterStats.total} placeholder field(s)`);
+    }
+
     let docContent = "";
 
     // 调 MiniMax API
     if (MINIMAX_API_KEY && MINIMAX_API_KEY !== "") {
       try {
-        const prompt = buildPrompt(docType, formData);
+        const prompt = buildPrompt(docType, sanitizedFormData);
         const response = await fetch(MINIMAX_BASE_URL, {
           method: "POST",
           headers: {
@@ -153,24 +162,44 @@ export async function POST(request: NextRequest) {
 
     // Fallback
     if (!docContent) {
-      docContent = generateDefaultDocument(docType, formData, priceCents);
+      docContent = generateDefaultDocument(docType, sanitizedFormData, priceCents);
     }
 
     // 存 Supabase (按 type 路由到不同表)
     const supabase = getSupabase();
     if (supabase) {
       const tableName = docType.replace(/-/g, "_");  // marital-property -> marital_property
-      const { error } = await supabase.from(tableName).insert({
+      // Batch B (2026-06-09): revision_count 默认 0, 记录已修订次数
+      // 注意: 如果该表尚未 ALTER 加列, 会 insert 失败 (PGRST204)
+      // 降级策略: 先尝试带 revision_count, 失败则不带
+      const insertWithRevision = {
         id: docId,
         plan,
         price: priceCents,
         status: "generated",
-        form_data: formData,
+        form_data: sanitizedFormData,
         doc_content: docContent,
         doc_content_html: `<pre style="white-space:pre-wrap">${docContent}</pre>`,
-      });
-      if (error) {
-        console.error(`[${docType}] Supabase insert error:`, error);
+        revision_count: 0,
+      };
+      const { error: insertErr } = await supabase.from(tableName).insert(insertWithRevision);
+      if (insertErr) {
+        // 降级: 不带 revision_count 重试一次 (兼容尚未迁移的表)
+        if (insertErr.message?.includes('revision_count') || insertErr.code === 'PGRST204') {
+          console.warn(`[${docType}] revision_count column missing, retrying without it. Run migration 20260609_add_revision_count.sql`);
+          const { error: retryErr } = await supabase.from(tableName).insert({
+            id: docId,
+            plan,
+            price: priceCents,
+            status: "generated",
+            form_data: sanitizedFormData,
+            doc_content: docContent,
+            doc_content_html: `<pre style="white-space:pre-wrap">${docContent}</pre>`,
+          });
+          if (retryErr) console.error(`[${docType}] Supabase insert retry error:`, retryErr);
+        } else {
+          console.error(`[${docType}] Supabase insert error:`, insertErr);
+        }
       }
     }
 
@@ -180,6 +209,8 @@ export async function POST(request: NextRequest) {
       docType,
       plan,
       price: priceCents,
+      // Batch B: 把过滤统计也返回, 前端可显示 "已忽略 X 条无效信息"
+      filterStats: { dropped: filterStats.dropped, total: filterStats.total },
     });
   } catch (error) {
     console.error("Generate document error:", error);
@@ -221,6 +252,9 @@ export async function GET(request: NextRequest) {
         docContentHtml: data.doc_content_html,
         createdAt: data.created_at,
         formData: data.form_data,
+        // Batch B: 把 revision_count 一起返回, 前端用这个判断 "还能不能改"
+        revisionCount: data.revision_count ?? 0,
+        maxRevisions: 3,
       });
     }
   }

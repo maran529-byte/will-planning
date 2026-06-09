@@ -11,6 +11,10 @@ interface ResultData {
   docContent?: string;        // Day 2: 5 类新文书用 docContent 字段
   plan: string;
   price: number;
+  // Batch B (2026-06-09): 需求 #4 - 多次修改
+  revisionCount?: number;
+  maxRevisions?: number;
+  formData?: Record<string, unknown>;
 }
 
 function ResultContent() {
@@ -30,6 +34,16 @@ function ResultContent() {
   const [orderId, setOrderId] = useState<string>('');
   const [polling, setPolling] = useState(false);
 
+  // Batch B (2026-06-09): 需求 #4 - 修改内容流程
+  const [showReviseModal, setShowReviseModal] = useState(false);
+  const [reviseNote, setReviseNote] = useState('');  // 用户描述要改什么
+  const [reviseFields, setReviseFields] = useState<Record<string, string>>({});  // 用户填的具体字段
+  const [reviseSubmitting, setReviseSubmitting] = useState(false);
+  const [reviseError, setReviseError] = useState('');
+
+  // Batch B (2026-06-09): 需求 #3 - 过滤统计
+  const [filterStats, setFilterStats] = useState<{ dropped: number; total: number } | null>(null);
+
   useEffect(() => {
     if (!id) return;
     // will 走 /api/generate-will, 其他 5 类走 /api/generate-document?type=xxx
@@ -43,6 +57,9 @@ function ResultContent() {
         if (data.docContent && !data.willContent) {
           data.willContent = data.docContent;
         }
+        // 兼容旧版 (没有 revisionCount/maxRevisions 字段)
+        if (data.revisionCount === undefined) data.revisionCount = 0;
+        if (data.maxRevisions === undefined) data.maxRevisions = 3;
         setResult(data);
       })
       .catch(() => {
@@ -141,6 +158,57 @@ function ResultContent() {
     }
   }, [price, plan, id, docType, paymentChannel]);
 
+  // Batch B (2026-06-09): 需求 #4 - 提交修改请求
+  const handleRevise = useCallback(async () => {
+    if (!reviseNote.trim() && Object.keys(reviseFields).length === 0) {
+      setReviseError('请填写修改说明, 或至少修改一个字段');
+      return;
+    }
+    setReviseSubmitting(true);
+    setReviseError('');
+    try {
+      // 把 reviseNote 作为 _instruction 字段传给后端 (后端可选用)
+      const payload: Record<string, unknown> = {
+        id,
+        docType,
+        formDataUpdate: {
+          ...reviseFields,
+          ...(reviseNote.trim() ? { _instruction: reviseNote.trim() } : {}),
+        },
+      };
+      const res = await fetch('/api/revise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.code === 'MAX_REVISIONS_REACHED') {
+          setReviseError(data.error || '已达到最大修改次数');
+        } else {
+          setReviseError(data.error || '修改失败, 请稍后重试');
+        }
+        return;
+      }
+      // 成功 → 替换 result 的内容, 关闭弹窗
+      setResult((prev) => prev ? {
+        ...prev,
+        willContent: data.docContent || prev.willContent,
+        revisionCount: data.revisionCount,
+        maxRevisions: data.maxRevisions,
+      } : prev);
+      setShowReviseModal(false);
+      setReviseNote('');
+      setReviseFields({});
+      alert(`修改成功! 还可以再修改 ${(data.maxRevisions || 3) - (data.revisionCount || 0)} 次`);
+    } catch (err) {
+      console.error('修改失败', err);
+      setReviseError('网络错误, 请稍后重试');
+    } finally {
+      setReviseSubmitting(false);
+    }
+  }, [id, docType, reviseNote, reviseFields]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -193,7 +261,30 @@ function ResultContent() {
 
         {/* 文书预览 */}
         <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8 mb-6">
-          <h3 className="text-lg font-bold text-slate-800 mb-4 leading-tight-cn">{docLabel}内容预览</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-slate-800 leading-tight-cn">{docLabel}内容预览</h3>
+            {/* Batch B (2026-06-09): 需求 #4 - 修改内容按钮 + 剩余次数 badge */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 leading-tight-cn tabular-nums">
+                {result.maxRevisions !== undefined && (
+                  <>剩余修改: <span className="font-bold text-amber-600">{(result.maxRevisions - (result.revisionCount || 0))}</span> / {result.maxRevisions} 次</>
+                )}
+              </span>
+              <button
+                onClick={() => {
+                  setReviseError('');
+                  setReviseNote('');
+                  setReviseFields({});
+                  setShowReviseModal(true);
+                }}
+                disabled={(result.revisionCount || 0) >= (result.maxRevisions || 3)}
+                className="text-sm bg-amber-100 hover:bg-amber-200 disabled:bg-slate-100 disabled:text-slate-400 text-amber-700 px-3 py-1.5 rounded-lg transition leading-tight-cn"
+                aria-label="修改内容"
+              >
+                ✏️ 修改内容
+              </button>
+            </div>
+          </div>
           <div className="prose prose-slate max-w-none">
             <pre className="whitespace-pre-wrap text-sm text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-200 overflow-auto max-h-96 leading-relaxed-cn">
               {result.willContent || "（草稿内容）"}
@@ -295,6 +386,85 @@ function ResultContent() {
           <p className="mt-2">工作时间:周一至周五 9:00-18:00</p>
         </div>
       </main>
+
+      {/* Batch B (2026-06-09): 需求 #4 - 修改内容弹窗 */}
+      {showReviseModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="revise-modal-title"
+        >
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <h3 id="revise-modal-title" className="text-lg font-bold text-slate-800 mb-2 leading-tight-cn">
+              ✏️ 修改文书内容
+            </h3>
+            <p className="text-sm text-slate-600 mb-4 leading-relaxed-cn">
+              您还可以修改 <span className="font-bold text-amber-600 tabular-nums">{(result?.maxRevisions || 3) - (result?.revisionCount || 0)}</span> 次。
+              请描述您要修改的内容, AI 将根据您的说明重新生成文书。
+            </p>
+
+            {/* 文字说明 */}
+            <label className="block text-sm font-medium text-slate-700 mb-1 leading-tight-cn">
+              修改说明 <span className="text-slate-400 font-normal">(选填, 越具体越准确)</span>
+            </label>
+            <textarea
+              value={reviseNote}
+              onChange={(e) => setReviseNote(e.target.value)}
+              rows={3}
+              maxLength={500}
+              placeholder="例如: 把'长子张大明'改为'次子张小明', 把房产估值从500万改为600万"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 mb-4 leading-relaxed-cn"
+            />
+
+            {/* 字段直接编辑 (至少一个空 formData 字段可填) */}
+            {result?.formData && Object.keys(result.formData).length > 0 && (
+              <>
+                <label className="block text-sm font-medium text-slate-700 mb-1 leading-tight-cn">
+                  或直接修改字段
+                </label>
+                <div className="space-y-2 mb-4 max-h-40 overflow-y-auto">
+                  {Object.entries(result.formData).slice(0, 6).map(([key, val]) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500 w-24 truncate" title={key}>{key}</span>
+                      <input
+                        type="text"
+                        value={(reviseFields[key] ?? (typeof val === 'string' ? val : String(val)))}
+                        onChange={(e) => setReviseFields((prev) => ({ ...prev, [key]: e.target.value }))}
+                        className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {reviseError && (
+              <p className="text-sm text-red-600 mb-3 leading-relaxed-cn">{reviseError}</p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowReviseModal(false)}
+                disabled={reviseSubmitting}
+                className="flex-1 py-3 border border-slate-300 rounded-xl text-slate-600 disabled:opacity-50"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleRevise}
+                disabled={reviseSubmitting}
+                className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {reviseSubmitting ? '重新生成中...' : '提交修改'}
+              </button>
+            </div>
+            <p className="text-xs text-slate-400 mt-3 text-center leading-relaxed-cn">
+              重新生成通常需要 5-10 秒, 请耐心等待
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* 支付二维码弹窗 */}
       {showPaymentModal && (

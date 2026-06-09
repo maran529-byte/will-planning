@@ -4,6 +4,8 @@ import { z } from "zod";
 import { MINIMAX_API_KEY, MINIMAX_BASE_URL, MINIMAX_MODEL } from "@/lib/config";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { getPriceCents } from "@/lib/pricing";
+// Batch B (2026-06-09): 需求 #3 - 生成前自动过滤无效/占位信息
+import { sanitizeFormData, countDroppedFields } from "@/lib/form-data-filter";
 
 // 获取Supabase客户端（兼容无环境变量时）
 function getSupabaseClient() {
@@ -81,10 +83,33 @@ export async function POST(request: NextRequest) {
       plan
     );
 
-    // 构建prompt
+    // Batch B (2026-06-09): 需求 #3 - 自动过滤无效/占位信息 (在 LLM prompt 之前)
+    const filterStats = countDroppedFields(body as Record<string, unknown>);
+    const sanitizedBody = sanitizeFormData(body as Record<string, unknown>);
+    if (filterStats.dropped > 0) {
+      console.log(`[will] Auto-filtered ${filterStats.dropped}/${filterStats.total} placeholder field(s)`);
+    }
+    // 重建: 把 sanitized 后的 children/parents/assets/heirs 取出来 (它们是数组, 不走 placeholder 检查)
+    const sanitizedChildren = (sanitizedBody.children as Array<unknown>) ?? children;
+    const sanitizedParents = (sanitizedBody.parents as Array<unknown>) ?? parents;
+    const sanitizedAssets = (sanitizedBody.assets as Array<unknown>) ?? assets;
+    const sanitizedHeirs = (sanitizedBody.heirs as Array<unknown>) ?? heirs;
+    const sanitizedSpecialArrangements = (sanitizedBody.specialArrangements as Record<string, unknown>) ?? specialArrangements;
+    const sanitizedMedicalWishes = (sanitizedBody.medicalWishes as Record<string, unknown>) ?? medicalWishes;
+
+    // 构建prompt (用 sanitized 后的字段, 但保留 zod 校验过的 name/age 强类型)
     const prompt = buildWillPrompt({
-      name, age, maritalStatus, spouseName, children, parents, assets, heirs,
-      specialArrangements, medicalWishes,
+      name, age, maritalStatus, spouseName,
+      children: sanitizedChildren as Array<{name: string; relation: string}>,
+      parents: sanitizedParents as Array<{name: string; relation: string}>,
+      assets: sanitizedAssets as Array<{type: string; description: string; value?: number}>,
+      heirs: sanitizedHeirs as Array<{name: string; relation: string; share: number}>,
+      specialArrangements: sanitizedSpecialArrangements as {
+        guardian?: {name: string; relation: string};
+        pet?: string; digitalAssets?: string; funeral?: string;
+        conditionalGifts?: Array<{beneficiary: string; condition: string; asset: string}>;
+      },
+      medicalWishes: sanitizedMedicalWishes as { lifeSupport?: string; organDonation?: string; palliativeCare?: string },
     });
 
     let willContent = "";
@@ -124,7 +149,9 @@ export async function POST(request: NextRequest) {
 
     if (supabase) {
       // 存储到Supabase
-      const { error } = await supabase.from("wills").insert({
+      // Batch B (2026-06-09): revision_count 默认 0, 记录已修订次数
+      // 降级策略: 先尝试带 revision_count, 失败则不带
+      const baseInsert = {
         id: willId,
         name,
         age,
@@ -146,15 +173,30 @@ export async function POST(request: NextRequest) {
         plan: plan || "ai",
         price: priceCents,
         status: "generated",
+      };
+      const { error } = await supabase.from("wills").insert({
+        ...baseInsert,
+        revision_count: 0,
       });
 
       if (error) {
-        console.error("Supabase insert error:", error);
-        // 继续运行，使用内存存储作为fallback
+        // 降级: 不带 revision_count 重试一次 (兼容尚未迁移的表)
+        if (error.message?.includes('revision_count') || error.code === 'PGRST204') {
+          console.warn(`[will] revision_count column missing, retrying without it. Run migration 20260609_add_revision_count.sql`);
+          const { error: retryErr } = await supabase.from("wills").insert(baseInsert);
+          if (retryErr) console.error(`[will] Supabase insert retry error:`, retryErr);
+        } else {
+          console.error("Supabase insert error:", error);
+        }
       }
     }
 
-    return NextResponse.json({ id: willId, success: true });
+    return NextResponse.json({
+      id: willId,
+      success: true,
+      // Batch B: 把过滤统计也返回, 前端可显示 "已忽略 X 条无效信息"
+      filterStats: { dropped: filterStats.dropped, total: filterStats.total },
+    });
   } catch (error) {
     console.error("Generate will error:", error);
     return NextResponse.json(
@@ -192,6 +234,9 @@ export async function GET(request: NextRequest) {
         plan: data.plan,
         price: data.price,
         createdAt: data.created_at,
+        // Batch B: 把 revision_count 一起返回, 前端用这个判断 "还能不能改"
+        revisionCount: data.revision_count ?? 0,
+        maxRevisions: 3,
         data: {
           name: data.name,
           age: data.age,

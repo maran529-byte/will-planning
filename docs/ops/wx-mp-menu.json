@@ -1,0 +1,93 @@
+{
+  "menu": {
+    "button": [
+      {
+        "name": "开始使用",
+        "sub_button": [
+          {
+            "type": "view",
+            "name": "在线立遗嘱",
+            "url": "https://h5.aiwill-planner.cn/doc-type",
+            "sub_button": []
+          },
+          {
+            "type": "view",
+            "name": "6 类文书",
+            "url": "https://h5.aiwill-planner.cn/doc-type?tab=all",
+            "sub_button": []
+          },
+          {
+            "type": "view",
+            "name": "AI 智能体测",
+            "url": "https://h5.aiwill-planner.cn/questionnaire",
+            "sub_button": []
+          },
+          {
+            "type": "view",
+            "name": "我的订单",
+            "url": "https://h5.aiwill-planner.cn/orders",
+            "sub_button": []
+          }
+        ]
+      },
+      {
+        "name": "产品服务",
+        "sub_button": [
+          {
+            "type": "view",
+            "name": "价格方案",
+            "url": "https://h5.aiwill-planner.cn/doc-type#pricing",
+            "sub_button": []
+          },
+          {
+            "type": "view",
+            "name": "服务流程",
+            "url": "https://h5.aiwill-planner.cn/about",
+            "sub_button": []
+          },
+          {
+            "type": "view",
+            "name": "隐私协议",
+            "url": "https://h5.aiwill-planner.cn/privacy",
+            "sub_button": []
+          },
+          {
+            "type": "click",
+            "name": "备案信息",
+            "key": "V1001_BEIAN",
+            "sub_button": []
+          }
+        ]
+      },
+      {
+        "name": "我的",
+        "sub_button": [
+          {
+            "type": "view",
+            "name": "个人中心",
+            "url": "https://h5.aiwill-planner.cn/dashboard",
+            "sub_button": []
+          },
+          {
+            "type": "view",
+            "name": "推广赚钱",
+            "url": "https://h5.aiwill-planner.cn/affiliate",
+            "sub_button": []
+          },
+          {
+            "type": "click",
+            "name": "联系客服",
+            "key": "MENU_CS_CHAT",
+            "sub_button": []
+          },
+          {
+            "type": "click",
+            "name": "绑定帮助",
+            "key": "MENU_BIND_HELP",
+            "sub_button": []
+          }
+        ]
+      }
+    ]
+  }
+}

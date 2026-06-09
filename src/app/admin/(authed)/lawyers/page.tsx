@@ -1,5 +1,20 @@
 import Link from 'next/link';
 import { supabaseAdmin } from '@/lib/supabase-server';
+import { timeUntil, BookingStatusBadge } from '@/lib/admin-helpers';
+
+/**
+ * /admin/lawyers 律师预约管理
+ *
+ * 改版 v2 (2026-06-09):
+ *   - 改用 @/lib/admin-helpers 共享 timeUntil / BookingStatusBadge
+ *   - 删除本地 timeAgo / BookingStatusBadge (重复代码)
+ *   - timeAgo 改名为 timeUntil - 预约场景下"5分钟后"比"5分钟前"更准
+ *     (admin 是看未来时间, 不是过去时间)
+ *   - 添加 leading-tight-cn / leading-relaxed-cn / tabular-nums
+ *   - 表格加 aria-label + <th scope="col">
+ *   - 表单 label 用 htmlFor 关联
+ *   - 添加 pb-safe
+ */
 
 export const dynamic = 'force-dynamic';
 
@@ -39,23 +54,6 @@ const STATUS_OPTIONS = [
   { value: 'no_show', label: '客户未到场' },
 ];
 
-function timeAgo(iso: string): string {
-  const ms = new Date(iso).getTime() - Date.now();
-  if (ms < 0) {
-    const past = Date.now() - new Date(iso).getTime();
-    const m = Math.floor(past / 60000);
-    if (m < 60) return `${m}分钟前`;
-    const h = Math.floor(m / 60);
-    if (h < 24) return `${h}小时前`;
-    return `${Math.floor(h / 24)}天前`;
-  }
-  const m = Math.floor(ms / 60000);
-  if (m < 60) return `${m}分钟后`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}小时后`;
-  return `${Math.floor(h / 24)}天后`;
-}
-
 export default async function AdminLawyersPage({
   searchParams,
 }: {
@@ -65,16 +63,28 @@ export default async function AdminLawyersPage({
   const bookings = await loadBookings(sp.status);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-slate-800">⚖️ 律师预约 ({bookings.length})</h1>
+    <div className="space-y-4 pb-safe">
+      <h1 className="text-2xl font-bold text-slate-800 leading-tight-cn">
+        <span aria-hidden>⚖️ </span>律师预约 (
+        <span className="tabular-nums">{bookings.length}</span>)
+      </h1>
 
-      <form className="bg-white rounded-xl shadow-sm p-4 flex items-end gap-3">
+      <form
+        className="bg-white rounded-xl shadow-sm p-4 flex items-end gap-3"
+        aria-label="律师预约过滤"
+      >
         <div>
-          <label className="block text-xs text-slate-600 mb-1">状态</label>
+          <label
+            htmlFor="lawyer-status"
+            className="block text-xs text-slate-600 mb-1 leading-tight-cn"
+          >
+            状态
+          </label>
           <select
+            id="lawyer-status"
             name="status"
             defaultValue={sp.status || ''}
-            className="rounded border border-slate-300 px-3 py-1.5 text-sm"
+            className="rounded border border-slate-300 px-3 py-1.5 text-sm focus-ring-visible"
           >
             {STATUS_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -85,52 +95,58 @@ export default async function AdminLawyersPage({
         </div>
         <button
           type="submit"
-          className="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 text-sm font-medium"
+          className="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 text-sm font-medium focus-ring-visible leading-tight-cn"
         >
           过滤
         </button>
         {sp.status && (
-          <Link href="/admin/lawyers" className="text-sm text-slate-500 hover:text-slate-700">
+          <Link
+            href="/admin/lawyers"
+            className="text-sm text-slate-500 hover:text-slate-700 focus-ring-visible"
+          >
             清除
           </Link>
         )}
       </form>
 
       <div className="rounded-xl bg-white shadow-sm overflow-x-auto">
-        <table className="w-full text-sm min-w-[900px]">
+        <table className="w-full text-sm min-w-[900px]" aria-label="律师预约列表">
           <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
             <tr>
-              <th className="px-4 py-2 text-left">律师</th>
-              <th className="px-4 py-2 text-left">联系人</th>
-              <th className="px-4 py-2 text-left">手机</th>
-              <th className="px-4 py-2 text-left">预约时间</th>
-              <th className="px-4 py-2 text-left">时长</th>
-              <th className="px-4 py-2 text-left">状态</th>
-              <th className="px-4 py-2 text-left">备注</th>
+              <th scope="col" className="px-4 py-2 text-left">律师</th>
+              <th scope="col" className="px-4 py-2 text-left">联系人</th>
+              <th scope="col" className="px-4 py-2 text-left">手机</th>
+              <th scope="col" className="px-4 py-2 text-left">预约时间</th>
+              <th scope="col" className="px-4 py-2 text-left">时长</th>
+              <th scope="col" className="px-4 py-2 text-left">状态</th>
+              <th scope="col" className="px-4 py-2 text-left">备注</th>
             </tr>
           </thead>
           <tbody>
             {bookings.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                <td
+                  colSpan={7}
+                  className="px-4 py-12 text-center text-slate-400 leading-relaxed-cn"
+                >
                   暂无预约
                 </td>
               </tr>
             ) : (
               bookings.map((b) => (
                 <tr key={b.id} className="border-t border-slate-100 hover:bg-slate-50">
-                  <td className="px-4 py-2 font-medium">{b.lawyer_name}</td>
-                  <td className="px-4 py-2">{b.contact_name}</td>
-                  <td className="px-4 py-2 font-mono text-xs">{b.contact_phone}</td>
-                  <td className="px-4 py-2 text-xs">
+                  <td className="px-4 py-2 font-medium leading-tight-cn">{b.lawyer_name}</td>
+                  <td className="px-4 py-2 leading-tight-cn">{b.contact_name}</td>
+                  <td className="px-4 py-2 font-mono text-xs tabular-nums">{b.contact_phone}</td>
+                  <td className="px-4 py-2 text-xs tabular-nums">
                     {new Date(b.scheduled_at).toLocaleString('zh-CN')}
-                    <span className="text-slate-400 ml-1">({timeAgo(b.scheduled_at)})</span>
+                    <span className="text-slate-400 ml-1">({timeUntil(b.scheduled_at)})</span>
                   </td>
-                  <td className="px-4 py-2 text-xs">{b.duration_minutes} 分钟</td>
+                  <td className="px-4 py-2 text-xs tabular-nums">{b.duration_minutes} 分钟</td>
                   <td className="px-4 py-2">
                     <BookingStatusBadge status={b.status} />
                   </td>
-                  <td className="px-4 py-2 text-xs text-slate-500 max-w-[200px] truncate">
+                  <td className="px-4 py-2 text-xs text-slate-500 max-w-[200px] truncate leading-tight-cn">
                     {b.notes || '-'}
                   </td>
                 </tr>
@@ -141,16 +157,4 @@ export default async function AdminLawyersPage({
       </div>
     </div>
   );
-}
-
-function BookingStatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending: { label: '待确认', cls: 'bg-amber-100 text-amber-700' },
-    confirmed: { label: '已确认', cls: 'bg-blue-100 text-blue-700' },
-    completed: { label: '已完成', cls: 'bg-emerald-100 text-emerald-700' },
-    cancelled: { label: '已取消', cls: 'bg-slate-100 text-slate-600' },
-    no_show: { label: '未到场', cls: 'bg-red-100 text-red-700' },
-  };
-  const m = map[status] || { label: status, cls: 'bg-slate-100 text-slate-600' };
-  return <span className={`text-xs px-2 py-0.5 rounded ${m.cls}`}>{m.label}</span>;
 }

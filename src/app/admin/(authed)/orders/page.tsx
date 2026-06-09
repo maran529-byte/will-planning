@@ -1,5 +1,27 @@
 import Link from 'next/link';
 import { supabaseAdmin } from '@/lib/supabase-server';
+import {
+  formatYuan,
+  timeAgo,
+  OrderStatusBadge,
+  PlanBadge,
+} from '@/lib/admin-helpers';
+import { OrderActionButtons } from './OrderActionButtons';
+
+/**
+ * /admin/orders 订单列表
+ *
+ * 改版 v2 (2026-06-09):
+ *   - 改用 @/lib/admin-helpers 共享 formatYuan / timeAgo / Badge
+ *   - 删除本地 formatYuan / timeAgo / StatusBadge (重复代码)
+ *   - 移动 import { OrderActionButtons } 从中间到顶部 (原文件是 anti-pattern)
+ *   - 添加 leading-tight-cn / leading-relaxed-cn / tabular-nums 排版
+ *   - 表格加 aria-label + <th scope="col">
+ *   - 表单 label 用 htmlFor 关联 + input 16px 防 iOS 放大
+ *   - 套餐列改用 PlanBadge (与 dashboard 一致)
+ *   - 金额 / 时间用 tabular-nums
+ *   - 添加 pb-safe
+ */
 
 export const dynamic = 'force-dynamic';
 
@@ -33,21 +55,6 @@ async function loadOrders(searchParams: { status?: string; q?: string }) {
   return { orders: (data || []) as OrderRow[], total: count || 0 };
 }
 
-function formatYuan(cents: number): string {
-  return `¥${(cents / 100).toFixed(2)}`;
-}
-
-function timeAgo(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(ms / 60000);
-  if (m < 1) return '刚刚';
-  if (m < 60) return `${m}分钟前`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}小时前`;
-  const d = Math.floor(h / 24);
-  return `${d}天前`;
-}
-
 const STATUS_OPTIONS = [
   { value: '', label: '全部' },
   { value: 'pending', label: '待支付' },
@@ -65,19 +72,30 @@ export default async function AdminOrdersPage({
   const { orders, total } = await loadOrders(sp);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-safe">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">📋 订单 ({total})</h1>
+        <h1 className="text-2xl font-bold text-slate-800 leading-tight-cn">
+          <span aria-hidden>📋 </span>订单 (<span className="tabular-nums">{total}</span>)
+        </h1>
       </div>
 
       {/* 过滤栏 */}
-      <form className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-end gap-3">
+      <form
+        className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-end gap-3"
+        aria-label="订单过滤"
+      >
         <div>
-          <label className="block text-xs text-slate-600 mb-1">状态</label>
+          <label
+            htmlFor="order-status"
+            className="block text-xs text-slate-600 mb-1 leading-tight-cn"
+          >
+            状态
+          </label>
           <select
+            id="order-status"
             name="status"
             defaultValue={sp.status || ''}
-            className="rounded border border-slate-300 px-3 py-1.5 text-sm"
+            className="rounded border border-slate-300 px-3 py-1.5 text-sm focus-ring-visible"
           >
             {STATUS_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -87,22 +105,34 @@ export default async function AdminOrdersPage({
           </select>
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-xs text-slate-600 mb-1">搜索 (订单号/openid)</label>
+          <label
+            htmlFor="order-q"
+            className="block text-xs text-slate-600 mb-1 leading-tight-cn"
+          >
+            搜索 (订单号/openid)
+          </label>
           <input
+            id="order-q"
             name="q"
             defaultValue={sp.q || ''}
             placeholder="ORDxxxx 或 访客编号"
-            className="w-full rounded border border-slate-300 px-3 py-1.5 text-sm"
+            inputMode="search"
+            // 改版 v2: 16px 防 iOS 自动放大
+            style={{ fontSize: '16px' }}
+            className="w-full rounded border border-slate-300 px-3 py-1.5 text-sm focus-ring-visible"
           />
         </div>
         <button
           type="submit"
-          className="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 text-sm font-medium"
+          className="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 text-sm font-medium focus-ring-visible leading-tight-cn"
         >
           过滤
         </button>
         {(sp.status || sp.q) && (
-          <Link href="/admin/orders" className="text-sm text-slate-500 hover:text-slate-700">
+          <Link
+            href="/admin/orders"
+            className="text-sm text-slate-500 hover:text-slate-700 focus-ring-visible"
+          >
             清除
           </Link>
         )}
@@ -110,24 +140,27 @@ export default async function AdminOrdersPage({
 
       {/* 订单表 */}
       <div className="rounded-xl bg-white shadow-sm overflow-x-auto">
-        <table className="w-full text-sm min-w-[800px]">
+        <table className="w-full text-sm min-w-[800px]" aria-label="订单列表">
           <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
             <tr>
-              <th className="px-4 py-2 text-left">订单号</th>
-              <th className="px-4 py-2 text-left">openid</th>
-              <th className="px-4 py-2 text-left">套餐</th>
-              <th className="px-4 py-2 text-right">金额</th>
-              <th className="px-4 py-2 text-left">状态</th>
-              <th className="px-4 py-2 text-left">渠道</th>
-              <th className="px-4 py-2 text-left">支付时间</th>
-              <th className="px-4 py-2 text-left">创建</th>
-              <th className="px-4 py-2 text-right">操作</th>
+              <th scope="col" className="px-4 py-2 text-left">订单号</th>
+              <th scope="col" className="px-4 py-2 text-left">openid</th>
+              <th scope="col" className="px-4 py-2 text-left">套餐</th>
+              <th scope="col" className="px-4 py-2 text-right">金额</th>
+              <th scope="col" className="px-4 py-2 text-left">状态</th>
+              <th scope="col" className="px-4 py-2 text-left">渠道</th>
+              <th scope="col" className="px-4 py-2 text-left">支付时间</th>
+              <th scope="col" className="px-4 py-2 text-left">创建</th>
+              <th scope="col" className="px-4 py-2 text-right">操作</th>
             </tr>
           </thead>
           <tbody>
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-12 text-center text-slate-400">
+                <td
+                  colSpan={9}
+                  className="px-4 py-12 text-center text-slate-400 leading-relaxed-cn"
+                >
                   暂无订单
                 </td>
               </tr>
@@ -143,29 +176,33 @@ export default async function AdminOrdersPage({
   );
 }
 
-import { OrderActionButtons } from './OrderActionButtons';
-
 // 服务端组件 + 客户端操作按钮 分离
 function OrderRowComp({ order }: { order: OrderRow }) {
   return (
     <tr className="border-t border-slate-100 hover:bg-slate-50">
-      <td className="px-4 py-2 font-mono text-xs">{order.order_no}</td>
+      <td className="px-4 py-2 font-mono text-xs tabular-nums">{order.order_no}</td>
       <td className="px-4 py-2 font-mono text-xs text-slate-500 max-w-[120px] truncate">
         {order.openid || '-'}
       </td>
-      <td className="px-4 py-2">{order.plan}</td>
-      <td className="px-4 py-2 text-right font-semibold">{formatYuan(order.amount)}</td>
       <td className="px-4 py-2">
-        <StatusBadge status={order.status} />
+        <PlanBadge plan={order.plan} />
       </td>
-      <td className="px-4 py-2 text-xs text-slate-500">
+      <td className="px-4 py-2 text-right font-semibold tabular-nums">
+        {formatYuan(order.amount)}
+      </td>
+      <td className="px-4 py-2">
+        <OrderStatusBadge status={order.status} />
+      </td>
+      <td className="px-4 py-2 text-xs text-slate-500 leading-tight-cn">
         {order.payment_channel || '-'}
         {order.payment_method ? ` · ${order.payment_method}` : ''}
       </td>
-      <td className="px-4 py-2 text-xs text-slate-500">
+      <td className="px-4 py-2 text-xs text-slate-500 tabular-nums">
         {order.paid_at ? new Date(order.paid_at).toLocaleString('zh-CN') : '-'}
       </td>
-      <td className="px-4 py-2 text-xs text-slate-500">{timeAgo(order.created_at)}</td>
+      <td className="px-4 py-2 text-xs text-slate-500 tabular-nums">
+        {timeAgo(order.created_at)}
+      </td>
       <td className="px-4 py-2 text-right">
         <OrderActionButtons
           orderId={order.id}
@@ -175,15 +212,4 @@ function OrderRowComp({ order }: { order: OrderRow }) {
       </td>
     </tr>
   );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending: { label: '待支付', cls: 'bg-amber-100 text-amber-700' },
-    paid: { label: '已支付', cls: 'bg-emerald-100 text-emerald-700' },
-    refunded: { label: '已退款', cls: 'bg-slate-100 text-slate-600' },
-    cancelled: { label: '已取消', cls: 'bg-red-100 text-red-700' },
-  };
-  const m = map[status] || { label: status, cls: 'bg-slate-100 text-slate-600' };
-  return <span className={`text-xs px-2 py-0.5 rounded ${m.cls}`}>{m.label}</span>;
 }

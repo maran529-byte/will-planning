@@ -18,6 +18,12 @@ import { requireAdmin } from '@/lib/admin-auth';
  *  - URL 不变, 行为正确
  *
  * 顶部 nav: 11 个页面链接 + 当前 admin + 退出
+ *
+ * 改版 v2 (2026-06-09, UI polish):
+ *   - 移除 stale @ts-expect-error (form action 注释已不需要)
+ *   - nav 加 aria-label="管理后台导航"
+ *   - 退出按钮加 aria-label
+ *   - sticky header 加 leading-tight-cn
  */
 
 const NAV_ITEMS = [
@@ -44,21 +50,27 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const user = auth.user!;
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-100 pb-safe">
       {/* 顶部 nav */}
       <header className="bg-slate-900 text-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-8 w-8 rounded bg-amber-500/20 flex items-center justify-center text-lg flex-shrink-0">
+            <div
+              className="h-8 w-8 rounded bg-amber-500/20 flex items-center justify-center text-lg flex-shrink-0"
+              aria-hidden
+            >
               🛡️
             </div>
             <div className="min-w-0">
-              <h1 className="text-base font-bold truncate">aiwill-planner 管理后台</h1>
-              <p className="text-xs text-slate-400 truncate">{user.email}</p>
+              <h1 className="text-base font-bold truncate leading-tight-cn">aiwill-planner 管理后台</h1>
+              <p className="text-xs text-slate-400 truncate leading-tight-cn">{user.email}</p>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 text-sm">
+          <nav
+            className="hidden md:flex items-center gap-1 text-sm"
+            aria-label="管理后台导航"
+          >
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.href}
@@ -70,23 +82,24 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             ))}
           </nav>
 
-          <form action="/api/admin/auth" method="POST">
-            {/* @ts-expect-error - React 19 form action w/ Server Action; 我们用 hidden input + onClick */}
-            <button
-              type="button"
-              onClick={async () => {
-                await fetch('/api/admin/auth', { method: 'DELETE' });
-                window.location.href = '/admin/login';
-              }}
-              className="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded hover:bg-slate-800"
-            >
-              退出
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={async () => {
+              await fetch('/api/admin/auth', { method: 'DELETE' });
+              window.location.href = '/admin/login';
+            }}
+            className="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded hover:bg-slate-800 focus-ring-visible"
+            aria-label="退出登录"
+          >
+            退出
+          </button>
         </div>
 
         {/* 移动端 nav */}
-        <nav className="md:hidden flex overflow-x-auto gap-1 px-2 pb-2 text-xs">
+        <nav
+          className="md:hidden flex overflow-x-auto gap-1 px-2 pb-2 text-xs"
+          aria-label="管理后台导航 (移动端)"
+        >
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}

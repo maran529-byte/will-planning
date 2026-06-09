@@ -1,5 +1,19 @@
 import Link from 'next/link';
 import { supabaseAdmin } from '@/lib/supabase-server';
+import { timeAgo, RoleBadge } from '@/lib/admin-helpers';
+
+/**
+ * /admin/users 用户列表
+ *
+ * 改版 v2 (2026-06-09):
+ *   - 改用 @/lib/admin-helpers 共享 timeAgo / RoleBadge
+ *   - 删除本地 timeAgo / RoleBadge (重复代码)
+ *   - 添加 leading-tight-cn / leading-relaxed-cn / tabular-nums 排版
+ *   - 表格加 aria-label + <th scope="col">
+ *   - 表单 label 用 htmlFor 关联 + input 16px 防 iOS 放大
+ *   - 数量 / 时间用 tabular-nums
+ *   - 添加 pb-safe
+ */
 
 export const dynamic = 'force-dynamic';
 
@@ -40,17 +54,6 @@ const ROLE_OPTIONS = [
   { value: 'admin', label: '管理员' },
 ];
 
-function timeAgo(iso: string | null): string {
-  if (!iso) return '-';
-  const ms = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(ms / 60000);
-  if (m < 60) return `${m}分钟前`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}小时前`;
-  const d = Math.floor(h / 24);
-  return `${d}天前`;
-}
-
 export default async function AdminUsersPage({
   searchParams,
 }: {
@@ -60,16 +63,27 @@ export default async function AdminUsersPage({
   const { users, total } = await loadUsers(sp);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-slate-800">👥 用户 ({total})</h1>
+    <div className="space-y-4 pb-safe">
+      <h1 className="text-2xl font-bold text-slate-800 leading-tight-cn">
+        <span aria-hidden>👥 </span>用户 (<span className="tabular-nums">{total}</span>)
+      </h1>
 
-      <form className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-end gap-3">
+      <form
+        className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-end gap-3"
+        aria-label="用户过滤"
+      >
         <div>
-          <label className="block text-xs text-slate-600 mb-1">角色</label>
+          <label
+            htmlFor="user-role"
+            className="block text-xs text-slate-600 mb-1 leading-tight-cn"
+          >
+            角色
+          </label>
           <select
+            id="user-role"
             name="role"
             defaultValue={sp.role || ''}
-            className="rounded border border-slate-300 px-3 py-1.5 text-sm"
+            className="rounded border border-slate-300 px-3 py-1.5 text-sm focus-ring-visible"
           >
             {ROLE_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -79,45 +93,60 @@ export default async function AdminUsersPage({
           </select>
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-xs text-slate-600 mb-1">搜索</label>
+          <label
+            htmlFor="user-q"
+            className="block text-xs text-slate-600 mb-1 leading-tight-cn"
+          >
+            搜索
+          </label>
           <input
+            id="user-q"
             name="q"
             defaultValue={sp.q || ''}
             placeholder="openid / 邮箱 / 昵称 / 手机"
-            className="w-full rounded border border-slate-300 px-3 py-1.5 text-sm"
+            inputMode="search"
+            // 改版 v2: 16px 防 iOS 自动放大
+            style={{ fontSize: '16px' }}
+            className="w-full rounded border border-slate-300 px-3 py-1.5 text-sm focus-ring-visible"
           />
         </div>
         <button
           type="submit"
-          className="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 text-sm font-medium"
+          className="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 text-sm font-medium focus-ring-visible leading-tight-cn"
         >
           过滤
         </button>
         {(sp.role || sp.q) && (
-          <Link href="/admin/users" className="text-sm text-slate-500 hover:text-slate-700">
+          <Link
+            href="/admin/users"
+            className="text-sm text-slate-500 hover:text-slate-700 focus-ring-visible"
+          >
             清除
           </Link>
         )}
       </form>
 
       <div className="rounded-xl bg-white shadow-sm overflow-x-auto">
-        <table className="w-full text-sm min-w-[800px]">
+        <table className="w-full text-sm min-w-[800px]" aria-label="用户列表">
           <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
             <tr>
-              <th className="px-4 py-2 text-left">openid</th>
-              <th className="px-4 py-2 text-left">昵称</th>
-              <th className="px-4 py-2 text-left">邮箱</th>
-              <th className="px-4 py-2 text-left">手机</th>
-              <th className="px-4 py-2 text-left">角色</th>
-              <th className="px-4 py-2 text-left">状态</th>
-              <th className="px-4 py-2 text-right">注册</th>
-              <th className="px-4 py-2 text-right">最近登录</th>
+              <th scope="col" className="px-4 py-2 text-left">openid</th>
+              <th scope="col" className="px-4 py-2 text-left">昵称</th>
+              <th scope="col" className="px-4 py-2 text-left">邮箱</th>
+              <th scope="col" className="px-4 py-2 text-left">手机</th>
+              <th scope="col" className="px-4 py-2 text-left">角色</th>
+              <th scope="col" className="px-4 py-2 text-left">状态</th>
+              <th scope="col" className="px-4 py-2 text-right">注册</th>
+              <th scope="col" className="px-4 py-2 text-right">最近登录</th>
             </tr>
           </thead>
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
+                <td
+                  colSpan={8}
+                  className="px-4 py-12 text-center text-slate-400 leading-relaxed-cn"
+                >
                   暂无用户
                 </td>
               </tr>
@@ -127,17 +156,23 @@ export default async function AdminUsersPage({
                   <td className="px-4 py-2 font-mono text-xs text-slate-600 max-w-[150px] truncate">
                     {u.openid || '-'}
                   </td>
-                  <td className="px-4 py-2">{u.display_name || u.wechat_nickname || '-'}</td>
+                  <td className="px-4 py-2 leading-tight-cn">
+                    {u.display_name || u.wechat_nickname || '-'}
+                  </td>
                   <td className="px-4 py-2 text-xs">{u.email || '-'}</td>
-                  <td className="px-4 py-2 text-xs">{u.phone || '-'}</td>
+                  <td className="px-4 py-2 text-xs tabular-nums">
+                    {u.phone || '-'}
+                  </td>
                   <td className="px-4 py-2">
                     <RoleBadge role={u.role} />
                   </td>
-                  <td className="px-4 py-2 text-xs">{u.status || 'active'}</td>
-                  <td className="px-4 py-2 text-right text-xs text-slate-500">
+                  <td className="px-4 py-2 text-xs leading-tight-cn">
+                    {u.status || 'active'}
+                  </td>
+                  <td className="px-4 py-2 text-right text-xs text-slate-500 tabular-nums">
                     {timeAgo(u.created_at)}
                   </td>
-                  <td className="px-4 py-2 text-right text-xs text-slate-500">
+                  <td className="px-4 py-2 text-right text-xs text-slate-500 tabular-nums">
                     {timeAgo(u.last_login_at)}
                   </td>
                 </tr>
@@ -148,15 +183,4 @@ export default async function AdminUsersPage({
       </div>
     </div>
   );
-}
-
-function RoleBadge({ role }: { role: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    user: { label: '用户', cls: 'bg-slate-100 text-slate-600' },
-    blogger: { label: '博主', cls: 'bg-pink-100 text-pink-700' },
-    lawyer: { label: '律师', cls: 'bg-purple-100 text-purple-700' },
-    admin: { label: '管理员', cls: 'bg-amber-100 text-amber-700' },
-  };
-  const m = map[role] || { label: role, cls: 'bg-slate-100 text-slate-600' };
-  return <span className={`text-xs px-2 py-0.5 rounded ${m.cls}`}>{m.label}</span>;
 }

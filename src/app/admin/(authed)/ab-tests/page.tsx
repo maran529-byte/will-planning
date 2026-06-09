@@ -1,7 +1,30 @@
-import Link from 'next/link';
 import { requireAdmin } from '@/lib/admin-auth';
 import { supabaseAdmin } from '@/lib/supabase-server';
 import { EXPERIMENTS } from '@/lib/ab-testing';
+import { formatYuan, formatYuanCompact } from '@/lib/admin-helpers';
+
+/**
+ * /admin/ab-tests A/B 测试数据看板
+ *
+ * 改版 v2 (2026-06-09):
+ *   - 改用 @/lib/admin-helpers 的 formatYuan / formatYuanCompact
+ *     (SummaryCard 中 GMV 用 compact, 变体表中用 yuan)
+ *   - 装饰 emoji 加 <span aria-hidden>...</span>
+ *   - 添加 leading-tight-cn / leading-relaxed-cn / tabular-nums
+ *   - 标题 h1/h2 加 leading-tight-cn
+ *   - 信息说明区加 role="note" + aria-label
+ *   - 列表项加 <ul>/<li> 标记 + aria-hidden bullet
+ *   - 实验卡片加 aria-labelledby 关联 h2
+ *   - SummaryCard 加 role="status" + aria-label (数字 + 单位)
+ *   - 表格加 aria-label + <th scope="col">
+ *   - "最佳变体"👑 标记加 aria-label
+ *   - 样本量不足提示加 role="status"
+ *   - 添加 pb-safe
+ *
+ * 包含: 多个实验卡 + 每卡 4 张汇总 + 变体对比表 + 最佳变体标记
+ *   - 最佳变体: 按 CVR 选, 当总转化 > 0 时高亮
+ *   - 样本量警告: < 100 时显示 amber 提示
+ */
 
 export const dynamic = 'force-dynamic';
 
@@ -92,7 +115,7 @@ async function loadExperimentData(experimentName: string, sinceDays = 7) {
 export default async function ABTestsPage() {
   const auth = await requireAdmin();
   if (!auth.authenticated) {
-    return <div>无权访问</div>;
+    return <div className="leading-relaxed-cn">无权访问</div>;
   }
 
   const experiments = Object.values(EXPERIMENTS);
@@ -104,10 +127,12 @@ export default async function ABTestsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-safe">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 mb-1">🧪 A/B 测试</h1>
-        <p className="text-sm text-slate-600">
+        <h1 className="text-2xl font-bold text-slate-800 mb-1 leading-tight-cn">
+          <span aria-hidden>🧪 </span>A/B 测试
+        </h1>
+        <p className="text-sm text-slate-600 leading-relaxed-cn">
           过去 7 天的实验数据, 用于价格心理学和文案优化
         </p>
       </div>
@@ -116,14 +141,35 @@ export default async function ABTestsPage() {
         <ExperimentCard key={config.name} config={config} data={data} />
       ))}
 
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-900">
-        <div className="font-semibold mb-2">📖 如何读 A/B 测试</div>
+      <div
+        className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-900 leading-relaxed-cn"
+        role="note"
+        aria-label="A/B 测试阅读说明"
+      >
+        <div className="font-semibold mb-2 leading-tight-cn">
+          <span aria-hidden>📖 </span>如何读 A/B 测试
+        </div>
         <ul className="space-y-1 text-blue-800">
-          <li>• <strong>CTR</strong> (click-through rate): 点击 / 曝光, 衡量 CTA 吸引力</li>
-          <li>• <strong>CVR</strong> (conversion rate): 转化 / 曝光, 衡量付费转化能力</li>
-          <li>• <strong>GMV</strong> (gross merchandise value): 总成交额, 衡量收入</li>
-          <li>• 样本量 &lt; 100 时数据噪声大, 建议至少 500+ impressions 再下结论</li>
-          <li>• CTR 显著差异 (p &lt; 0.05) 才算统计显著, 不能凭感觉判断</li>
+          <li className="leading-relaxed-cn">
+            <span aria-hidden>• </span>
+            <strong>CTR</strong> (click-through rate): 点击 / 曝光, 衡量 CTA 吸引力
+          </li>
+          <li className="leading-relaxed-cn">
+            <span aria-hidden>• </span>
+            <strong>CVR</strong> (conversion rate): 转化 / 曝光, 衡量付费转化能力
+          </li>
+          <li className="leading-relaxed-cn">
+            <span aria-hidden>• </span>
+            <strong>GMV</strong> (gross merchandise value): 总成交额, 衡量收入
+          </li>
+          <li className="leading-relaxed-cn">
+            <span aria-hidden>• </span>
+            样本量 &lt; 100 时数据噪声大, 建议至少 500+ impressions 再下结论
+          </li>
+          <li className="leading-relaxed-cn">
+            <span aria-hidden>• </span>
+            CTR 显著差异 (p &lt; 0.05) 才算统计显著, 不能凭感觉判断
+          </li>
         </ul>
       </div>
     </div>
@@ -139,10 +185,20 @@ function ExperimentCard({
 }) {
   if (!data) {
     return (
-      <div className="bg-white rounded-xl p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-slate-800 mb-1">{config.name}</h2>
-        <p className="text-sm text-slate-500">暂无数据</p>
-      </div>
+      <section
+        className="bg-white rounded-xl p-5 shadow-sm"
+        aria-labelledby={`exp-${config.name}-h`}
+      >
+        <h2
+          id={`exp-${config.name}-h`}
+          className="text-lg font-bold text-slate-800 mb-1 leading-tight-cn"
+        >
+          {config.name}
+        </h2>
+        <p className="text-sm text-slate-500 leading-relaxed-cn" role="status">
+          暂无数据
+        </p>
+      </section>
     );
   }
 
@@ -153,14 +209,24 @@ function ExperimentCard({
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <section
+      className="bg-white rounded-xl shadow-sm overflow-hidden"
+      aria-labelledby={`exp-${config.name}-h`}
+    >
       <div className="px-5 py-4 border-b border-slate-100">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-800">{config.name}</h2>
-            <p className="text-xs text-slate-500 mt-0.5">{config.description}</p>
+            <h2
+              id={`exp-${config.name}-h`}
+              className="text-lg font-bold text-slate-800 leading-tight-cn"
+            >
+              {config.name}
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed-cn">
+              {config.description}
+            </p>
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-slate-500 tabular-nums leading-tight-cn">
             启动: {config.started_at}
           </div>
         </div>
@@ -168,29 +234,29 @@ function ExperimentCard({
 
       <div className="p-5">
         {/* 汇总 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4"
+          role="group"
+          aria-label="实验汇总指标"
+        >
           <SummaryCard label="总曝光" value={data.total.impressions.toLocaleString()} />
           <SummaryCard label="总点击" value={data.total.clicks.toLocaleString()} />
           <SummaryCard label="总转化" value={data.total.conversions.toLocaleString()} />
-          <SummaryCard
-            label="GMV"
-            value={`¥${(data.total.gmv_cents / 100).toFixed(2)}`}
-            accent="amber"
-          />
+          <SummaryCard label="GMV" value={formatYuanCompact(data.total.gmv_cents)} accent="amber" />
         </div>
 
         {/* 变体对比表 */}
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" aria-label={`${config.name} 变体对比`}>
           <thead className="text-xs text-slate-500 border-b">
             <tr>
-              <th className="text-left py-2 px-2">变体</th>
-              <th className="text-center py-2 px-2">权重</th>
-              <th className="text-right py-2 px-2">曝光</th>
-              <th className="text-right py-2 px-2">点击</th>
-              <th className="text-right py-2 px-2">转化</th>
-              <th className="text-right py-2 px-2">CTR</th>
-              <th className="text-right py-2 px-2">CVR</th>
-              <th className="text-right py-2 px-2">GMV</th>
+              <th scope="col" className="text-left py-2 px-2">变体</th>
+              <th scope="col" className="text-center py-2 px-2">权重</th>
+              <th scope="col" className="text-right py-2 px-2">曝光</th>
+              <th scope="col" className="text-right py-2 px-2">点击</th>
+              <th scope="col" className="text-right py-2 px-2">转化</th>
+              <th scope="col" className="text-right py-2 px-2">CTR</th>
+              <th scope="col" className="text-right py-2 px-2">CVR</th>
+              <th scope="col" className="text-right py-2 px-2">GMV</th>
             </tr>
           </thead>
           <tbody>
@@ -203,26 +269,31 @@ function ExperimentCard({
                     isBest ? 'bg-emerald-50' : ''
                   }`}
                 >
-                  <td className="py-2 px-2 font-bold">
+                  <td className="py-2 px-2 font-bold leading-tight-cn">
                     {v.variant}
                     {isBest && (
-                      <span className="ml-1 text-xs text-emerald-600">👑</span>
+                      <span
+                        className="ml-1 text-xs text-emerald-600"
+                        aria-label="最佳变体"
+                      >
+                        <span aria-hidden>👑</span>
+                      </span>
                     )}
                   </td>
-                  <td className="py-2 px-2 text-center text-slate-500">
+                  <td className="py-2 px-2 text-center text-slate-500 tabular-nums">
                     {config.variants[v.variant]}%
                   </td>
-                  <td className="py-2 px-2 text-right">{v.impressions}</td>
-                  <td className="py-2 px-2 text-right">{v.clicks}</td>
-                  <td className="py-2 px-2 text-right">{v.conversions}</td>
-                  <td className="py-2 px-2 text-right">
+                  <td className="py-2 px-2 text-right tabular-nums">{v.impressions.toLocaleString()}</td>
+                  <td className="py-2 px-2 text-right tabular-nums">{v.clicks.toLocaleString()}</td>
+                  <td className="py-2 px-2 text-right tabular-nums">{v.conversions.toLocaleString()}</td>
+                  <td className="py-2 px-2 text-right tabular-nums">
                     {(v.ctr * 100).toFixed(2)}%
                   </td>
-                  <td className="py-2 px-2 text-right font-semibold">
+                  <td className="py-2 px-2 text-right font-semibold tabular-nums">
                     {(v.cvr * 100).toFixed(2)}%
                   </td>
-                  <td className="py-2 px-2 text-right text-amber-600">
-                    ¥{(v.gmv_cents / 100).toFixed(2)}
+                  <td className="py-2 px-2 text-right text-amber-600 tabular-nums">
+                    {formatYuan(v.gmv_cents)}
                   </td>
                 </tr>
               );
@@ -231,12 +302,16 @@ function ExperimentCard({
         </table>
 
         {data.total.impressions < 100 && (
-          <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900">
-            ⏳ 样本量不足 ({data.total.impressions} / 推荐 500+), 结论仅供参考
+          <div
+            className="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900 leading-relaxed-cn"
+            role="status"
+            aria-label="样本量不足警告"
+          >
+            <span aria-hidden>⏳ </span>样本量不足 ({data.total.impressions.toLocaleString()} / 推荐 500+), 结论仅供参考
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -251,9 +326,13 @@ function SummaryCard({
 }) {
   const cls = accent === 'amber' ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200';
   return (
-    <div className={`rounded-lg border p-3 ${cls}`}>
-      <div className="text-xs text-slate-600 mb-1">{label}</div>
-      <div className="text-lg font-bold text-slate-800">{value}</div>
+    <div
+      className={`rounded-lg border p-3 ${cls}`}
+      role="status"
+      aria-label={`${label}: ${value}`}
+    >
+      <div className="text-xs text-slate-600 mb-1 leading-tight-cn">{label}</div>
+      <div className="text-lg font-bold text-slate-800 leading-tight-cn tabular-nums">{value}</div>
     </div>
   );
 }

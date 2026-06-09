@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { requireAdmin } from '@/lib/admin-auth';
+import { LogoutButton } from './LogoutButton';
 
 /**
  * /admin (authed) route group layout
@@ -82,17 +83,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             ))}
           </nav>
 
-          <button
-            type="button"
-            onClick={async () => {
-              await fetch('/api/admin/auth', { method: 'DELETE' });
-              window.location.href = '/admin/login';
-            }}
-            className="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded hover:bg-slate-800 focus-ring-visible"
-            aria-label="退出登录"
-          >
-            退出
-          </button>
+          <LogoutButton />
         </div>
 
         {/* 移动端 nav */}

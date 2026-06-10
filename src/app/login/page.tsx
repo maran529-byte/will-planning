@@ -2,7 +2,7 @@
  * /login - 用户登录页
  *
  * 改版 v1 (2026-06-08, Phase B):
- *   - 邮箱+密码登录 (任意 role: user/blogger/lawyer/admin)
+ *   - 邮箱+密码登录 (任意 role: user/blogger/admin)
  *   - 博主也走这个入口 (审核通过后, 用注册时的邮箱密码登录)
  *   - ?return=/path 参数支持登录后跳回
  *   - ?registered=1 参数显示"注册成功, 请登录"提示

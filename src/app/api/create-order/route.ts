@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           code: 'UNAUTHENTICATED',
-          error: '请先在公众号绑定微信账号',
+          error: '请先设置访客编号后再创建订单',
           redirect: '/wechat/bind',
         },
         { status: 401 }

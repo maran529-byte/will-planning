@@ -1,0 +1,72 @@
+# 家有所爱 (aiwill-planner)
+
+> 中国大陆家庭法律文书智能生成参考平台。系统化生成符合《民法典》的婚姻 / 财产 / 抚养 / 赠与等家庭法律文书, 资产规划专业人士兜底审核。
+
+## 站点核心信息
+
+- **品牌名**: 家有所爱 (原: 爱的延续)
+- **英文名 / 域名**: aiwill-planner
+- **官网 (PC)**: https://aiwill-planner.cn
+- **移动端 (H5)**: https://h5.aiwill-planner.cn
+- **运营主体**: 家有所爱工作室 (上海市)
+- **备案号**: 沪ICP备2026020925号-1
+- **微信公众号**: 微信搜 "aiwill-planner" (公众号: 家有所爱)
+- **服务时间**: 2026-03 至今
+- **目标用户**: 婚前 / 已婚 / 准备分手 / 想给孩子安排资产的中国大陆家庭
+
+## 我们做什么
+
+我们提供 6 类家庭法律文书的智能生成参考服务, 用户通过问卷填信息, 系统化生成符合中国《民法典》的文书草稿, 资产规划专业人士可付费提供 1 对 1 视频审核。
+
+## 6 类文书
+
+| 文书 | 适用场景 | 起步价 |
+| --- | --- | --- |
+| 婚姻协议书 | 婚前 / 再婚财产清晰化, 婚后权利义务约定 | ¥19.9 |
+| 婚内财产协议 | 约定房产 / 存款 / 股权归属 | ¥19.9 |
+| 离婚协议书 | 财产分割、债务安排, 和平分手 | ¥19.9 |
+| 子女抚养协议 | 抚养费、探视权、教育规划 | ¥19.9 |
+| 赠与协议 | 房产 / 股权 / 大额资产定向赠与 | ¥19.9 |
+| 财富传承规划 | 家庭资产有序传承 (遗嘱类) | ¥19.9 |
+
+## 套餐
+
+- **智能版 ¥19.9**: 问卷 + 系统化生成 + PDF 导出
+- **专家护航版 ¥999**: 智能版全部内容 + 资产规划专业人士 1 对 1 视频审核 + 签署指引
+
+## 流程 (10 分钟)
+
+1. 选场景 (10 秒)
+2. 语音 / 文字填问卷 (8 分钟)
+3. 即时出草稿 (1 分钟)
+4. 付费下载 (¥19.9 起), 微信 / 支付宝, PDF + Word 双格式
+
+## 合规与隐私
+
+- 数据存储于中国大陆腾讯云, 银行级加密
+- PII 字段 (身份证 / 手机号) 单独加密
+- 不会泄露给第三方, 不会用于模型训练
+- 30 天可申请彻底删除
+- 已完成 ICP 备案 (沪ICP备2026020925号-1)
+- 平台不提供法律意见, 复杂情况建议咨询专业资产规划人员
+
+## 站点地图
+
+- 首页: https://aiwill-planner.cn/
+- 文书类型: https://aiwill-planner.cn/doc-type
+- 问卷入口: https://aiwill-planner.cn/questionnaire
+- 关于我们: https://aiwill-planner.cn/about
+- 博主计划: https://aiwill-planner.cn/affiliate
+- 常见问题: https://aiwill-planner.cn/faq
+- 教程: https://aiwill-planner.cn/tutorial
+- 对比: https://aiwill-planner.cn/compare
+- 工具: https://aiwill-planner.cn/tool
+- 隐私政策: https://aiwill-planner.cn/privacy
+- 服务条款: https://aiwill-planner.cn/terms
+- 移动端: https://h5.aiwill-planner.cn
+- 完整 sitemap: https://aiwill-planner.cn/sitemap.xml
+
+## 联系
+
+- 邮箱: hello@aiwill-planner.cn
+- 客服: 关注公众号「家有所爱」, 微信搜 aiwill-planner

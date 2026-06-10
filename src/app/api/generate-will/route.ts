@@ -114,8 +114,13 @@ export async function POST(request: NextRequest) {
 
     let willContent = "";
 
-    // 尝试调用MiniMax API
-    if (MINIMAX_API_KEY && MINIMAX_API_KEY !== "") {
+    // 合规 P0 (2026-06-10): 关闭生成式 AI 文书生成端点
+    // - 法规: 《生成式人工智能服务管理暂行办法》(2023-08-15 施行)
+    // - 状态: 暂未取得生成式 AI 服务备案 (备案编号: 待申请)
+    // - 策略: 强制走模板 fallback 路径, 不调 MiniMax API
+    // - 还原: 备案完成后删除此 kill switch, 恢复下方 if 分支
+    const AI_SERVICE_COMPLIANCE_KILLED = true;
+    if (!AI_SERVICE_COMPLIANCE_KILLED && MINIMAX_API_KEY && MINIMAX_API_KEY !== "") {
       try {
         const response = await fetch(MINIMAX_BASE_URL, {
           method: "POST",
@@ -299,7 +304,7 @@ function buildWillPrompt(data: {
   }
   parts.push(`请生成一份正式的遗嘱草稿，包含标题、立遗嘱人声明、财产分配、继承人指定、签署日期等标准格式。`);
   parts.push(`语气要庄重、专业，符合中国《民法典》继承编的相关规定。`);
-  parts.push(`最后请注明"本遗嘱为AI草稿，不具备法律效力，正式签署前请咨询专业律师。"`);
+  parts.push(`最后请注明"本遗嘱为AI草稿，不具备法律效力，正式签署前请咨询专业资产规划人员。"`);
   return parts.join("\n");
 }
 
@@ -325,6 +330,6 @@ function generateDefaultWill(data: {
   }
   content += `\n三、其他安排\n\n`;
   if (data.spouseName) content += `1. 对于配偶${data.spouseName}的扶养安排，按照法律规定执行。\n`;
-  content += `2. 本人去世后，丧葬事宜由________________________负责安排。\n3. 其他未尽事宜，按照相关法律法规执行。\n\n四、附则\n\n本遗嘱为本人真实意思表示，未受任何胁迫或欺诈。\n本遗嘱一式三份，本人保留一份，公证处存档一份，遗嘱执行人保存一份。\n\n立遗嘱人签名：________________________\n\n${dateStr}\n\n---\n\n【重要提示】\n本遗嘱为AI生成的草稿版本，不具备法律效力。\n正式签署前，请咨询专业律师进行审核，确保遗嘱符合《中华人民共和国民法典》的相关规定，并办理必要的公证手续。\n`;
+  content += `2. 本人去世后，丧葬事宜由________________________负责安排。\n3. 其他未尽事宜，按照相关法律法规执行。\n\n四、附则\n\n本遗嘱为本人真实意思表示，未受任何胁迫或欺诈。\n本遗嘱一式三份，本人保留一份，公证处存档一份，遗嘱执行人保存一份。\n\n立遗嘱人签名：________________________\n\n${dateStr}\n\n---\n\n【重要提示】\n本遗嘱为标准模板生成版本，不具备法律效力。\n正式签署前，请咨询专业资产规划人员，确保遗嘱符合《中华人民共和国民法典》的相关规定，并办理必要的公证手续。\n`;
   return content;
 }

@@ -63,7 +63,7 @@ function buildPrompt(docType: string, formData: Record<string, unknown>): string
   parts.push(`1. 标题居中, 字号大, 庄重`);
   parts.push(`2. 包含【双方基本信息】、【约定/分割/抚养/赠与内容】、【权利义务】、【生效与签署】等标准章节`);
   parts.push(`3. 引用《中华人民共和国民法典》相关条文`);
-  parts.push(`4. 末尾注明"本协议为AI草稿, 双方签字后方可生效, 重大事项请咨询专业律师。"`);
+  parts.push(`4. 末尾注明"本协议为AI草稿, 双方签字后方可生效, 重大事项请咨询专业资产规划人员。"`);
   parts.push(`5. 不要泄露任何 PII 字段值到 prompt 之外 (隐私红线)`);
   return parts.join("\n");
 }
@@ -92,8 +92,8 @@ function generateDefaultDocument(docType: string, formData: Record<string, unkno
     `日期: ________________________  日期: ________________________\n\n` +
     `---\n\n` +
     `【重要提示】\n` +
-    `本协议为AI生成的草稿版本, 不具备法律效力。\n` +
-    `正式签署前, 请咨询专业律师进行审核, 重大事项建议办理公证。\n` +
+    `本协议为标准模板生成版本, 不具备法律效力。\n` +
+    `正式签署前, 请咨询专业资产规划人员, 重大事项建议办理公证。\n` +
     `本服务费用: ¥${(priceCents / 100).toFixed(2)}\n`;
 }
 
@@ -135,8 +135,13 @@ export async function POST(request: NextRequest) {
 
     let docContent = "";
 
-    // 调 MiniMax API
-    if (MINIMAX_API_KEY && MINIMAX_API_KEY !== "") {
+    // 合规 P0 (2026-06-10): 关闭生成式 AI 文书生成端点
+    // - 法规: 《生成式人工智能服务管理暂行办法》(2023-08-15 施行)
+    // - 状态: 暂未取得生成式 AI 服务备案 (备案编号: 待申请)
+    // - 策略: 强制走模板 fallback 路径, 不调 MiniMax API
+    // - 还原: 备案完成后删除此 kill switch, 恢复下方 if 分支
+    const AI_SERVICE_COMPLIANCE_KILLED = true;
+    if (!AI_SERVICE_COMPLIANCE_KILLED && MINIMAX_API_KEY && MINIMAX_API_KEY !== "") {
       try {
         const prompt = buildPrompt(docType, sanitizedFormData);
         const response = await fetch(MINIMAX_BASE_URL, {

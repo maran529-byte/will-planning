@@ -58,7 +58,7 @@ function buildPrompt(docType: string, formData: Record<string, unknown>): string
   }
   parts.push("");
   parts.push(`要求: 保持与上一版相同的风格和结构, 但只更新用户修改的部分, 其它章节保持不变。`);
-  parts.push(`末尾注明"本协议为AI草稿, 不具备法律效力, 双方签字后方可生效, 重大事项请咨询专业律师。"`);
+  parts.push(`末尾注明"本协议为模板生成版本, 不具备法律效力, 双方签字后方可生效, 重大事项请咨询专业资产规划人员。"`);
   return parts.join("\n");
 }
 
@@ -135,7 +135,13 @@ export async function POST(request: NextRequest) {
 
     // 调 LLM 重新生成
     let newContent = "";
-    if (MINIMAX_API_KEY && MINIMAX_API_KEY !== "") {
+    // 合规 P0 (2026-06-10): 关闭生成式 AI revise 端点
+    // - 法规: 《生成式人工智能服务管理暂行办法》(2023-08-15 施行)
+    // - 状态: 暂未取得生成式 AI 服务备案
+    // - 策略: 不调 LLM, 提示用户使用表单修改
+    // - 还原: 备案完成后删除此 kill switch, 恢复原 if 分支
+    const AI_SERVICE_COMPLIANCE_KILLED = true;
+    if (!AI_SERVICE_COMPLIANCE_KILLED && MINIMAX_API_KEY && MINIMAX_API_KEY !== "") {
       try {
         const prompt = buildPrompt(docType, sanitized);
         const response = await fetch(MINIMAX_BASE_URL, {

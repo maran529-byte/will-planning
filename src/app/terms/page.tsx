@@ -3,7 +3,7 @@ import LegalFooter from '@/components/LegalFooter';
 
 export const metadata: Metadata = {
   title: '服务条款',
-  description: '家有所爱 (aiwill-planner) 服务条款. 使用平台前请仔细阅读.',
+  description: '家有所爱 服务条款. 使用平台前请仔细阅读.',
 };
 
 export default function TermsPage() {
@@ -25,7 +25,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-slate-800 mt-6 mb-3">一、服务内容</h2>
-            <p>「家有所爱」(aiwill-planner) 提供以下服务:</p>
+            <p>「家有所爱」提供以下服务:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>系统化的资产规划问卷与文书生成参考</li>
               <li>专业资产规划人员咨询对接 (用户支付后由专业资产规划人员主动联系)</li>

@@ -78,7 +78,7 @@ export default function AdminLoginPage() {
             管理员后台
           </h1>
           <p className="mt-2 text-sm text-slate-400 leading-relaxed-cn">
-            aiwill-planner 内部使用
+            家有所爱 内部使用
           </p>
         </div>
 

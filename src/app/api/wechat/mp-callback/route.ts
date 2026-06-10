@@ -242,7 +242,7 @@ function handleMenuClick(msg: WeChatRecvMessage, key: string): string {
 
 function getWelcomeText(): string {
   return [
-    '欢迎关注 aiwill-planner 智能遗嘱助手 👋',
+    '欢迎关注 家有所爱 智能遗嘱助手 👋',
     '',
     '我们提供基于专业模板的智能遗嘱文书生成服务, 非法律咨询。',
     '',
@@ -252,7 +252,7 @@ function getWelcomeText(): string {
     '',
     '📋 备案信息',
     '沪ICP备2026020925号-1',
-    '本服务由 aiwill-planner 提供',
+    '本服务由 家有所爱 提供',
   ].join('\n');
 }
 

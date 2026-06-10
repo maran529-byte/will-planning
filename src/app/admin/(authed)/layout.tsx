@@ -63,7 +63,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               🛡️
             </div>
             <div className="min-w-0">
-              <h1 className="text-base font-bold truncate leading-tight-cn">aiwill-planner 管理后台</h1>
+              <h1 className="text-base font-bold truncate leading-tight-cn">家有所爱 管理后台</h1>
               <p className="text-xs text-slate-400 truncate leading-tight-cn">{user.email}</p>
             </div>
           </div>

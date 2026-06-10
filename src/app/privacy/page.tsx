@@ -3,7 +3,7 @@ import LegalFooter from '@/components/LegalFooter';
 
 export const metadata: Metadata = {
   title: '隐私政策',
-  description: '家有所爱 (aiwill-planner) 隐私政策. 详细说明我们如何收集, 使用, 保护您的个人信息.',
+  description: '家有所爱 隐私政策. 详细说明我们如何收集, 使用, 保护您的个人信息.',
 };
 
 export default function PrivacyPage() {

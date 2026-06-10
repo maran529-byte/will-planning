@@ -4,7 +4,7 @@ import { BrandLogo } from '@/components/BrandLogo';
 
 export const metadata: Metadata = {
   title: '关于我们',
-  description: '家有所爱 (aiwill-planner) 团队介绍. 我们是谁, 我们为什么做这件事.',
+  description: '家有所爱 团队介绍. 我们是谁, 我们为什么做这件事.',
 };
 
 export default function AboutPage() {

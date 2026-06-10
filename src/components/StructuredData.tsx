@@ -64,7 +64,7 @@ function buildOrganization() {
     alternateName: ORG_NAME_EN,
     url: BASE_URL,
     logo: `${BASE_URL}/logo.png`,
-    description: 'AI 智能生成符合中国《民法典》的遗嘱与资产规划文书, 资产规划专业人士兜底审核',
+    description: '系统化生成符合中国《民法典》的遗嘱与资产规划文书, 资产规划专业人士兜底审核',
     foundingDate: '2026-03',
     address: {
       '@type': 'PostalAddress',
@@ -107,7 +107,7 @@ function buildService(data?: Record<string, unknown>) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    serviceType: 'AI 智能资产规划文书生成',
+    serviceType: '系统化家庭法律文书生成',
     provider: {
       '@type': 'Organization',
       name: ORG_NAME,
@@ -123,8 +123,8 @@ function buildService(data?: Record<string, unknown>) {
       itemListElement: [
         {
           '@type': 'Offer',
-          name: 'AI 智能版',
-          description: 'AI 自动生成文书参考, 10 分钟完成',
+          name: '智能版',
+          description: '系统化生成文书参考, 10 分钟完成',
           price: '19.9',
           priceCurrency: 'CNY',
           availability: 'https://schema.org/InStock',
@@ -133,7 +133,7 @@ function buildService(data?: Record<string, unknown>) {
         {
           '@type': 'Offer',
           name: '专家护航版',
-          description: 'AI 文书 + 执业资产规划专业人士 1 对 1 审核 + 修改建议',
+          description: '系统化文书 + 执业资产规划专业人士 1 对 1 审核 + 修改建议',
           price: '999',
           priceCurrency: 'CNY',
           availability: 'https://schema.org/InStock',

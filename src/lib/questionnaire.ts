@@ -63,7 +63,7 @@ export const modules: Module[] = [
         type: 'text',
         question: '您的联系电话',
         required: true,
-        placeholder: '用于接收律师联系',
+        placeholder: '用于接收专业资产规划人员回访',
       },
     ],
   },
@@ -346,7 +346,7 @@ export const modules: Module[] = [
         id: 'q25',
         key: 'confirmed',
         type: 'radio',
-        question: '我声明以上信息真实有效，并委托AI辅助生成遗嘱草稿',
+        question: '我声明以上信息真实有效，并委托系统化生成遗嘱草稿',
         required: true,
         options: [
           { value: '我同意', label: '我同意' },

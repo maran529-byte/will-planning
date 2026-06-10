@@ -22,12 +22,13 @@
  */
 
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { DOCUMENT_TYPES, COLOR_CLASSES } from '@/lib/document-types';
 
 export const metadata: Metadata = {
-  title: '选择文书类型 | 爱的延续',
-  description: '选择您要创建的法律文书类型, 1 分钟进入问卷',
+  title: '选择文书类型 · 婚姻财产规划 | 爱的延续',
+  description: '婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承, 6 类家庭法律文书, ¥19.9 起, 10 分钟完成',
 };
 
 interface PageProps {
@@ -38,6 +39,18 @@ export default async function DocTypePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const preselectedType = params.type;
   const plan = params.plan || 'ai';
+
+  // 需求 (2026-06-10): 如果 URL 带 ?type=xxx 且该类型可用, 直接跳到问卷,
+  // 不再让用户多一步选择 — 提升转化与连续性。
+  // 例: 首页卡片链 /doc-type?type=marriage → 直接进 /questionnaire?type=marriage
+  // 例: /account /result 的"再创建"按钮直跳 /questionnaire 也保留 (不带 type)
+  if (preselectedType) {
+    const found = DOCUMENT_TYPES.find((d) => d.id === preselectedType);
+    if (found && found.available) {
+      redirect(`/questionnaire?type=${found.id}&plan=${plan}`);
+    }
+    // 不可用类型 → 落到下方渲染, 仍展示"问卷开发中"角标
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-slate-50">
@@ -70,10 +83,10 @@ export default async function DocTypePage({ searchParams }: PageProps) {
       <main className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
         <div className="text-center mb-8 sm:mb-10">
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3 text-balance">
-            请选择您的文书类型
+            选一个最贴近您当前情况的
           </h1>
           <p className="text-slate-600 text-base sm:text-lg leading-relaxed-cn">
-            不同文书对应不同问卷, 请按实际需求选择 (后续可调整)
+            不同场景对应不同问卷, 选错也没关系, 后续随时可调整
           </p>
         </div>
 
@@ -159,16 +172,17 @@ export default async function DocTypePage({ searchParams }: PageProps) {
           })}
         </div>
 
-        {/* 底部信息 */}
+        {/* 底部信息 - 改版 v6: 措辞聚焦"婚姻/财产/抚养", 不再提遗嘱 */}
         <div className="mt-10 sm:mt-12 bg-emerald-50 border border-emerald-200 rounded-xl p-5 text-sm text-slate-700">
           <div className="font-semibold text-slate-800 mb-2 flex items-center gap-2">
             <span aria-hidden>✅</span>
-            <span>6 类文书已全部实装</span>
+            <span>覆盖婚前/婚内/离婚/抚养/赠与/传承 6 大场景</span>
           </div>
           <p className="leading-relaxed-cn">
-            遗嘱 (7 大模块 25 题) + 婚姻/婚内财产/离婚/抚养/赠与 5 类新文书均已上线。
-            全部使用 AI 根据《中华人民共和国民法典》生成专业草稿, ¥19.9 起。
-            关注公众号 <code className="px-1.5 py-0.5 bg-white rounded text-xs">爱的延续</code> 获取加项通知。
+            全部根据《中华人民共和国民法典》生成专业文书模板, ¥19.9 起。
+            复杂情况 (跨境资产 / 股权设计 / 家族信托) 可选 ¥999 专家版,
+            资产规划专业人士 1 对 1 视频审核。
+            关注公众号 <code className="px-1.5 py-0.5 bg-white rounded text-xs">爱的延续</code> 获取新功能通知。
           </p>
         </div>
 
@@ -178,10 +192,10 @@ export default async function DocTypePage({ searchParams }: PageProps) {
             <span aria-hidden>🛡️</span> 数据加密
           </span>
           <span className="flex items-center gap-1" role="listitem">
-            <span aria-hidden>📝</span> AI 即时生成
+            <span aria-hidden>📝</span> 即时生成
           </span>
           <span className="flex items-center gap-1" role="listitem">
-            <span aria-hidden>⚖️</span> 法律免责声明
+            <span aria-hidden>📄</span> PDF + Word 双格式
           </span>
         </div>
       </main>

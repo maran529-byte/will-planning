@@ -50,7 +50,7 @@ const ROLE_OPTIONS = [
   { value: '', label: '全部' },
   { value: 'user', label: '用户' },
   { value: 'blogger', label: '博主' },
-  { value: 'lawyer', label: '律师' },
+  { value: 'lawyer', label: '专业资产规划人员' },
   { value: 'admin', label: '管理员' },
 ];
 

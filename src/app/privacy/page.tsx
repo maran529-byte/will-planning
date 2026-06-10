@@ -19,7 +19,7 @@ export default function PrivacyPage() {
             <p>
               「爱的延续」(域名: aiwill-planner.cn, 以下简称「我们」或「本平台」) 由
               <strong>爱的延续工作室</strong>(注册地: 上海市) 运营.
-              我们提供基于 AI 辅助的资产规划与遗嘱文书生成参考服务.
+              我们提供基于系统化的资产规划与遗嘱文书生成参考服务.
             </p>
             <p>本隐私政策依据《中华人民共和国个人信息保护法》《网络安全法》《数据安全法》制定, 适用于您访问和使用本平台的所有行为.</p>
           </section>
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
             <h3 className="text-lg font-semibold text-slate-700 mt-4 mb-2">2.1 您主动提供的信息</h3>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>账户信息</strong>: 微信 OpenID / 邮箱 / 昵称 / 头像 (用于账户识别)</li>
-              <li><strong>联系信息</strong>: 手机号 (用于律师回访, 客服联系, 提现结算)</li>
+              <li><strong>联系信息</strong>: 手机号 (用于专业资产规划人员回访, 客服联系, 提现结算)</li>
               <li><strong>问卷回答</strong>: 您在生成文书时填写的家庭情况, 资产信息, 受益人信息 (PII)</li>
               <li><strong>身份信息</strong>: 真实姓名 (加密存储), 身份证后 4 位 (客服核对用, <strong>不存全卡号</strong>)</li>
             </ul>
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-slate-800 mt-6 mb-3">三、信息的使用</h2>
             <p>我们仅在以下目的范围内使用您的个人信息:</p>
             <ol className="list-decimal pl-6 space-y-1">
-              <li>提供 AI 文书生成, 律师咨询对接等核心服务</li>
+              <li>提供系统化文书生成, 专业资产规划咨询对接等核心服务</li>
               <li>处理订单支付, 佣金结算, 退款等交易行为</li>
               <li>客服沟通, 投诉处理, 争议解决</li>
               <li>风险控制: 识别刷量, 套现, 违规推广等行为</li>
@@ -55,7 +55,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-1">
               <li>出售给第三方营销机构</li>
               <li>用于您未明确同意的个性化广告推送</li>
-              <li>用于训练第三方 AI 模型 (我们使用的 AI 服务条款另行约定)</li>
+              <li>用于训练第三方 AI/ML 模型 (我们使用的系统服务条款另行约定)</li>
             </ul>
           </section>
 
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
             <p>我们仅在以下情况下向第三方共享您的信息:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>支付</strong>: 微信支付, 支付宝, 银行 (仅在您主动支付时)</li>
-              <li><strong>AI 服务</strong>: MiniMax (上海稀宇科技有限公司) - 用于文案生成, 我们已签署数据处理协议</li>
+              <li><strong>系统服务</strong>: MiniMax (上海稀宇科技有限公司) - 用于系统化文案处理, 我们已签署数据处理协议</li>
               <li><strong>云服务</strong>: 腾讯云 (服务器), Cloudflare (CDN, 仅静态资源)</li>
               <li><strong>法律要求</strong>: 司法机关, 监管机构的合法要求</li>
             </ul>

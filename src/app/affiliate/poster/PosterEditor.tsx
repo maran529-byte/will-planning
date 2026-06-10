@@ -399,7 +399,7 @@ function getTemplateConfig(t: Template): TemplateConfig {
       title: '#7c2d12',
       subtitle: '#92400e',
       titleText: '把爱, 写进一份文书',
-      subtitleText: 'AI 智能生成 · 律师审核 · ¥19.9 起',
+      subtitleText: '系统化生成 · 专业资产规划人员审核 · ¥19.9 起',
       mainLines: ['爱的延续', '让财富安心传承', '一份清晰的遗嘱', '是给家人最后的礼物'],
     };
   }
@@ -411,8 +411,8 @@ function getTemplateConfig(t: Template): TemplateConfig {
       title: '#1e3a8a',
       subtitle: '#475569',
       titleText: '专业资产规划',
-      subtitleText: 'AI 智能版 ¥19.9 · 律师审核版 ¥999',
-      mainLines: ['合规 · 安全 · 私密', '5+ 年执业律师团队', '数据不出境', 'PII 字段加密存储'],
+      subtitleText: '智能版 ¥19.9 · 专业资产规划人员审核版 ¥999',
+      mainLines: ['合规 · 安全 · 私密', '5+ 年专业资产规划团队', '数据不出境', 'PII 字段加密存储'],
     };
   }
   // urgent

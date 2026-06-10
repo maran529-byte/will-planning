@@ -15,6 +15,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { RegisterForm } from './RegisterForm';
+import { BrandLogo } from '@/components/BrandLogo';
 
 export const metadata: Metadata = {
   title: '注册 | 爱的延续',
@@ -37,8 +38,7 @@ export default async function RegisterPage({ searchParams }: PageProps) {
             href="/"
             className="inline-flex items-center gap-2 text-slate-600 hover:text-amber-600 transition"
           >
-            <span className="text-2xl" aria-hidden>⚖️</span>
-            <span className="text-lg font-semibold leading-tight-cn">爱的延续</span>
+            <BrandLogo size="sm" />
           </Link>
         </div>
 

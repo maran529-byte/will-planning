@@ -10,10 +10,10 @@
  *   - formatYuan(cents)         分 → 元 (¥xx.xx)
  *   - formatYuanCompact(cents)  万元单位 (¥1.23万)
  *   - timeAgo(iso)              时间戳 → "5分钟前"
- *   - timeUntil(iso)            未来时间戳 → "5分钟后" (律师预约场景)
+ *   - timeUntil(iso)            未来时间戳 → "5分钟后" (专业资产规划人员预约场景)
  *   - OrderStatusBadge          订单状态徽章 (4 种)
  *   - RoleBadge                 角色徽章 (4 种)
- *   - BookingStatusBadge        律师预约状态徽章 (5 种)
+ *   - BookingStatusBadge        专业资产规划人员预约状态徽章 (5 种)
  *   - WithdrawalStatusBadge     提现状态徽章 (5 种)
  *   - BloggerStatusBadge        博主状态徽章 (4 种)
  *   - AffiliateStatusBadge      支付事件状态 (4 种) + 渠道 (3 种)
@@ -55,7 +55,7 @@ export function timeAgo(iso: string | null | undefined): string {
   return `${Math.floor(h / 24)}天前`;
 }
 
-/** 未来时间 (律师预约场景, "5分钟后") */
+/** 未来时间 (专业资产规划人员预约场景, "5分钟后") */
 export function timeUntil(iso: string | null | undefined): string {
   if (!iso) return '-';
   const ms = new Date(iso).getTime() - Date.now();
@@ -125,7 +125,7 @@ export function PlanBadge({ plan }: { plan: string }) {
 const ROLE_MAP: Record<string, { label: string; cls: string }> = {
   user: { label: '用户', cls: 'bg-slate-100 text-slate-600' },
   blogger: { label: '博主', cls: 'bg-pink-100 text-pink-700' },
-  lawyer: { label: '律师', cls: 'bg-purple-100 text-purple-700' },
+  lawyer: { label: '专业资产规划人员', cls: 'bg-purple-100 text-purple-700' },
   admin: { label: '管理员', cls: 'bg-amber-100 text-amber-700' },
 };
 
@@ -143,7 +143,7 @@ export function RoleBadge({ role }: { role: string }) {
 }
 
 // =============================================================================
-// 律师预约状态徽章
+// 专业资产规划人员预约状态徽章
 // =============================================================================
 
 const BOOKING_STATUS_MAP: Record<string, { label: string; cls: string }> = {

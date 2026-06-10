@@ -66,7 +66,7 @@ export default function OrdersPage() {
   };
 
   const getPlanName = (plan: string) => {
-    return PLAN_DISPLAY[plan] ?? PRICING.aiGuide.name;
+    return PLAN_DISPLAY[plan] ?? PRICING.guide.name;
   };
 
   const formatDate = (dateStr: string) => {

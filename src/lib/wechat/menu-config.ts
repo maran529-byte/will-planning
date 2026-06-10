@@ -23,8 +23,8 @@ export const MP_MENU: MenuConfig = {
         },
         {
           type: 'view',
-          name: '联系律师',
-          url: 'https://h5.aiwill-planner.cn/?action=lawyer',
+          name: '联系专业资产规划人员',
+          url: 'https://h5.aiwill-planner.cn/?action=planner',
         },
       ],
     },
@@ -43,8 +43,8 @@ export const MP_MENU: MenuConfig = {
         },
         {
           type: 'view',
-          name: '联系律师',
-          url: 'https://h5.aiwill-planner.cn/?action=lawyer',
+          name: '联系专业资产规划人员',
+          url: 'https://h5.aiwill-planner.cn/?action=planner',
         },
       ],
     },

@@ -71,7 +71,7 @@ export default async function DashboardPage() {
             <div className="text-3xl mb-3" aria-hidden>📝</div>
             <h2 className="text-lg font-bold text-slate-800 mb-2 leading-tight-cn">创建新文书</h2>
             <p className="text-slate-600 text-sm mb-4 leading-relaxed-cn">
-              6 类法律文书模板, AI 智能生成草稿, 1 分钟出稿
+              6 类法律文书模板, 系统化生成草稿, 1 分钟出稿
             </p>
             <Link
               href="/doc-type"
@@ -198,7 +198,7 @@ function roleDisplay(role: string): string {
   const map: Record<string, string> = {
     user: '普通用户',
     blogger: '博主',
-    lawyer: '律师',
+    lawyer: '专业资产规划人员',
     admin: '管理员',
   };
   return map[role] || role;

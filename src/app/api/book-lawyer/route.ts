@@ -15,13 +15,13 @@ export async function POST(request: NextRequest) {
 
     // 实际项目中，这里应该：
     // 1. 将预约信息存入数据库
-    // 2. 发送短信/微信通知给律师
+    // 2. 发送短信/微信通知给专业资产规划人员
     // 3. 发送确认短信给用户
 
     return NextResponse.json({
       success: true,
       bookingId,
-      message: "预约成功，律师将在24小时内联系您",
+      message: "预约成功，专业资产规划人员将在24小时内联系您",
       // 模拟预约详情
       booking: {
         id: bookingId,

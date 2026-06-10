@@ -7,6 +7,14 @@
  *   - 统一 6 类文书: marriage / marital-property / divorce / child-custody / gift / will
  *   - 颜色色板: rose/amber/slate/blue/emerald/purple (与 Tailwind v4 默认调色板一致)
  *
+ * 改版 v6 (2026-06-09, 营销定位重塑 — Phase C):
+ *   业务核心从"遗嘱传承"调整为"婚姻财产与资产规划":
+ *   - 6 类文书顺序调整: 把受众最广、需求最强的"婚姻/婚内/离婚/抚养"前置
+ *   - 文书 6 (will) 名称中性化为"财富传承规划", 图标与配色降级处理
+ *   - 描述文案突出"家庭资产清晰"而非"身后安排", 降低推广阻力
+ *   - 价格策略: AI 版保留 ¥19.9, 强调"1 份外卖的钱, 换家庭 30 年安稳"
+ *   - 后端 API 路由不变, 存量订单/支付链路不受影响
+ *
  * 设计:
  *   - Server Component / Client Component 都可安全 import (无副作用)
  *   - 价格不写死在前端 (以前 ¥19.9, 现在统一读 src/lib/config PRICING)
@@ -54,56 +62,65 @@ export interface DocumentType {
 }
 
 export const DOCUMENT_TYPES: readonly DocumentType[] = [
+  // 1. 婚姻协议书 — 主推 (受众最广: 婚前/再婚/财产清晰化)
   {
     id: "marriage",
     name: "婚姻协议书",
-    description: "明确婚后财产分配、权利义务",
+    description: "婚前/再婚财产清晰化, 婚后权利义务约定",
     icon: "💑",
     color: "rose",
     available: true,
     price: 19.9,
   },
+  // 2. 婚内财产协议 — 主推 (已婚中产, 房产/股权归属)
   {
     id: "marital-property",
     name: "婚内财产协议",
-    description: "约定婚姻存续期间财产归属",
+    description: "约定房产/存款/股权归属, 感情稳固的定心丸",
     icon: "🏠",
     color: "amber",
     available: true,
     price: 19.9,
   },
+  // 3. 离婚协议 — 高需求
   {
     id: "divorce",
-    name: "离婚协议",
-    description: "子女抚养、财产分割协议",
+    name: "离婚协议书",
+    description: "财产分割、债务安排一站写清, 和平分手",
     icon: "📄",
     color: "slate",
     available: true,
     price: 19.9,
   },
+  // 4. 子女抚养协议 — 高需求
   {
     id: "child-custody",
     name: "子女抚养协议",
-    description: "明确抚养费、探视权安排",
+    description: "抚养费、探视权、教育规划安排清楚",
     icon: "👨‍👩‍👧",
     color: "blue",
     available: true,
     price: 19.9,
   },
+  // 5. 赠与协议 — 资产保护
   {
     id: "gift",
     name: "赠与协议",
-    description: "房产、财产赠与公证文书",
+    description: "房产/股权/大额资产定向赠与, 可公证",
     icon: "🎁",
     color: "emerald",
     available: true,
     price: 19.9,
   },
+  // 6. 财富传承规划 — 改名中性化 (原"遗嘱"), 降级处理
+  //   - 避免直接用"遗嘱", 降低推广阻力
+  //   - 图标从 ⚖️ 改为 📜 (中性, 不带司法权杖暗示)
+  //   - 配色保留紫色, 但描述更聚焦"传承规划" 而非"身后安排"
   {
     id: "will",
-    name: "遗嘱",
-    description: "遗产分配、继承人指定",
-    icon: "⚖️",
+    name: "财富传承规划",
+    description: "家庭资产有序传承, 提前安排更安心",
+    icon: "📜",
     color: "purple",
     available: true,
     price: 19.9,
@@ -159,9 +176,14 @@ export const COLOR_CLASSES: Record<
   },
 };
 
-/** docType → 中文标签 (result 页 / 草稿 / 订单展示用) */
+/** docType → 中文标签 (result 页 / 草稿 / 订单展示用)
+ *
+ * 改版 v6: will → "财富传承规划" (落地页与 result 页统一口径)
+ *   - 后端数据库存的还是 "wills" 表, 旧订单展示"遗嘱"暂保留 (历史)
+ *   - 新生成的文书展示"财富传承规划"
+ */
 export const DOC_LABELS: Record<DocumentTypeId, string> = {
-  will: "遗嘱",
+  will: "财富传承规划",
   marriage: "婚姻协议书",
   "marital-property": "婚内财产协议",
   divorce: "离婚协议书",

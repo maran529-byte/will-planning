@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next';
 /**
  * sitemap.xml
  * - 静态页面: 列出 + changefreq/priority
- * - 动态页面 (暂): 无 (后续博客/律师文章可扩展)
+ * - 动态页面 (暂): 无 (后续博客/专业文章可扩展)
  *
  * 优先级参考:
  *  1.0  首页

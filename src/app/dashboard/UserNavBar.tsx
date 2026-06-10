@@ -4,6 +4,7 @@
  */
 import Link from 'next/link';
 import type { SessionUser } from '@/lib/user-auth';
+import { BrandLogo } from '@/components/BrandLogo';
 
 interface UserNavBarProps {
   user: SessionUser;
@@ -14,8 +15,7 @@ export function UserNavBar({ user }: UserNavBarProps) {
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2 text-slate-800 hover:text-amber-600 transition">
-          <span className="text-xl">⚖️</span>
-          <span className="font-bold">爱的延续</span>
+          <BrandLogo size="sm" />
           <span className="text-xs text-slate-400 hidden sm:inline">/ 我的</span>
         </Link>
 

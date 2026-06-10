@@ -48,7 +48,7 @@ function PaymentContent() {
     : '我已支付 · 请客服确认';
 
   const planData = planParam === 'expert' ? PRICING.expertReview
-    : PRICING.aiGuide;
+    : PRICING.guide;
 
   const priceInYuan = planData.price;
   const priceInFen = Math.round(priceInYuan * 100);

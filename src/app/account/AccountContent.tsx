@@ -35,7 +35,7 @@ function formatDate(iso: string): string {
 }
 
 const PLAN_NAMES: Record<string, { name: string; cls: string }> = {
-  ai: { name: 'AI 智能版', cls: 'bg-slate-100 text-slate-700' },
+  ai: { name: '智能版', cls: 'bg-slate-100 text-slate-700' },
   expert: { name: '专家护航版', cls: 'bg-amber-100 text-amber-700' },
   lawyer: { name: '专家(旧)', cls: 'bg-amber-50 text-amber-600' },
   family: { name: '家族(下架)', cls: 'bg-slate-50 text-slate-500' },

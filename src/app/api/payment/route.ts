@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     // Plan descriptions for payment
     // 改版 v3: 加 'expert' 套餐 (原 'lawyer' 显示名升级为 '资产规划专业人士审核')
     const planDescriptions: Record<string, string> = {
-      ai: 'AI智能版 · 文书生成',
+      ai: '智能版 · 文书生成',
       expert: '专家护航版 · 资产规划专业人士审核',
       lawyer: '专家护航版 · 资产规划专业人士审核',  // 历史值兼容
       family: '家族传承综合服务',                      // 已下架

@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { supabaseAdmin } from '@/lib/supabase-server';
 import { timeUntil, BookingStatusBadge } from '@/lib/admin-helpers';
+import { BrandLogo } from '@/components/BrandLogo';
 
 /**
- * /admin/lawyers 律师预约管理
+ * /admin/lawyers 专业资产规划人员预约管理
  *
  * 改版 v2 (2026-06-09):
  *   - 改用 @/lib/admin-helpers 共享 timeUntil / BookingStatusBadge
@@ -64,14 +65,14 @@ export default async function AdminLawyersPage({
 
   return (
     <div className="space-y-4 pb-safe">
-      <h1 className="text-2xl font-bold text-slate-800 leading-tight-cn">
-        <span aria-hidden>⚖️ </span>律师预约 (
-        <span className="tabular-nums">{bookings.length}</span>)
+      <h1 className="text-2xl font-bold text-slate-800 leading-tight-cn inline-flex items-center gap-2">
+        <BrandLogo size="sm" />
+        <span>专业资产规划人员预约 (<span className="tabular-nums">{bookings.length}</span>)</span>
       </h1>
 
       <form
         className="bg-white rounded-xl shadow-sm p-4 flex items-end gap-3"
-        aria-label="律师预约过滤"
+        aria-label="专业资产规划人员预约过滤"
       >
         <div>
           <label
@@ -110,10 +111,10 @@ export default async function AdminLawyersPage({
       </form>
 
       <div className="rounded-xl bg-white shadow-sm overflow-x-auto">
-        <table className="w-full text-sm min-w-[900px]" aria-label="律师预约列表">
+        <table className="w-full text-sm min-w-[900px]" aria-label="专业资产规划人员预约列表">
           <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
             <tr>
-              <th scope="col" className="px-4 py-2 text-left">律师</th>
+              <th scope="col" className="px-4 py-2 text-left">专业资产规划人员</th>
               <th scope="col" className="px-4 py-2 text-left">联系人</th>
               <th scope="col" className="px-4 py-2 text-left">手机</th>
               <th scope="col" className="px-4 py-2 text-left">预约时间</th>

@@ -34,7 +34,7 @@ const NAV_ITEMS = [
   { href: '/admin/users', label: '用户' },
   { href: '/admin/affiliates', label: '博主' },
   { href: '/admin/withdrawals', label: '提现审批' },
-  { href: '/admin/lawyers', label: '律师预约' },
+  { href: '/admin/lawyers', label: '专业资产规划人员预约' },
   { href: '/admin/payments', label: '支付流水' },
   { href: '/admin/payment-events', label: '回调事件' },
   { href: '/admin/analytics', label: '数据看板' },

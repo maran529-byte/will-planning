@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase-server';
 import { requireAdmin } from '@/lib/admin-auth';
 
 /**
- * Admin 律师预约列表
+ * Admin 专业资产规划人员预约列表
  *
  * GET /api/admin/lawyers
  * Query:

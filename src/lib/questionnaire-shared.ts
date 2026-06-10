@@ -92,7 +92,7 @@ export const marriageModules: Module[] = [
         ],
       },
       {
-        id: 'm13', key: 'confirmed', type: 'radio', question: '我声明以上信息真实有效, 委托 AI 辅助生成婚姻协议书草稿', required: true,
+        id: 'm13', key: 'confirmed', type: 'radio', question: '我声明以上信息真实有效, 委托系统化生成婚姻协议书草稿', required: true,
         options: [
           { value: '我同意', label: '我同意' },
           { value: '我不同意', label: '我不同意' },
@@ -284,7 +284,7 @@ export const divorceModules: Module[] = [
         ],
       },
       {
-        id: 'dv15', key: 'confirmed', type: 'radio', question: '我声明以上信息真实有效, 委托 AI 生成离婚协议书草稿', required: true,
+        id: 'dv15', key: 'confirmed', type: 'radio', question: '我声明以上信息真实有效, 委托系统化生成离婚协议书草稿', required: true,
         options: [
           { value: '我同意', label: '我同意' },
           { value: '我不同意', label: '我不同意' },
@@ -497,7 +497,7 @@ export const giftModules: Module[] = [
         ],
       },
       {
-        id: 'gf14', key: 'confirmed', type: 'radio', question: '我声明以上信息真实有效, 委托 AI 生成赠与协议草稿', required: true,
+        id: 'gf14', key: 'confirmed', type: 'radio', question: '我声明以上信息真实有效, 委托系统化生成赠与协议草稿', required: true,
         options: [
           { value: '我同意', label: '我同意' },
           { value: '我不同意', label: '我不同意' },

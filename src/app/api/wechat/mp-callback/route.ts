@@ -170,7 +170,7 @@ function handleTextContent(msg: WeChatRecvMessage, content: string): string {
     return buildNewsReply(msg, [
       {
         title: '查看完整价格与服务对比',
-        description: 'AI 专属版 ¥19.9 / 律师护航版 ¥999 / 家庭年度版 ¥4699',
+        description: '系统化生成版 ¥19.9 / 专业资产规划人员护航版 ¥999 / 家庭年度版 ¥4699',
         url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://h5.aiwill-planner.cn'}/pricing`,
       },
     ]);

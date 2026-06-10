@@ -77,7 +77,7 @@ export function ApplyForm() {
             type="text"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="如: 张律师 / 财富规划小助手"
+            placeholder="如: 张规划师 / 财富规划小助手"
             maxLength={20}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
           />

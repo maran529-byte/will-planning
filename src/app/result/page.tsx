@@ -255,7 +255,7 @@ function ResultContent() {
             <h2 className="text-lg font-bold text-green-800 leading-tight-cn">{docLabel}草稿已生成</h2>
           </div>
           <p className="text-green-700 text-sm leading-relaxed-cn">
-            AI已根据您的填写内容生成{docLabel}草稿。请仔细阅读内容,如有疑问可咨询专业律师进行审核。
+            系统已根据您的填写内容生成{docLabel}草稿。请仔细阅读内容,如有疑问可咨询专业资产规划人员。
           </p>
         </div>
 
@@ -291,7 +291,7 @@ function ResultContent() {
             </pre>
           </div>
           <p className="text-xs text-slate-500 mt-4 leading-relaxed-cn">
-            * 此为AI生成的草稿版本,不具备法律效力。正式签署前请专业人士审核。
+            * 本模板为参考草稿,不具备法律效力。正式签署前请专业人士审核。
           </p>
         </div>
 
@@ -401,7 +401,7 @@ function ResultContent() {
             </h3>
             <p className="text-sm text-slate-600 mb-4 leading-relaxed-cn">
               您还可以修改 <span className="font-bold text-amber-600 tabular-nums">{(result?.maxRevisions || 3) - (result?.revisionCount || 0)}</span> 次。
-              请描述您要修改的内容, AI 将根据您的说明重新生成文书。
+              请描述您要修改的内容, 系统将根据您的说明重新生成文书。
             </p>
 
             {/* 文字说明 */}

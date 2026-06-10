@@ -84,7 +84,7 @@ function NotLoggedInView() {
           <div className="text-5xl mb-4" aria-hidden>🔒</div>
           <h1 className="text-2xl font-bold text-slate-800 mb-2 leading-tight-cn">请先登录</h1>
           <p className="text-sm text-slate-600 mb-6 leading-relaxed-cn">
-            查看订单 / 下载文书 / 申请发票, 需要先关注公众号「爱的延续」并完成绑定
+            查看订单 / 下载文书 / 申请发票, 需要先关注公众号「家有所爱」并完成绑定
           </p>
           <div className="space-y-3">
             <a

@@ -42,7 +42,7 @@ export default async function AffiliatePage() {
         {/* 标题区 */}
         <div className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3 leading-tight-cn text-balance">
-            <span aria-hidden>🎁 </span>爱的延续 · 博主推广计划
+            <span aria-hidden>🎁 </span>家有所爱 · 博主推广计划
           </h1>
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed-cn">
             分享有温度的资产规划服务, 获得长期被动收入

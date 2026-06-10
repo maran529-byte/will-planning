@@ -1,10 +1,10 @@
 /**
- * BrandLogo — 统一的"爱的延续"品牌标识
+ * BrandLogo — 统一的"家有所爱"品牌标识
  *
  * 改版 v7 (2026-06-09, 品牌重塑):
  *   - 来源: 用户提供的 WechatIMG233.jpg
  *   - 图像: 双手捧心 + 蓝白配色, 已去豆包 AI 水印
- *   - 旧版: <span aria-hidden>⚖️</span> + "爱的延续" 文字 (天平 emoji 太严肃, 不符品牌温度)
+ *   - 旧版: <span aria-hidden>⚖️</span> + "家有所爱" 文字 (天平 emoji 太严肃, 不符品牌温度)
  *   - 新版: <img> logo.png + 可选文字
  *
  * 用法:
@@ -21,11 +21,11 @@ export type BrandLogoSize = "sm" | "md" | "lg" | "xl";
 interface BrandLogoProps {
   /** sm=32, md=40, lg=64, xl=96 (像素) */
   size?: BrandLogoSize;
-  /** 是否显示"爱的延续"文字 (默认 md+ 显示) */
+  /** 是否显示"家有所爱"文字 (默认 md+ 显示) */
   showText?: boolean;
   /** 文字颜色 (默认继承父级 text-slate-800) */
   textClassName?: string;
-  /** alt 文案, 默认 "爱的延续" */
+  /** alt 文案, 默认 "家有所爱" */
   alt?: string;
   /** 额外 className 附加到外层 wrapper */
   className?: string;
@@ -49,7 +49,7 @@ export function BrandLogo({
   size = "md",
   showText,
   textClassName,
-  alt = "爱的延续",
+  alt = "家有所爱",
   className = "",
 }: BrandLogoProps) {
   const px = SIZE_PX[size];
@@ -72,7 +72,7 @@ export function BrandLogo({
         <span
           className={`${textSize} font-bold ${textClassName ?? "text-slate-800"} leading-tight-cn`}
         >
-          爱的延续
+          家有所爱
         </span>
       )}
     </div>

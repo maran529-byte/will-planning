@@ -83,7 +83,7 @@ export default function AccountContent({ openid, orders, invoices, stats }: Prop
             <div className="text-xs text-slate-500">当前登录账号</div>
             <div className="font-mono text-sm text-slate-800 mt-0.5">{maskedOpenid}</div>
             <div className="text-xs text-slate-500 mt-1">
-              通过公众号「爱的延续」识别, 一年免登录
+              通过公众号「家有所爱」识别, 一年免登录
             </div>
           </div>
         </div>
@@ -225,7 +225,7 @@ export default function AccountContent({ openid, orders, invoices, stats }: Prop
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5 text-sm text-blue-900">
         <div className="font-semibold mb-2">💬 需要帮助?</div>
         <ul className="space-y-1 text-blue-800">
-          <li>• 文书内容咨询: 微信公众号「爱的延续」客服</li>
+          <li>• 文书内容咨询: 微信公众号「家有所爱」客服</li>
           <li>• 发票 / 退款进度: 1-3 个工作日处理, 公众号回复「进度」</li>
           <li>• 紧急问题: 拨打客服电话 (工作日 9:00-22:00)</li>
         </ul>

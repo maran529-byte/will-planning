@@ -187,7 +187,7 @@ export default function PosterEditor({ refCode, displayName, commissionRate }: P
       // 底部 ICP
       ctx.fillStyle = cfg.subtitle;
       ctx.font = '18px sans-serif';
-      ctx.fillText('爱的延续 · 沪ICP备2026020925号-1', W / 2, H - 40);
+      ctx.fillText('家有所爱 · 沪ICP备2026020925号-1', W / 2, H - 40);
 
       // 触发下载
       const dataUrl = canvas.toDataURL('image/png', 0.95);
@@ -359,7 +359,7 @@ export default function PosterEditor({ refCode, displayName, commissionRate }: P
                   className="text-center text-[10px] pb-2 mt-auto"
                   style={{ color: getTemplateConfig(template).subtitle }}
                 >
-                  爱的延续 · 沪ICP备2026020925号-1
+                  家有所爱 · 沪ICP备2026020925号-1
                 </div>
               </div>
             </div>
@@ -400,7 +400,7 @@ function getTemplateConfig(t: Template): TemplateConfig {
       subtitle: '#92400e',
       titleText: '把爱, 写进一份文书',
       subtitleText: '系统化生成 · 专业资产规划人员审核 · ¥19.9 起',
-      mainLines: ['爱的延续', '让财富安心传承', '一份清晰的遗嘱', '是给家人最后的礼物'],
+      mainLines: ['家有所爱', '让财富安心传承', '一份清晰的遗嘱', '是给家人最后的礼物'],
     };
   }
   if (t === 'pro') {

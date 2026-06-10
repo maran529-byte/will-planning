@@ -3,7 +3,7 @@ import LegalFooter from '@/components/LegalFooter';
 
 export const metadata: Metadata = {
   title: '服务条款',
-  description: '爱的延续 (aiwill-planner) 服务条款. 使用平台前请仔细阅读.',
+  description: '家有所爱 (aiwill-planner) 服务条款. 使用平台前请仔细阅读.',
 };
 
 export default function TermsPage() {
@@ -25,11 +25,11 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-slate-800 mt-6 mb-3">一、服务内容</h2>
-            <p>「爱的延续」(aiwill-planner) 提供以下服务:</p>
+            <p>「家有所爱」(aiwill-planner) 提供以下服务:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>系统化的资产规划问卷与文书生成参考</li>
               <li>专业资产规划人员咨询对接 (用户支付后由专业资产规划人员主动联系)</li>
-              <li>微信公众号内「爱的延续」(wxid: 30fe5cd917eb2e7a) 的客服与运营消息</li>
+              <li>微信公众号内「家有所爱」(wxid: 30fe5cd917eb2e7a) 的客服与运营消息</li>
               <li>博主分销计划 (用户通过推广链接购买获得佣金)</li>
             </ul>
           </section>
@@ -73,7 +73,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-slate-800 mt-6 mb-3">四、知识产权</h2>
-            <p>本平台的所有内容 (含 系统化起草的文书模板, UI, 文案, 商标) 著作权归「爱的延续工作室」所有.</p>
+            <p>本平台的所有内容 (含 系统化起草的文书模板, UI, 文案, 商标) 著作权归「家有所爱工作室」所有.</p>
             <p>您通过本平台生成的文书, 著作权归您本人所有. 您可自由修改, 使用, 销毁.</p>
             <p>未经书面许可, 不得复制, 传播, 销售本平台的内容.</p>
           </section>
@@ -109,7 +109,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-slate-800 mt-6 mb-3">八、联系我们</h2>
             <ul className="list-disc pl-6 space-y-1">
-              <li>微信公众号: 爱的延续 (微信号 30fe5cd917eb2e7a)</li>
+              <li>微信公众号: 家有所爱 (微信号 30fe5cd917eb2e7a)</li>
               <li>客服邮箱: service@aiwill-planner.cn</li>
               <li>法务邮箱: legal@aiwill-planner.cn</li>
             </ul>

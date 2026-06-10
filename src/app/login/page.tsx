@@ -16,8 +16,8 @@ import { LoginForm } from './LoginForm';
 import { BrandLogo } from '@/components/BrandLogo';
 
 export const metadata: Metadata = {
-  title: '登录 | 爱的延续',
-  description: '登录爱的延续, 管理您的文书草稿、订单与博主推广',
+  title: '登录 | 家有所爱',
+  description: '登录家有所爱, 管理您的文书草稿、订单与博主推广',
 };
 
 interface PageProps {

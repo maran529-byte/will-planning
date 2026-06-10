@@ -18,8 +18,8 @@ import { RegisterForm } from './RegisterForm';
 import { BrandLogo } from '@/components/BrandLogo';
 
 export const metadata: Metadata = {
-  title: '注册 | 爱的延续',
-  description: '免费注册爱的延续账号, 开始管理您的法律文书',
+  title: '注册 | 家有所爱',
+  description: '免费注册家有所爱账号, 开始管理您的法律文书',
 };
 
 interface PageProps {

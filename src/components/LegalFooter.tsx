@@ -3,7 +3,7 @@ import WeChatFollow from "./WeChatFollow";
 import { BrandLogo } from "./BrandLogo";
 
 const H5_SITE = "https://h5.aiwill-planner.cn";
-const MP_NAME = "爱的延续";
+const MP_NAME = "家有所爱";
 const MP_SEARCH_KEYWORD = "aiwill-planner";
 
 /**
@@ -91,9 +91,9 @@ export default function LegalFooter() {
             <span className="mx-2" aria-hidden>|</span>
             <Link href="/terms" className="hover:text-slate-300">服务条款</Link>
             <span className="mx-2" aria-hidden>|</span>
-            爱的延续工作室 · 上海市
+            家有所爱工作室 · 上海市
             <span className="mx-2" aria-hidden>|</span>
-            © 2026 爱的延续
+            © 2026 家有所爱
           </p>
         </div>
       </div>

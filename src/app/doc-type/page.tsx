@@ -27,7 +27,7 @@ import type { Metadata } from 'next';
 import { DOCUMENT_TYPES, COLOR_CLASSES } from '@/lib/document-types';
 
 export const metadata: Metadata = {
-  title: '选择文书类型 · 婚姻财产规划 | 爱的延续',
+  title: '选择文书类型 · 婚姻财产规划 | 家有所爱',
   description: '婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承, 6 类家庭法律文书, ¥19.9 起, 10 分钟完成',
 };
 
@@ -182,7 +182,7 @@ export default async function DocTypePage({ searchParams }: PageProps) {
             全部根据《中华人民共和国民法典》生成专业文书模板, ¥19.9 起。
             复杂情况 (跨境资产 / 股权设计 / 家族信托) 可选 ¥999 专家版,
             资产规划专业人士 1 对 1 视频审核。
-            关注公众号 <code className="px-1.5 py-0.5 bg-white rounded text-xs">爱的延续</code> 获取新功能通知。
+            关注公众号 <code className="px-1.5 py-0.5 bg-white rounded text-xs">家有所爱</code> 获取新功能通知。
           </p>
         </div>
 

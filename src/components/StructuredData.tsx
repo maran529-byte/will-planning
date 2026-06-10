@@ -13,7 +13,7 @@
  */
 
 const BASE_URL = 'https://aiwill-planner.cn';
-const ORG_NAME = '爱的延续工作室';
+const ORG_NAME = '家有所爱工作室';
 const ORG_NAME_EN = 'aiwill-planner';
 
 interface BaseProps {

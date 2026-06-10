@@ -48,7 +48,7 @@ export default async function DashboardPage() {
             <span aria-hidden>👋 </span>您好, {user.displayName || user.email.split('@')[0]}
           </h1>
           <p className="text-amber-50 text-sm sm:text-base leading-relaxed-cn">
-            欢迎回到爱的延续 · 您可以管理文书草稿、订单和博主推广
+            欢迎回到家有所爱 · 您可以管理文书草稿、订单和博主推广
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
             <span

@@ -7,8 +7,8 @@ import type { MetadataRoute } from 'next';
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: '爱的延续 · 智能资产规划',
-    short_name: '爱的延续',
+    name: '家有所爱 · 智能资产规划',
+    short_name: '家有所爱',
     description: '系统化生成符合中国《民法典》的遗嘱与资产规划文书, 资产规划专业人士兜底审核',
     start_url: '/',
     display: 'standalone',

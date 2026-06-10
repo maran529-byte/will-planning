@@ -1,6 +1,6 @@
 # aiwill-planner · P0 模块 QA 验证报告 (QA Report)
 
-> 项目：爱的延续 · AI 人生规划平台 (aiwill-planner)
+> 项目：家有所爱 · AI 人生规划平台 (aiwill-planner)
 > 文档版本：v1.0
 > 编制日期：2026-06-02
 > 编制者：QA Engineer (Sub-Agent)

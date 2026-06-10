@@ -4,7 +4,7 @@ import { BrandLogo } from '@/components/BrandLogo';
 
 export const metadata: Metadata = {
   title: '关于我们',
-  description: '爱的延续 (aiwill-planner) 团队介绍. 我们是谁, 我们为什么做这件事.',
+  description: '家有所爱 (aiwill-planner) 团队介绍. 我们是谁, 我们为什么做这件事.',
 };
 
 export default function AboutPage() {
@@ -90,7 +90,7 @@ export default function AboutPage() {
               </li>
               <li>
                 <span className="text-xs text-amber-700 font-mono">2026-04</span>
-                <p className="text-sm">微信公众号「爱的延续」注册 (wxid: 30fe5cd917eb2e7a)</p>
+                <p className="text-sm">微信公众号「家有所爱」注册 (wxid: 30fe5cd917eb2e7a)</p>
               </li>
               <li>
                 <span className="text-xs text-amber-700 font-mono">2026-05</span>
@@ -108,7 +108,7 @@ export default function AboutPage() {
             <p className="text-sm text-amber-800 mb-3">商务合作 / 专业资产规划人员加盟 / 媒体报道, 欢迎联系</p>
             <div className="text-sm text-amber-900 space-y-1">
               <p>📧 邮箱: hello@aiwill-planner.cn</p>
-              <p>💬 微信公众号: 爱的延续</p>
+              <p>💬 微信公众号: 家有所爱</p>
               <p>📍 注册地: 上海市</p>
             </div>
           </section>

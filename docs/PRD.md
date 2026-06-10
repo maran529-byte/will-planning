@@ -1,6 +1,6 @@
 # aiwill-planner 产品需求文档 (PRD)
 
-> 产品名称：**爱的延续 · AI 人生规划平台**（aiwill-planner）
+> 产品名称：**家有所爱 · AI 人生规划平台**（aiwill-planner）
 > 文档版本：v1.0
 > 编制日期：2026-06-02
 > 编制者：Product Designer

@@ -3,7 +3,7 @@ import LegalFooter from '@/components/LegalFooter';
 
 export const metadata: Metadata = {
   title: '隐私政策',
-  description: '爱的延续 (aiwill-planner) 隐私政策. 详细说明我们如何收集, 使用, 保护您的个人信息.',
+  description: '家有所爱 (aiwill-planner) 隐私政策. 详细说明我们如何收集, 使用, 保护您的个人信息.',
 };
 
 export default function PrivacyPage() {
@@ -17,8 +17,8 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-slate-800 mt-6 mb-3">一、我们是谁</h2>
             <p>
-              「爱的延续」(域名: aiwill-planner.cn, 以下简称「我们」或「本平台」) 由
-              <strong>爱的延续工作室</strong>(注册地: 上海市) 运营.
+              「家有所爱」(域名: aiwill-planner.cn, 以下简称「我们」或「本平台」) 由
+              <strong>家有所爱工作室</strong>(注册地: 上海市) 运营.
               我们提供基于系统化的资产规划与遗嘱文书生成参考服务.
             </p>
             <p>本隐私政策依据《中华人民共和国个人信息保护法》《网络安全法》《数据安全法》制定, 适用于您访问和使用本平台的所有行为.</p>
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-slate-800 mt-6 mb-3">九、联系我们</h2>
             <p>如对本政策有疑问, 或需行使您的权利, 请通过以下方式联系:</p>
             <ul className="list-disc pl-6 space-y-1">
-              <li>微信: 关注公众号「爱的延续」, 发送「客服」</li>
+              <li>微信: 关注公众号「家有所爱」, 发送「客服」</li>
               <li>邮箱: privacy@aiwill-planner.cn</li>
               <li>地址: 上海市 (具体地址通过客服索取)</li>
             </ul>

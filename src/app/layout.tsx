@@ -14,10 +14,10 @@ export const metadata: Metadata = {
   //   - 主标题从"智能资产规划与遗嘱生成" → "婚姻财产与资产规划智能平台"
   //   - 关键词从"遗嘱/数字遗产/继承规划" → "婚姻协议/婚内财产/离婚/抚养/赠与"
   //   - description 措辞改为"婚前/婚内/离婚/抚养/赠与" 5 类主打 + 传承规划辅助
-  //   - 品牌名"爱的延续" 保留 (商标/公众号已用, 不轻易动)
+  //   - 品牌名: 改版 v7 (2026-06-10) 由 "爱的延续" 改为 "家有所爱", 公众号待手动重命名
   title: {
-    default: "爱的延续 · 婚姻财产与资产规划智能平台",
-    template: "%s | 爱的延续",
+    default: "家有所爱 · 婚姻财产与资产规划智能平台",
+    template: "%s | 家有所爱",
   },
   description:
     "我们的模板 10 分钟帮您整理好婚姻协议、婚内财产、离婚协议、子女抚养、赠与等家庭法律文书。¥19.9 起, 资产规划专业人士在线审核, 让家庭财产清晰, 婚姻安稳。",
@@ -34,29 +34,29 @@ export const metadata: Metadata = {
     "在线协议生成",
     "资产规划专业人士",
   ],
-  authors: [{ name: "爱的延续工作室" }],
-  creator: "爱的延续工作室",
-  publisher: "爱的延续工作室",
+  authors: [{ name: "家有所爱工作室" }],
+  creator: "家有所爱工作室",
+  publisher: "家有所爱工作室",
   robots: "index, follow",
   openGraph: {
-    title: "爱的延续 · 婚姻财产与资产规划智能平台",
+    title: "家有所爱 · 婚姻财产与资产规划智能平台",
     description:
       "系统化问卷 + 资产规划专业人士审核, 婚前/婚内/离婚/抚养/赠与 5 类家庭法律文书, ¥19.9 起。",
     type: "website",
     locale: "zh_CN",
-    siteName: "爱的延续",
+    siteName: "家有所爱",
     images: [
       {
         url: "/og-default.png",
         width: 1200,
         height: 630,
-        alt: "爱的延续 · 把家庭财产讲清楚",
+        alt: "家有所爱 · 把家庭财产讲清楚",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "爱的延续 · 婚姻财产与资产规划智能平台",
+    title: "家有所爱 · 婚姻财产与资产规划智能平台",
     description: "婚前/婚内/离婚/抚养/赠与 5 类家庭法律文书, ¥19.9 起",
     images: ["/og-default.png"],
   },

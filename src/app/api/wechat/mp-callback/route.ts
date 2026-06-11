@@ -187,7 +187,7 @@ function handleTextContent(msg: WeChatRecvMessage, content: string): string {
   if (lower.includes('人工') || lower.includes('客服') || lower.includes('kefu')) {
     return buildTextReply(
       msg,
-      '工作时间 9:00-21:00,客服微信号: aiwill-cs\n紧急问题请邮件至 support@aiwill-planner.cn'
+      '工作时间 9:00-21:00,公众号「家有所爱」内直接回复消息即可\n紧急问题请邮件至 support@aiwill-planner.cn'
     );
   }
   if (lower.includes('绑定') || lower.includes('bind')) {
@@ -211,7 +211,7 @@ function handleMenuClick(msg: WeChatRecvMessage, key: string): string {
     case 'V1001_HUMAN_SERVICE':
       return buildTextReply(
         msg,
-        '工作时间 9:00-21:00,客服微信号: aiwill-cs\n' +
+        '工作时间 9:00-21:00,公众号「家有所爱」内直接回复消息即可\n' +
         '紧急问题请邮件至 support@aiwill-planner.cn\n' +
         '回复【订单】查询订单 / 回复【绑定】绑定账号'
       );

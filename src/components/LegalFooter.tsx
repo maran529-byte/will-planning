@@ -4,7 +4,7 @@ import { BrandLogo } from "./BrandLogo";
 
 const H5_SITE = "https://h5.aiwill-planner.cn";
 const MP_NAME = "家有所爱";
-const MP_SEARCH_KEYWORD = "aiwill-planner";
+const MP_SEARCH_KEYWORD = "家有所爱";
 
 /**
  * LegalFooter - 站点底部 (法律合规 + ICP 备案 + 导航)

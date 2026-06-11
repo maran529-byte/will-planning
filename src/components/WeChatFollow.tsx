@@ -15,7 +15,7 @@
 export default function WeChatFollow({
   variant = 'inline',
   mpName = '家有所爱',
-  mpSearchKeyword = 'aiwill-planner',
+  mpSearchKeyword = '家有所爱',
 }: {
   variant?: 'inline' | 'card' | 'compact';
   mpName?: string;

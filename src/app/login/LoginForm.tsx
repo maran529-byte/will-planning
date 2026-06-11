@@ -109,7 +109,7 @@ export function LoginForm({ returnTo }: LoginFormProps) {
         <button
           type="button"
           onClick={() => {
-            alert('忘记密码功能开发中, 请联系客服微信 wxid_xxx');
+            alert('忘记密码功能开发中, 请关注微信公众号「家有所爱」后联系客服');
           }}
           className="text-xs text-slate-500 hover:text-amber-600"
         >

@@ -96,7 +96,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>知情权</strong>: 了解我们如何处理您的信息 (本政策)</li>
               <li><strong>访问权</strong>: 通过 /orders 页面查看您的订单与文书</li>
-              <li><strong>更正权</strong>: 微信联系客服修改错误信息</li>
+              <li><strong>更正权</strong>: 关注公众号「家有所爱」后联系客服修改错误信息</li>
               <li><strong>删除权</strong>: 注销账户时删除您的全部数据 (法定保留除外)</li>
               <li><strong>撤回授权</strong>: 取消关注公众号后, 我们将停止主动推送</li>
             </ul>

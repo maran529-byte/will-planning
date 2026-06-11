@@ -185,15 +185,7 @@ export default async function AffiliatePage() {
 
         {/* 客服 */}
         <div className="mt-10 text-center text-sm text-slate-500 leading-relaxed-cn">
-          有疑问? 微信联系客服 <span className="font-mono text-slate-700 tabular-nums">wxid_xxx</span>
-          {' '}(或邮件{' '}
-          <a
-            href="mailto:affiliate@aiwill-planner.cn"
-            className="text-amber-600 hover:text-amber-700 underline"
-          >
-            affiliate@aiwill-planner.cn
-          </a>
-          )
+          有疑问? 关注微信公众号 <span className="font-semibold text-slate-700">「家有所爱」</span>, 微信搜 <code className="px-1.5 py-0.5 rounded bg-slate-100 text-xs">家有所爱</code>
         </div>
       </div>
     </div>

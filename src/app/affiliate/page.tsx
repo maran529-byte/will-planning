@@ -19,11 +19,29 @@
  *  - 申请表单 (姓名/手机/简介, 需登录)
  *  - 当前申请状态 (如已申请)
  */
+import type { Metadata } from 'next';
 import { requireUser } from '@/lib/user-auth';
 import { getBloggerByUserId } from '@/lib/affiliate';
 import { ApplyForm } from './ApplyForm';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: '博主推广计划 - 家有所爱高佣联盟',
+  description: '家有所爱博主推广计划: 基础佣金 10% (¥999→返 ¥99.9), 高单价套餐佣金 15% (¥4699→返 ¥704.85), T+7 结算可提现. 30 天归因窗口, 永久被动收入.',
+  keywords: ['博主推广', '联盟营销', '家有所爱', '分销计划', '高佣联盟', '副业赚钱', '被动收入', 'affiliate program'],
+  openGraph: {
+    title: '家有所爱博主推广计划 - 10%-15% 佣金, T+7 结算',
+    description: '推广家有所爱智能文书服务, 享 10%-15% 长期佣金, 7 天防退款期后自动可提现. 最低 ¥10 提现, 1-3 工作日到账.',
+    url: 'https://aiwill-planner.cn/affiliate',
+    siteName: '家有所爱',
+    locale: 'zh_CN',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://aiwill-planner.cn/affiliate',
+  },
+};
 
 export default async function AffiliatePage() {
   const auth = await requireUser();

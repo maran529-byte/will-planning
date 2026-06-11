@@ -19,46 +19,52 @@
     <xhtml:link rel="alternate" hreflang="zh-CN" media="only screen and (max-width: 768px)" href="https://h5.aiwill-planner.cn/doc-type"/>
   </url>
   <url>
-    <loc>https://aiwill-planner.cn/questionnaire</loc>
-    <lastmod>2026-06-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://aiwill-planner.cn/about</loc>
     <lastmod>2026-06-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://aiwill-planner.cn/affiliate</loc>
-    <lastmod>2026-06-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://aiwill-planner.cn/faq</loc>
-    <lastmod>2026-06-10</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://aiwill-planner.cn/guide</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aiwill-planner.cn/tutorial</loc>
-    <lastmod>2026-06-10</lastmod>
+    <loc>https://aiwill-planner.cn/guide/pre-marriage</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://aiwill-planner.cn/compare</loc>
-    <lastmod>2026-06-10</lastmod>
+    <loc>https://aiwill-planner.cn/guide/during-marriage</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://aiwill-planner.cn/tool</loc>
-    <lastmod>2026-06-10</lastmod>
+    <loc>https://aiwill-planner.cn/guide/divorce</loc>
+    <lastmod>2026-06-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://aiwill-planner.cn/guide/child-custody</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://aiwill-planner.cn/guide/gift</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://aiwill-planner.cn/guide/inheritance</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://aiwill-planner.cn/privacy</loc>

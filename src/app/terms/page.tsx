@@ -2,8 +2,20 @@ import type { Metadata } from 'next';
 import LegalFooter from '@/components/LegalFooter';
 
 export const metadata: Metadata = {
-  title: '服务条款',
-  description: '家有所爱 服务条款. 使用平台前请仔细阅读.',
+  title: '服务条款 - 家有所爱用户协议',
+  description: '家有所爱服务条款: 套餐价格 (智能版 ¥19.9 / 专家版 ¥999), 退款规则, 博主反作弊条款, 免责声明. 使用前请仔细阅读.',
+  keywords: ['服务条款', '用户协议', '家有所爱', '退款政策', '博主分销条款', '免责声明'],
+  openGraph: {
+    title: '家有所爱服务条款 - 套餐 / 退款 / 博主规则',
+    description: '明确披露套餐价格, 退款政策, 博主反作弊条款, 免责声明. 不替代专业法律咨询.',
+    url: 'https://aiwill-planner.cn/terms',
+    siteName: '家有所爱',
+    locale: 'zh_CN',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://aiwill-planner.cn/terms',
+  },
 };
 
 export default function TermsPage() {

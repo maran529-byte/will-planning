@@ -3,8 +3,20 @@ import LegalFooter from '@/components/LegalFooter';
 import { BrandLogo } from '@/components/BrandLogo';
 
 export const metadata: Metadata = {
-  title: '关于我们',
-  description: '家有所爱 团队介绍. 我们是谁, 我们为什么做这件事.',
+  title: '关于我们 - 家有所爱智能资产规划团队',
+  description: '家有所爱 团队介绍: 让立遗嘱 / 婚姻财产规划从万元降到百元, 系统化模板 + 资产规划专业人士兜底审核, 已 ICP 备案, 数据不出境.',
+  keywords: ['关于我们', '家有所爱', 'aiwill-planner', '智能遗嘱', '资产规划团队', '家庭法律文书', 'ICP 备案'],
+  openGraph: {
+    title: '关于家有所爱 - 让爱与财富安心传承',
+    description: '我们用系统化模板 + 互联网, 把「立遗嘱」这件事的门槛从「万元 + 数周」降到「百元 + 数小时」. 已获 ICP 备案, 数据存储于中国大陆腾讯云.',
+    url: 'https://aiwill-planner.cn/about',
+    siteName: '家有所爱',
+    locale: 'zh_CN',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://aiwill-planner.cn/about',
+  },
 };
 
 export default function AboutPage() {

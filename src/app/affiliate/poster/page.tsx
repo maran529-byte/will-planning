@@ -6,6 +6,18 @@ import PosterEditor from './PosterEditor';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: '推广海报',
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
+
 export default async function PosterPage() {
   const auth = await requireAuth();
   if (!auth.authenticated || !auth.user) {

@@ -78,8 +78,8 @@ function buildOrganization() {
       availableLanguage: ['zh-Hans'],
     },
     sameAs: [
-      // 微信公众号 (无标准 URL, 通常填主页)
-      `${BASE_URL}`,
+      // 微信公众号 (公众号无标准 URL 协议, 此处留空避免 Google 富摘要被拒)
+      // 如未来开通官方微博/知乎/B站, 在此追加
     ],
   };
 }
@@ -91,15 +91,8 @@ function buildWebSite() {
     name: ORG_NAME,
     url: BASE_URL,
     inLanguage: 'zh-CN',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${BASE_URL}/search?q={search_term_string}`,
-      },
-      // 注: 当前无搜索功能, 注释掉 query-input
-      // 'query-input': 'required name=search_term_string'
-    },
+    // 注: 当前无 /search 页面, 移除 SearchAction 避免指向 404
+    // 未来若开放站内搜索, 在此追加 potentialAction
   };
 }
 

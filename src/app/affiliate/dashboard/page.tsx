@@ -20,6 +20,18 @@ import { DashboardContent } from './DashboardContent';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: '博主工作台',
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
+
 export default async function AffiliateDashboardPage() {
   const auth = await requireUser();
   const user = auth.authenticated && auth.user

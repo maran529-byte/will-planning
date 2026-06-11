@@ -26,6 +26,18 @@ import { LogoutButton } from './LogoutButton';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: '我的账户',
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
+
 export default async function DashboardPage() {
   const auth = await requireUser();
   if (!auth.authenticated || !auth.user) {

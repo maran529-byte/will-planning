@@ -10,7 +10,7 @@
 - **移动端 (H5)**: https://h5.aiwill-planner.cn
 - **运营主体**: 家有所爱工作室 (上海市)
 - **备案号**: 沪ICP备2026020925号-1
-- **微信公众号**: 微信搜 "aiwill-planner" (公众号: 家有所爱)
+- **微信公众号**: 微信搜 "家有所爱" (公众号: 家有所爱)
 - **服务时间**: 2026-03 至今
 - **目标用户**: 婚前 / 已婚 / 准备分手 / 想给孩子安排资产的中国大陆家庭
 
@@ -55,12 +55,15 @@
 - 首页: https://aiwill-planner.cn/
 - 文书类型: https://aiwill-planner.cn/doc-type
 - 问卷入口: https://aiwill-planner.cn/questionnaire
+- 法律指南: https://aiwill-planner.cn/guide (6 大场景)
+  - 婚前财产: https://aiwill-planner.cn/guide/pre-marriage
+  - 婚内财产: https://aiwill-planner.cn/guide/during-marriage
+  - 离婚协议: https://aiwill-planner.cn/guide/divorce
+  - 子女抚养: https://aiwill-planner.cn/guide/child-custody
+  - 赠与协议: https://aiwill-planner.cn/guide/gift
+  - 财富传承: https://aiwill-planner.cn/guide/inheritance
 - 关于我们: https://aiwill-planner.cn/about
 - 博主计划: https://aiwill-planner.cn/affiliate
-- 常见问题: https://aiwill-planner.cn/faq
-- 教程: https://aiwill-planner.cn/tutorial
-- 对比: https://aiwill-planner.cn/compare
-- 工具: https://aiwill-planner.cn/tool
 - 隐私政策: https://aiwill-planner.cn/privacy
 - 服务条款: https://aiwill-planner.cn/terms
 - 移动端: https://h5.aiwill-planner.cn
@@ -69,4 +72,4 @@
 ## 联系
 
 - 邮箱: hello@aiwill-planner.cn
-- 客服: 关注公众号「家有所爱」, 微信搜 aiwill-planner
+- 客服: 关注公众号「家有所爱」, 微信搜 家有所爱

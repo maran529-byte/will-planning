@@ -39,7 +39,8 @@ export default function LegalFooter() {
         >
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-slate-300">
             <Link href="/" className="hover:text-white transition">首页</Link>
-            <Link href="/questionnaire" className="hover:text-white transition">开始</Link>
+            <Link href="/doc-type" className="hover:text-white transition">文书类型</Link>
+            <Link href="/guide" className="hover:text-white transition">法律指南</Link>
             <Link href="/account" className="hover:text-white transition">我的账户</Link>
             <Link href="/affiliate" className="hover:text-white transition">博主计划</Link>
             <Link href="/about" className="hover:text-white transition">关于我们</Link>

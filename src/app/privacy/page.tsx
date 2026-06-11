@@ -2,8 +2,20 @@ import type { Metadata } from 'next';
 import LegalFooter from '@/components/LegalFooter';
 
 export const metadata: Metadata = {
-  title: '隐私政策',
-  description: '家有所爱 隐私政策. 详细说明我们如何收集, 使用, 保护您的个人信息.',
+  title: '隐私政策 - 家有所爱个人信息处理规则',
+  description: '家有所爱隐私政策: 详细说明我们如何收集 / 使用 / 保护您的个人信息, 数据存储于中国大陆腾讯云, 符合《个人信息保护法》《数据安全法》, 30 天可申请删除.',
+  keywords: ['隐私政策', '个人信息保护', '家有所爱', '数据安全', '隐私协议', 'PII 加密'],
+  openGraph: {
+    title: '家有所爱隐私政策 - 您的个人信息, 我们这样保护',
+    description: '数据存储于中国大陆, PII 字段 AES-256 加密, 30 天可申请彻底删除, 完整披露第三方共享清单.',
+    url: 'https://aiwill-planner.cn/privacy',
+    siteName: '家有所爱',
+    locale: 'zh_CN',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://aiwill-planner.cn/privacy',
+  },
 };
 
 export default function PrivacyPage() {

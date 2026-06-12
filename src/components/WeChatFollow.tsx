@@ -43,26 +43,12 @@ export default function WeChatFollow({
       <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-6 my-8">
         <div className="flex items-start gap-5">
           <div className="flex-shrink-0">
-            {/* 二维码占位 SVG (120x120) - 上线前替换为 /public/wechat-mp-qr.png */}
-            <div
-              className="w-28 h-28 bg-white rounded-lg flex items-center justify-center border-2 border-emerald-200 shadow-sm"
-              role="img"
-              aria-label="公众号二维码"
-            >
-              <div className="grid grid-cols-7 gap-px p-2 w-full h-full">
-                {Array.from({ length: 49 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={
-                      // 简化版伪二维码图样 (非真实可扫, 仅占位)
-                      [0, 1, 2, 3, 4, 5, 6, 7, 8, 13, 14, 21, 22, 27, 28, 29, 35, 36, 42, 43, 44, 45, 46, 47, 48].includes(i)
-                        ? 'bg-slate-800'
-                        : 'bg-white'
-                    }
-                  />
-                ))}
-              </div>
-            </div>
+            {/* 公众号推广物料图片 */}
+            <img
+              src="/wechat-mp-qr.png"
+              alt="扫码关注公众号「家有所爱」"
+              className="w-28 h-28 object-contain rounded-lg"
+            />
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">

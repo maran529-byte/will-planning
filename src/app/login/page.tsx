@@ -14,6 +14,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LoginForm } from './LoginForm';
 import { BrandLogo } from '@/components/BrandLogo';
+import WeChatFollow from '@/components/WeChatFollow';
+
+const MP_NAME = '家有所爱';
+const MP_SEARCH_KEYWORD = '家有所爱';
 
 export const metadata: Metadata = {
   title: '登录 | 家有所爱',
@@ -60,8 +64,11 @@ export default async function LoginPage({ searchParams }: PageProps) {
 
           <LoginForm returnTo={returnTo} />
 
-          {/* 切换到注册 */}
-          <div className="mt-6 pt-6 border-t border-slate-100 text-center text-sm text-slate-600">
+            {/* 公众号关注引导 */}
+            <WeChatFollow variant="card" mpName={MP_NAME} mpSearchKeyword={MP_SEARCH_KEYWORD} />
+
+            {/* 切换到注册 */}
+            <div className="mt-6 pt-6 border-t border-slate-100 text-center text-sm text-slate-600">
             还没有账号?{' '}
             <Link
               href={`/register${returnTo ? `?return=${encodeURIComponent(returnTo)}` : ''}`}

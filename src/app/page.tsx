@@ -56,7 +56,7 @@ export default async function HomePage() {
               <>
                 <Link
                   href="/login"
-                  className="text-slate-600 hover:text-amber-600 text-sm font-medium transition px-3 py-2 hidden sm:inline"
+                  className="text-slate-600 hover:text-amber-600 text-sm font-medium transition px-3 py-2"
                 >
                   登录
                 </Link>

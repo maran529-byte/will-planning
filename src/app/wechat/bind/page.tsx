@@ -5,7 +5,7 @@
  * 路径: /wechat/bind
  *
  * 改版 v2 (2026-06-07):
- *   - 跳过公众号 OAuth (订阅号 wx30fe5cd917eb2e7a 不支持 snsapi_userinfo)
+ *   - 已认证服务号支持 snsapi_userinfo (需用户授权)
  *   - 客户手动输入 4-32 位访客编号, 服务端写入 HTTP-only cookie wx_openid
  *   - 编号作为用户在系统中的唯一标识, 用于订单隔离、博主归因等
  *   - 同一编号绑定的所有订单/草稿可在 /orders 查看

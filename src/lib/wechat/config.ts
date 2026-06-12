@@ -1,14 +1,12 @@
 /**
- * 微信公众号 (Subscription Account) 配置
+ * 微信公众号 (Service Account / 已认证订阅号) 配置
  * @see docs/公众号配置清单.md
- * @see aiwill-planner_公众号集成架构_v1.md §11
  *
- * ⚠️ 安全: AppSecret 仅在 HK Vercel 后端 env 注入, 永不下发到前端
- * ⚠️ 之前的 AppSecret 已在聊天明文泄露, 务必在 mp.weixin.qq.com 重置
+ * ⚠️ 安全: AppSecret 仅在 Vercel env 注入, 永不下发到前端
  */
 
-// 公众号 (非认证订阅号) 凭证
-export const WECHAT_MP_APP_ID = process.env.WECHAT_MP_APP_ID || 'wx30fe5cd917eb2e7a';
+// 公众号 凭证
+export const WECHAT_MP_APP_ID = process.env.WECHAT_MP_APP_ID || 'wx77780599aa2a53ee';
 export const WECHAT_MP_APP_SECRET = process.env.WECHAT_MP_APP_SECRET || '';  // ⚠️ 重置后填入
 
 // 公众号服务器配置 (URL 验证 + 消息加解密)

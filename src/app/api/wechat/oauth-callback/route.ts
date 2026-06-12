@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { exchangeCode, getUserInfo } from '@/lib/wechat/oauth';
 import { supabaseAdmin } from '@/lib/supabase-server';
+import { setOpenidCookie } from '@/lib/cookie';
 
 // ---------- Schemas ----------
 
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 5. upsert 到 Supabase
+  // 6. upsert 到 Supabase
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'supabase_not_configured' }, { status: 503 });
   }
@@ -92,7 +93,7 @@ export async function POST(req: NextRequest) {
     upsertData.display_name = userInfo.nickname;
   }
 
-  // 6. 用 auth.users 关联: 先查是否已有同 openid 的 user
+  // 7. 用 auth.users 关联: 先查是否已有同 openid 的 user
   const { data: existing } = await supabaseAdmin
     .from('users')
     .select('id, openid, display_name, wechat_avatar_url')
@@ -128,7 +129,10 @@ export async function POST(req: NextRequest) {
       .eq('id', userId);
   }
 
-  // 7. 读最新行
+  // 8. 写入 HTTP-only cookie (关键:让后续请求能识别用户)
+  await setOpenidCookie(token.openid);
+
+  // 9. 读最新行
   const { data: finalUser } = await supabaseAdmin
     .from('users')
     .select('id, openid, display_name, wechat_nickname, wechat_avatar_url')

@@ -38,19 +38,19 @@ export function WechatLoginButton({
 }: WechatLoginButtonProps) {
   const [loading, setLoading] = useState(false);
 
-  const handleClick = () => {
+  const handleClick = async () => {
     try {
       setLoading(true);
 
       // 1. 生成 state
       const state = generateState();
 
-      // 2. 存 sessionStorage（旧的兼容方式，但主要改用 cookie）
-      sessionStorage.setItem('wechat_oauth_state', state);
-      const returnTo = '/orders';
-      if (returnTo) {
-        sessionStorage.setItem('wechat_oauth_return', returnTo);
-      }
+      // 2. 预存 state + returnTo 到 HTTP-only cookie（供服务端 callback 读取）
+      await fetch('/api/wechat/prepare-oauth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state, returnTo }),
+      });
 
       // 3. 生成微信授权 URL 并跳转
       // 微信内置浏览器会直接拉起授权（不需要拉起外部浏览器）

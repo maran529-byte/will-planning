@@ -28,6 +28,29 @@ function WechatCallbackInner() {
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   useEffect(() => {
+    // 检查是否是 API 重定向回来的结果
+    const result = searchParams.get('result');
+    const message = searchParams.get('message');
+
+    if (result === 'ok') {
+      // 来自 API 重定向的成功
+      sessionStorage.removeItem('wechat_oauth_state');
+      const returnTo = sessionStorage.getItem('wechat_oauth_return') || '/orders';
+      sessionStorage.removeItem('wechat_oauth_return');
+      setStatus('success');
+      setTimeout(() => {
+        router.push(`/wechat/success?return=${encodeURIComponent(returnTo)}`);
+      }, 600);
+      return;
+    }
+
+    if (result === 'error') {
+      setStatus('error');
+      setErrorMsg(decodeURIComponent(message || '登录失败'));
+      return;
+    }
+
+    // 正常流程：直接从 URL 参数读取 code/state
     const code = searchParams.get('code');
     const state = searchParams.get('state');
     const expectedState = sessionStorage.getItem('wechat_oauth_state');
@@ -59,37 +82,12 @@ function WechatCallbackInner() {
     }
 
     // 调后端兑换
-    (async () => {
-      try {
-        const res = await fetch('/api/wechat/oauth-callback', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, state, expectedState }),
-        });
-
-        if (!res.ok) {
-          const err = (await res.json().catch(() => ({}))) as { message?: string };
-          throw new Error(err.message || `HTTP ${res.status}`);
-        }
-
-        await res.json();
-        // 清理 state
-        sessionStorage.removeItem('wechat_oauth_state');
-
-        // 跳成功页
-        const returnTo = sessionStorage.getItem('wechat_oauth_return') || '/orders';
-        sessionStorage.removeItem('wechat_oauth_return');
-
-        setStatus('success');
-        // 短暂展示成功态
-        setTimeout(() => {
-          router.push(`/wechat/success?return=${encodeURIComponent(returnTo)}`);
-        }, 600);
-      } catch (e: unknown) {
-        const message = e instanceof Error ? e.message : String(e);
-        setStatus('error');
-        setErrorMsg(message || '登录失败,请重试');
-      }
+    // 注意: WeChat 内置浏览器无法 fetch /api/... (network error)，
+    // 所以改用 window.location.href GET 重定向，浏览器直接导航到 API
+    // API 处理完后 302 重定向到 /wechat/success?result=...
+    (() => {
+      const apiUrl = `/api/wechat/oauth-callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}&expectedState=${encodeURIComponent(expectedState)}`;
+      window.location.href = apiUrl;
     })();
   }, [searchParams, router]);
 

@@ -45,14 +45,16 @@ export function WechatLoginButton({
       // 1. 生成 state
       const state = generateState();
 
-      // 2. 存 sessionStorage (回调时校验)
+      // 2. 存 sessionStorage（旧的兼容方式，但主要改用 cookie）
       sessionStorage.setItem('wechat_oauth_state', state);
+      const returnTo = '/orders';
       if (returnTo) {
         sessionStorage.setItem('wechat_oauth_return', returnTo);
       }
 
       // 3. 生成微信授权 URL 并跳转
       // 微信内置浏览器会直接拉起授权（不需要拉起外部浏览器）
+      // 注意: state 参数会在微信回调时原样返回，用于 CSRF 校验
       const authorizeUrl = buildAuthorizeUrl({ scope, state });
       window.location.href = authorizeUrl;
     } catch (e: unknown) {

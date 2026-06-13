@@ -14,6 +14,8 @@
 import { cookies } from 'next/headers';
 
 export const WX_OPENID_COOKIE = 'wx_openid';
+export const WX_OAUTH_STATE_COOKIE = 'wx_oauth_state';
+export const WX_OAUTH_RETURN_COOKIE = 'wx_oauth_return';
 
 export async function getOpenidFromCookie(): Promise<string | null> {
   const store = await cookies();
@@ -34,4 +36,42 @@ export async function setOpenidCookie(openid: string): Promise<void> {
 export async function clearOpenidCookie(): Promise<void> {
   const store = await cookies();
   store.delete(WX_OPENID_COOKIE);
+}
+
+/**
+ * 写入微信 OAuth state 到 cookie（用于服务端 callback 校验 CSRF）
+ * 短生命周期：5 分钟，与微信 code 有效期一致
+ */
+export async function setOauthStateCookie(state: string, returnTo: string): Promise<void> {
+  const store = await cookies();
+  store.set(WX_OAUTH_STATE_COOKIE, state, {
+    httpOnly: false, // callback 服务端需要读取
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 5, // 5 分钟
+    path: '/',
+  });
+  if (returnTo) {
+    store.set(WX_OAUTH_RETURN_COOKIE, returnTo, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 5,
+      path: '/',
+    });
+  }
+}
+
+export async function getOauthStateCookie(): Promise<{ state: string | null; returnTo: string | null }> {
+  const store = await cookies();
+  return {
+    state: store.get(WX_OAUTH_STATE_COOKIE)?.value ?? null,
+    returnTo: store.get(WX_OAUTH_RETURN_COOKIE)?.value ?? null,
+  };
+}
+
+export async function clearOauthStateCookie(): Promise<void> {
+  const store = await cookies();
+  store.delete(WX_OAUTH_STATE_COOKIE);
+  store.delete(WX_OAUTH_RETURN_COOKIE);
 }

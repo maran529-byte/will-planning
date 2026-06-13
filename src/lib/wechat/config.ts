@@ -29,7 +29,8 @@ export const H5_OAUTH_REDIRECT_URI = `${H5_BASE_URL}/wechat/callback`;
 export const WECHAT_API_BASE = (process.env.WECHAT_PROXY_URL?.replace(/\/$/, '') ||
   'https://api.weixin.qq.com') as string;
 // OAuth 授权 URL 由浏览器直接打开, 不走后端, 必须保持官方域名
-export const WECHAT_OAUTH_AUTHORIZE_URL = 'https://api.weixin.qq.com/connect/oauth2/authorize';
+// open.weixin.qq.com 是用户端授权入口（浏览器可见），api.weixin.qq.com 是服务端 API（浏览器访问白屏）
+export const WECHAT_OAUTH_AUTHORIZE_URL = 'https://open.weixin.qq.com/connect/oauth2/authorize';
 
 // 48h 客服消息窗口
 export const CS_MESSAGE_WINDOW_HOURS = 48;

@@ -150,17 +150,28 @@ export async function GET(req: NextRequest) {
   }
 
   const result = await handleOAuthCallback({ code, state, expectedState });
+  const body = await result.json();
 
-  // 如果失败，返回错误 JSON（浏览器会显示在当前页）
   if (result.status !== 200) {
-    const body = await result.json();
+    // 失败：返回一个 HTML，JS 跳转回 callback 页显示错误
     const msg = encodeURIComponent(body.message || '登录失败');
-    return NextResponse.redirect(`/wechat/callback?result=error&message=${msg}`, 302);
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>登录失败</title></head><body>
+<script>window.location.replace('/wechat/callback?result=error&message=${msg}');</script>
+<p>登录失败: ${body.message || '未知错误'}，正在跳转…</p></body></html>`;
+    return new Response(html, {
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      status: 200,
+    });
   }
 
-  // 成功：重定向到成功页（cookie 已在 handleOAuthCallback 中写入）
-  // 浏览器会自动携带 cookie 访问 /wechat/success
-  return NextResponse.redirect('/wechat/success?result=ok', 302);
+  // 成功：返回一个 HTML，JS 跳转回成功页（cookie 已在 handleOAuthCallback 中写入）
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>登录成功</title></head><body>
+<script>window.location.replace('/wechat/success?result=ok');</script>
+<p>登录成功，正在跳转…</p></body></html>`;
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    status: 200,
+  });
 }
 
 // ---------- POST handler ----------

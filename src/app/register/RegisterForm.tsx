@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { WechatLoginButton } from '@/components/Wechat/WechatLoginButton';
 
 interface RegisterFormProps {
   returnTo: string;
@@ -205,6 +206,17 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
       >
         {busy ? '注册中...' : '注册'}
       </button>
+
+      <div className="relative flex items-center justify-center my-4">
+        <div className="border-t border-slate-200 w-full" />
+        <span className="bg-white px-3 text-xs text-slate-400 absolute">或</span>
+      </div>
+
+      <WechatLoginButton
+        returnTo={returnTo}
+        className="w-full"
+        text="微信登录"
+      />
     </form>
   );
 }

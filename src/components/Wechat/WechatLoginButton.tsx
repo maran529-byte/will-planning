@@ -14,6 +14,7 @@
  */
 
 import { useState } from 'react';
+import { buildAuthorizeUrl } from '@/lib/wechat/oauth';
 
 export type WechatScope = 'snsapi_base' | 'snsapi_userinfo';
 
@@ -50,15 +51,10 @@ export function WechatLoginButton({
         sessionStorage.setItem('wechat_oauth_return', returnTo);
       }
 
-      // 3. 拼 URL (跳转 OAuth, 走 H5 的 /wechat/callback)
-      const params = new URLSearchParams({
-        scope,
-        state,
-      });
-      if (redirectUri) {
-        params.set('redirect_uri', redirectUri);
-      }
-      window.location.href = `/wechat/callback?${params.toString()}`;
+      // 3. 生成微信授权 URL 并跳转
+      // 微信内置浏览器会直接拉起授权（不需要拉起外部浏览器）
+      const authorizeUrl = buildAuthorizeUrl({ scope, state });
+      window.location.href = authorizeUrl;
     } catch (e: unknown) {
       setLoading(false);
       onError?.(e instanceof Error ? e : new Error(String(e)));

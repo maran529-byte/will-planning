@@ -231,6 +231,19 @@ export default function DivorceGuide() {
           <li><Link href="/guide/gift" className="text-amber-700 hover:underline">赠与协议</Link> (财产定向给子女)</li>
         </ul>
       </section>
+
+      <section>
+        <h2 className="text-2xl font-bold text-slate-800 mt-6 mb-3 leading-tight-cn">
+          九、写作教程索引
+        </h2>
+        <p>
+          想了解这类文书的完整写作规范、模板示例和签字要求？
+          {' '}
+          <Link href="/tutorial" className="text-amber-700 hover:underline font-medium">
+            查看家庭法律文书写作教程 →
+          </Link>
+        </p>
+      </section>
     </GuideArticle>
   );
 }

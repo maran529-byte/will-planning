@@ -7,9 +7,9 @@ import type { MetadataRoute } from 'next';
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: '家有所爱 · 智能资产规划',
+    name: '家有所爱 · 婚姻财产与资产规划',
     short_name: '家有所爱',
-    description: '系统化生成符合中国《民法典》的遗嘱与资产规划文书, 资产规划专业人士兜底审核',
+    description: '面向婚前 / 婚内 / 离婚 / 抚养 / 赠与 5 类家庭场景的智能文书平台, 资产规划专业人士兜底审核',
     start_url: '/',
     display: 'standalone',
     orientation: 'portrait',
@@ -22,13 +22,13 @@ export default function manifest(): MetadataRoute.Manifest {
         src: '/icon-192.png',
         sizes: '192x192',
         type: 'image/png',
-        purpose: 'any maskable',
+        purpose: 'maskable',
       },
       {
         src: '/icon-512.png',
         sizes: '512x512',
         type: 'image/png',
-        purpose: 'any maskable',
+        purpose: 'maskable',
       },
     ],
   };

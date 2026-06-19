@@ -64,7 +64,7 @@ function buildOrganization() {
     alternateName: ORG_NAME_EN,
     url: BASE_URL,
     logo: `${BASE_URL}/logo.png`,
-    description: '系统化生成符合中国《民法典》的遗嘱与资产规划文书, 资产规划专业人士兜底审核',
+    description: '面向婚前 / 婚内 / 离婚 / 抚养 / 赠与 5 类家庭场景的智能文书平台, 资产规划专业人士兜底审核',
     foundingDate: '2026-03',
     address: {
       '@type': 'PostalAddress',
@@ -126,7 +126,7 @@ function buildService(data?: Record<string, unknown>) {
         {
           '@type': 'Offer',
           name: '专家护航版',
-          description: '系统化文书 + 执业资产规划专业人士 1 对 1 审核 + 修改建议',
+          description: '系统化文书 + 资产规划专业人士 1 对 1 审核 + 修改建议',
           price: '999',
           priceCurrency: 'CNY',
           availability: 'https://schema.org/InStock',

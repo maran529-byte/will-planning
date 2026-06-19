@@ -72,9 +72,12 @@ export const metadata: Metadata = {
     apple: "/icon-192.png",
   },
   verification: {
-    // 百度站长 / Google Search Console 验证, 上线时填
-    // google: "xxx",
-    // baidu: "xxx",
+    // 百度站长验证通过 <meta name="baidu-site-verification"> 实现, 见下方 <head>
+    google: undefined,
+  },
+  other: {
+    // 百度站长验证 (Next.js 16 改用 other 字段, 避免 baidu 字段类型错误)
+    'baidu-site-verification': 'codeva-DtdsXaKMZd,codeva-e5pri3Sh3g',
   },
 };
 
@@ -96,6 +99,10 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <head>
+        <meta name="baidu-site-verification" content="codeva-DtdsXaKMZd" />
+        <meta name="baidu-site-verification" content="codeva-e5pri3Sh3g" />
+        <link rel="alternate" hrefLang="zh-CN" href="https://aiwill-planner.cn/" />
+        <link rel="alternate" hrefLang="zh-CN" media="only screen and (max-width: 768px)" href="https://h5.aiwill-planner.cn/" />
         <StructuredData type="organization" />
         <StructuredData type="website" />
       </head>

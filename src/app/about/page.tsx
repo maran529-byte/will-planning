@@ -1,148 +1,252 @@
-import type { Metadata } from 'next';
-import LegalFooter from '@/components/LegalFooter';
-import { BrandLogo } from '@/components/BrandLogo';
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '关于我们 - 家有所爱智能资产规划团队',
-  description: '家有所爱 团队介绍: 让立遗嘱 / 婚姻财产规划从万元降到百元, 系统化模板 + 资产规划专业人士兜底审核, 已 ICP 备案, 数据不出境.',
-  keywords: ['关于我们', '家有所爱', 'aiwill-planner', '智能遗嘱', '资产规划团队', '家庭法律文书', 'ICP 备案'],
+  title: '关于我们 - 家有所爱智能家庭财产规划平台',
+  description: '家有所爱是一家专注于婚前协议、婚内财产协议、离婚协议、子女抚养协议、赠与协议等家庭文书智能生成的综合家庭财产规划平台。我们致力于帮助中国家庭从容规划重要事务，传递爱与责任。',
+  keywords: '家庭财产规划、婚前协议、婚内协议、离婚协议、子女抚养协议、赠与协议、家庭文书智能生成',
   openGraph: {
-    title: '关于家有所爱 - 让爱与财富安心传承',
-    description: '我们用系统化模板 + 互联网, 把「立遗嘱」这件事的门槛从「万元 + 数周」降到「百元 + 数小时」. 已获 ICP 备案, 数据存储于中国大陆腾讯云.',
-    url: 'https://aiwill-planner.cn/about',
-    siteName: '家有所爱',
-    locale: 'zh_CN',
+    title: '关于我们 - 家有所爱智能家庭财产规划平台',
+    description: '帮助中国家庭从容规划婚前财产、婚内财产、离婚抚养、赠与继承等重要事务，传递爱与责任。',
     type: 'website',
-  },
-  alternates: {
-    canonical: 'https://aiwill-planner.cn/about',
   },
 };
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-amber-50 to-white">
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-10 sm:py-14">
-        <div className="text-center mb-10">
-          <div className="flex justify-center mb-4">
-            <BrandLogo size="lg" />
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
+      {/* Hero Section */}
+      <section className="relative py-20 px-4 text-center">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+            家有所爱
+          </h1>
+          <p className="text-xl text-gray-600 mb-4">
+            综合家庭财产规划智能平台
+          </p>
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+            婚前财产、婚内财产分配、离婚子女抚养、父母赠与……<br />
+            每个中国家庭都可能面临这些重要时刻。<br />
+            我们相信，提前做好规划，是对家人最负责的爱。
+          </p>
+        </div>
+      </section>
+
+      {/* Mission Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+            我们的使命
+          </h2>
+          <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-8">
+            <p className="text-lg text-gray-700 leading-relaxed">
+              家有所爱的诞生，源于一个朴素的愿望：让每一个中国家庭都能从容面对人生中的重要时刻。
+            </p>
+            <p className="text-lg text-gray-700 leading-relaxed mt-4">
+              婚前财产如何约定？婚内财产怎样分配更公平？离婚时子女抚养权如何保障？父母想把财产赠与子女怎样最稳妥？……这些都是中国家庭真实面临的课题。
+            </p>
+            <p className="text-lg text-gray-700 leading-relaxed mt-4">
+              我们致力于提供便捷的家庭文书智能生成服务，帮助每个家庭在重要时刻做出清晰、负责任的安排，传递爱与安心。
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3">💝 关于我们</h1>
-          <p className="text-base text-slate-600">让爱与财富, 安心传承</p>
         </div>
+      </section>
 
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm space-y-6 text-slate-700">
-          <section>
-            <h2 className="text-xl font-semibold text-slate-800 mb-3">🎯 我们为什么做这件事</h2>
-            <p>
-              在中国, 超过 60% 的成年人从未立过遗嘱. 原因不是「不需要」, 而是「不知道从何开始」,「觉得专业咨询太贵」,「忌讳谈生死」.
-            </p>
-            <p className="mt-3">
-              我们相信, <strong>遗嘱不是终点, 而是爱意的延续</strong>.
-              一份清晰的文书, 能在意外来临时, 让家人少一点争执, 多一点慰藉.
-            </p>
-            <p className="mt-3">
-              我们的使命: 用系统化模板 + 互联网, 把「立遗嘱」这件事的门槛从「万元 + 数周」降到「百元 + 数小时」.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold text-slate-800 mb-3">👥 团队</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <TeamCard emoji="💼" name="专业资产规划团队" role="专业资产规划人员" desc="5+ 年家庭资产规划服务经验, 来自上海, 北京, 广州" />
-              <TeamCard emoji="🛠️" name="系统工程师" role="全栈" desc="熟悉数据合规, 个人信息保护, 工程实施" />
-              <TeamCard emoji="📝" name="内容编辑" role="法律 + 写作" desc="法学硕士 + 资深编辑, 把复杂条款翻译成人话" />
-              <TeamCard emoji="💼" name="运营客服" role="全职" desc="9:00-22:00 微信客服在线, 投诉 24 小时内响应" />
+      {/* Why We Do This */}
+      <section className="py-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+            我们为什么做这件事
+          </h2>
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-amber-400">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                中国家庭的真实困境
+              </h3>
+              <p className="text-gray-600">
+                中国家庭面临婚前财产、婚内财产分配、离婚子女抚养、父母赠与等复杂场景。很多家庭因为缺乏清晰的规划，导致矛盾与纠纷。我们希望用技术力量，让规划变得更简单。
+              </p>
             </div>
-          </section>
+            <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-400">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                提前做好家庭财产规划，是对家人最负责的爱
+              </h3>
+              <p className="text-gray-600">
+                我们见过太多家庭因为未提前规划，在关键时刻陷入被动。家有所爱希望帮助每一个家庭从容规划重要事务，让爱与责任得以安心传承。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <section>
-            <h2 className="text-xl font-semibold text-slate-800 mb-3">🏆 我们的优势</h2>
-            <ul className="space-y-2">
-              <li className="flex gap-2">
-                <span className="text-emerald-500 flex-shrink-0">✓</span>
-                <span><strong>价格透明</strong>: 智能版 ¥19.9, 专家护航版 ¥999, 无隐藏费用</span>
+      {/* Advantages */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+            我们的优势
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6">
+              <div className="w-12 h-12 bg-amber-400 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                智能便捷
+              </h3>
+              <p className="text-gray-600">
+                多年深耕家庭财产规划领域，我们深刻理解中国家庭的多样需求。基于《民法典》相关条款，提供贴合实际场景的家庭文书智能生成服务。
+              </p>
+            </div>
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6">
+              <div className="w-12 h-12 bg-orange-400 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                专业可靠
+              </h3>
+              <p className="text-gray-600">
+                我们与资深资产规划专业人士合作，确保文书内容严谨合规。同时支持根据需求选择专业公证服务，多一层保障。
+              </p>
+            </div>
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6">
+              <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                隐私安全
+              </h3>
+              <p className="text-gray-600">
+                您的数据仅用于文书生成，我们采用加密技术保护隐私，无需担心信息泄露。所有数据处理符合安全标准。
+              </p>
+            </div>
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6">
+              <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                温暖陪伴
+              </h3>
+              <p className="text-gray-600">
+                从婚前到婚内，从离婚到赠与……人生的每个重要时刻，我们都想与您同行。让规划变得简单，让爱与责任得以传承。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* What We Don't Do */}
+      <section className="py-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+            我们不做什么
+          </h2>
+          <div className="bg-white rounded-xl shadow-sm p-8">
+            <ul className="space-y-4">
+              <li className="flex items-start">
+                <span className="flex-shrink-0 w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mr-3 mt-1">
+                  <span className="text-red-500 text-sm">✕</span>
+                </span>
+                <p className="text-gray-600">
+                  <strong>复杂家庭关系（如再婚、跨境资产、家族信托）建议咨询专业资产规划人员。</strong> 我们提供的是标准化家庭文书智能生成服务，复杂情况需要专业个案处理。
+                </p>
               </li>
-              <li className="flex gap-2">
-                <span className="text-emerald-500 flex-shrink-0">✓</span>
-                <span><strong>系统化模板 + 专业资产规划双保险</strong>: 纯模板不放心? 加 ¥980 让专业资产规划人员 1 对 1 审</span>
+              <li className="flex items-start">
+                <span className="flex-shrink-0 w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mr-3 mt-1">
+                  <span className="text-red-500 text-sm">✕</span>
+                </span>
+                <p className="text-gray-600">
+                  <strong>我们不提供法律诉讼服务。</strong> 如进入法律程序，请寻求专业律师协助。
+                </p>
               </li>
-              <li className="flex gap-2">
-                <span className="text-emerald-500 flex-shrink-0">✓</span>
-                <span><strong>数据不出境</strong>: 所有数据存储于中国大陆腾讯云, 符合《数据安全法》</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-emerald-500 flex-shrink-0">✓</span>
-                <span><strong>隐私优先</strong>: PII 字段加密存储, 30 天可申请彻底删除</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-emerald-500 flex-shrink-0">✓</span>
-                <span><strong>合规备案</strong>: 沪 ICP 备 2026020925 号-1, 工商注册可查</span>
+              <li className="flex items-start">
+                <span className="flex-shrink-0 w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mr-3 mt-1">
+                  <span className="text-red-500 text-sm">✕</span>
+                </span>
+                <p className="text-gray-600">
+                  <strong>我们不能替代公证文书。</strong> 如需公证，请到当地公证机构办理。我们的文书生成服务可作为前期规划参考。
+                </p>
               </li>
             </ul>
-          </section>
+          </div>
+        </div>
+      </section>
 
-          <section>
-            <h2 className="text-xl font-semibold text-slate-800 mb-3">🚧 我们不做什么</h2>
-            <p>坦诚告知, 帮您做正确决定:</p>
-            <ul className="list-disc pl-6 space-y-1 mt-2">
-              <li><strong>不替代专业咨询</strong>: 复杂家庭关系 (再婚, 跨境资产, 家族信托) 请直接找专业资产规划人员面谈</li>
-              <li><strong>不办理公证</strong>: 公证需本人到公证处, 我们目前不提供代办</li>
-              <li><strong>不保证 100% 法律效力</strong>: 文书模板仅供参考, 最终效力以公证或法院认定为准</li>
-              <li><strong>不储存您的银行卡 / 支付密码</strong>: 支付走第三方, 我们拿不到您的卡信息</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold text-slate-800 mb-3">📊 发展历程</h2>
-            <ol className="space-y-2 border-l-2 border-amber-200 pl-4">
-              <li>
-                <span className="text-xs text-amber-700 font-mono">2026-03</span>
-                <p className="text-sm">项目启动, 3 人核心团队</p>
-              </li>
-              <li>
-                <span className="text-xs text-amber-700 font-mono">2026-04</span>
-                <p className="text-sm">微信公众号「家有所爱」注册 (wxid: 30fe5cd917eb2e7a)</p>
-              </li>
-              <li>
-                <span className="text-xs text-amber-700 font-mono">2026-05</span>
-                <p className="text-sm">H5 移动端上线, 域名 aiwill-planner.cn 备案完成</p>
-              </li>
-              <li>
-                <span className="text-xs text-amber-700 font-mono">2026-06</span>
-                <p className="text-sm">支付 + 管理员后台 + 博主分销系统陆续上线</p>
-              </li>
-            </ol>
-          </section>
-
-          <section className="bg-amber-50 rounded-lg p-5 text-center">
-            <h2 className="text-lg font-semibold text-amber-900 mb-2">📮 加入我们 / 联系我们</h2>
-            <p className="text-sm text-amber-800 mb-3">商务合作 / 专业资产规划人员加盟 / 媒体报道, 欢迎联系</p>
-            <div className="text-sm text-amber-900 space-y-1">
-              <p>📧 邮箱: hello@aiwill-planner.cn</p>
-              <p>💬 微信公众号: 家有所爱</p>
-              <p>📍 注册地: 上海市</p>
+      {/* Timeline */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+            发展历程
+          </h2>
+          <div className="relative">
+            <div className="absolute left-4 md:left-1/2 transform md:-translate-x-px h-full w-0.5 bg-amber-200"></div>
+            <div className="space-y-8">
+              <div className="relative flex items-center md:justify-between">
+                <div className="flex-1 md:pr-8 md:text-right">
+                  <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-xl p-6 inline-block">
+                    <span className="text-amber-600 font-semibold">2026-03</span>
+                    <h3 className="text-lg font-semibold text-gray-800 mt-2">
+                      家有所爱平台启动
+                    </h3>
+                    <p className="text-gray-600 mt-1">
+                      提供家庭文书智能生成服务，帮助中国家庭从容规划重要事务
+                    </p>
+                  </div>
+                </div>
+                <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 w-4 h-4 bg-amber-400 rounded-full border-2 border-white shadow"></div>
+                <div className="flex-1 md:pl-8 hidden md:block"></div>
+              </div>
+              <div className="relative flex items-center md:justify-between">
+                <div className="flex-1 md:pr-8 hidden md:block"></div>
+                <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 w-4 h-4 bg-amber-400 rounded-full border-2 border-white shadow"></div>
+                <div className="flex-1 md:pl-8">
+                  <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-xl p-6 inline-block">
+                    <span className="text-amber-600 font-semibold">2026-05</span>
+                    <h3 className="text-lg font-semibold text-gray-800 mt-2">
+                      服务升级
+                    </h3>
+                    <p className="text-gray-600 mt-1">
+                      支持更多家庭文书类型，覆盖婚前、婚内、离婚、抚养、赠与等场景
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="relative flex items-center md:justify-between">
+                <div className="flex-1 md:pr-8 md:text-right">
+                  <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-xl p-6 inline-block">
+                    <span className="text-amber-600 font-semibold">2026-07</span>
+                    <h3 className="text-lg font-semibold text-gray-800 mt-2">
+                      专业合作
+                    </h3>
+                    <p className="text-gray-600 mt-1">
+                      与资深资产规划专业人士建立合作，提供更专业的服务支持
+                    </p>
+                  </div>
+                </div>
+                <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 w-4 h-4 bg-amber-400 rounded-full border-2 border-white shadow"></div>
+                <div className="flex-1 md:pl-8 hidden md:block"></div>
+              </div>
             </div>
-          </section>
+          </div>
         </div>
-      </main>
+      </section>
 
-      <LegalFooter />
-    </div>
-  );
-}
-
-function TeamCard({ emoji, name, role, desc }: { emoji: string; name: string; role: string; desc: string }) {
-  return (
-    <div className="border border-slate-200 rounded-lg p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-2xl">{emoji}</span>
-        <div>
-          <div className="font-semibold text-slate-800 text-sm">{name}</div>
-          <div className="text-xs text-amber-700">{role}</div>
+      {/* Footer */}
+      <footer className="py-12 px-4 bg-gray-800 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-2xl font-bold mb-2">家有所爱</p>
+          <p className="text-gray-400">综合家庭财产规划智能平台</p>
+          <p className="text-gray-500 text-sm mt-4">
+            © 2026 家有所爱. 用爱与责任，守护每一个家庭。
+          </p>
         </div>
-      </div>
-      <p className="text-xs text-slate-600">{desc}</p>
+      </footer>
     </div>
   );
 }

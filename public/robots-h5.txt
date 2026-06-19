@@ -1,5 +1,5 @@
 # robots.txt for https://h5.aiwill-planner.cn
-# Updated 2026-06-10
+# Updated 2026-06-19
 
 # === General rules ===
 User-agent: *

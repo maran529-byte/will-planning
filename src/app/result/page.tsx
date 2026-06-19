@@ -285,6 +285,18 @@ function ResultContent() {
               </button>
             </div>
           </div>
+          {/* 合规水印 (v7, 2026-06-19): AI 草稿 / 不具备法律效力 红框 banner
+              - 法规: 《生成式人工智能服务管理暂行办法》要求 AI 生成内容可识别
+              - PRD §6.1 / ARCH §9.1 明确要求在 result 页顶部强提示 */}
+          <div className="bg-red-50 border-2 border-red-300 rounded-lg p-3 mb-4" role="alert">
+            <p className="text-red-800 text-sm font-bold leading-tight-cn">
+              ⚠️ AI 草稿,不具备法律效力
+            </p>
+            <p className="text-red-700 text-xs mt-1 leading-relaxed-cn">
+              本文书为 AI 模板化生成参考,不构成法律专业意见。
+              正式签署前请咨询具有相应资质的专业资产规划人员或法律服务机构。
+            </p>
+          </div>
           <div className="prose prose-slate max-w-none">
             <pre className="whitespace-pre-wrap text-sm text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-200 overflow-auto max-h-96 leading-relaxed-cn">
               {result.willContent || "（草稿内容）"}

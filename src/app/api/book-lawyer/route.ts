@@ -1,40 +1,103 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
+import { supabaseAdmin } from "@/lib/supabase-server";
+import { getOpenidFromCookie } from "@/lib/cookie";
+
+const bookLawyerSchema = z.object({
+  willId: z.string().uuid().optional(),
+  name: z.string().min(1, "姓名必填").max(64, "姓名过长"),
+  phone: z
+    .string()
+    .regex(/^1[3-9]\d{9}$/, "手机号格式错误")
+    .or(z.literal("").transform(() => undefined))
+    .optional(),
+  preferTime: z.string().max(64).optional(),
+  notes: z.string().max(500).optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { willId, name, phone, preferTime, notes: _notes } = body;
-
-    if (!name || !phone) {
-      return NextResponse.json({ error: "姓名和手机号必填" }, { status: 400 });
+    const openid = await getOpenidFromCookie();
+    if (!openid) {
+      return NextResponse.json(
+        { code: "UNAUTHENTICATED", error: "请先通过公众号登录" },
+        { status: 401 }
+      );
     }
 
-    // 生成预约ID
-    const bookingId = uuidv4();
+    const body = await request.json();
+    const parsed = bookLawyerSchema.safeParse(body);
 
-    // 实际项目中，这里应该：
-    // 1. 将预约信息存入数据库
-    // 2. 发送短信/微信通知给专业资产规划人员
-    // 3. 发送确认短信给用户
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          code: "INVALID_REQUEST",
+          error: "缺少或无效的参数",
+          issues: parsed.error.issues.map((i) => ({
+            path: i.path,
+            message: i.message,
+          })),
+        },
+        { status: 400 }
+      );
+    }
+
+    const { willId, name, phone, preferTime, notes } = parsed.data;
+
+    console.log(
+      "[book-lawyer] openid=",
+      openid.slice(0, 8) + "***",
+      "willId=",
+      willId
+    );
+
+    if (supabaseAdmin) {
+      const insertRow: Record<string, unknown> = {
+        user_openid: openid,
+        will_id: willId ?? null,
+        contact_name: name,
+        contact_phone: phone ?? null,
+        prefer_time: preferTime ?? null,
+        notes: notes ?? null,
+        status: "pending",
+      };
+
+      const { data, error } = await supabaseAdmin
+        .from("lawyer_bookings")
+        .insert(insertRow)
+        .select("id")
+        .maybeSingle();
+
+      if (error) {
+        console.error(
+          "[book-lawyer] Supabase insert error:",
+          error.code,
+          error.message
+        );
+        return NextResponse.json(
+          { code: "DB_ERROR", error: "服务暂时不可用，请稍后重试" },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        bookingId: data?.id ?? null,
+        message: "预约成功，专业资产规划人员将在 24 小时内联系您",
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      bookingId,
-      message: "预约成功，专业资产规划人员将在24小时内联系您",
-      // 模拟预约详情
-      booking: {
-        id: bookingId,
-        willId,
-        name,
-        phone,
-        preferTime: preferTime || "工作日9:00-18:00",
-        status: "pending",
-        createdAt: new Date().toISOString(),
-      },
+      bookingId: null,
+      message: "预约成功，专业资产规划人员将在 24 小时内联系您",
+      devMode: true,
     });
   } catch (error) {
-    console.error("Book lawyer error:", error);
-    return NextResponse.json({ error: "预约失败" }, { status: 500 });
+    console.error("[book-lawyer] error:", error);
+    return NextResponse.json(
+      { code: "INTERNAL_ERROR", error: "预约失败" },
+      { status: 500 }
+    );
   }
 }

@@ -1,4 +1,14 @@
--- 遗嘱项目 Supabase 数据库 Schema
+-- ============================================================================
+-- ⚠️  本文件已废弃 (DEPRECATED, 2026-06-19)
+-- ⚠️  请改用: supabase/fresh_init.sql
+-- ⚠️  Reason:
+--   - 旧版缺 openid / user_id 列, 缺 revision_count 列, 缺支付字段
+--   - 旧版 RLS 策略基于 phone 字段, 与 Supabase Auth.uid() 脱节
+--   - 旧版缺 lawyer_bookings / ab_events / payment_events / invoice_requests
+--   - fresh_init.sql 包含 13 个 migration 合并, 是生产实际跑的版本
+-- ============================================================================
+
+-- 遗嘱项目 Supabase 数据库 Schema (历史版本, 仅供参考)
 -- 运行位置：Supabase Dashboard -> SQL Editor
 
 -- 1. 遗嘱草稿表

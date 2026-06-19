@@ -1,5 +1,5 @@
 # robots.txt for https://aiwill-planner.cn
-# Updated 2026-06-10
+# Updated 2026-06-19
 
 # === General rules ===
 # Allow all major crawlers by default

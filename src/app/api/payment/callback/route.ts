@@ -58,33 +58,29 @@ export async function POST(request: NextRequest) {
     || request.headers.get('Wechatpay-Nonce')
     || '';
 
-  // 2. 验签 (有 plat cert 时启用, 否则降级 demo)
+  // 2. 验签 (强制要求 plat cert, 任何环境未配置直接 503, 杜绝 demo 模式绕过)
   const platCert = process.env.WECHAT_PAY_PLAT_CERT || '';
-  if (platCert) {
-    const { timestamp, nonce: hNonce, signature } = parseWechatSignatureHeader(sigHeader);
-    const verifyResult = verifyWechatV3Signature({
-      timestamp: timestamp || ts,
-      nonce: hNonce || nonce,
-      body: rawBody,
-      signature,
-      platCert,
-    });
-    if (!verifyResult.valid) {
-      console.error('WeChat V3 验签失败:', verifyResult.reason);
-      return NextResponse.json(
-        { code: 'INVALID_SIGNATURE', error: verifyResult.reason || '签名校验失败' },
-        { status: 401 }
-      );
-    }
-  } else if (process.env.NODE_ENV === 'production') {
-    // 生产环境强制要求 plat cert, 避免无签名放行
-    console.error('生产环境未配置 WECHAT_PAY_PLAT_CERT, 拒绝回调');
+  if (!platCert) {
+    console.error('WECHAT_PAY_PLAT_CERT 未配置, 拒绝回调 (任何环境)');
     return NextResponse.json(
-      { code: 'PLAT_CERT_MISSING', error: '微信平台证书未配置' },
+      { code: 'PLAT_CERT_MISSING', error: '微信平台证书未配置, 拒绝回调' },
       { status: 503 }
     );
-  } else {
-    console.warn('[DEV MODE] WECHAT_PAY_PLAT_CERT 未配置, 跳过验签');
+  }
+  const { timestamp, nonce: hNonce, signature } = parseWechatSignatureHeader(sigHeader);
+  const verifyResult = verifyWechatV3Signature({
+    timestamp: timestamp || ts,
+    nonce: hNonce || nonce,
+    body: rawBody,
+    signature,
+    platCert,
+  });
+  if (!verifyResult.valid) {
+    console.error('WeChat V3 验签失败:', verifyResult.reason);
+    return NextResponse.json(
+      { code: 'INVALID_SIGNATURE', error: verifyResult.reason || '签名校验失败' },
+      { status: 401 }
+    );
   }
 
   // 3. 解析 body

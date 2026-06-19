@@ -50,9 +50,6 @@ function PaymentContent() {
   const planData = planParam === 'expert' ? PRICING.expertReview
     : PRICING.guide;
 
-  const priceInYuan = planData.price;
-  const priceInFen = Math.round(priceInYuan * 100);
-
   const createNewOrder = useCallback(async () => {
     setCreating(true);
     try {
@@ -60,7 +57,6 @@ function PaymentContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: priceInFen,
           plan: planParam,
           will_id: willId,
         }),
@@ -75,7 +71,7 @@ function PaymentContent() {
       setCreating(false);
       setLoading(false);
     }
-  }, [planParam, priceInFen, willId]);
+  }, [planParam, willId]);
 
   useEffect(() => {
     // Defer the create to avoid the setState-in-effect cascading render warning.
@@ -106,9 +102,8 @@ function PaymentContent() {
         body: JSON.stringify({
           order_id: order?.id,
           order_no: order?.order_no,
-          amount: priceInFen,
           description: planData.name,
-          channel: method,  // 改版 v4: 透传 method (hupijiao/manual/wechat/alipay)
+          channel: method,
         }),
       });
       const data = await res.json();

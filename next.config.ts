@@ -15,13 +15,13 @@ const SECURITY_HEADERS = [
   // HSTS: 强制 HTTPS 1 年 (Vercel 已经在 HTTPS 上, 加这层让客户端记住)
   { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
   // CSP: 默认只信任同源 + Vercel + 微信 + 虎皮椒.
-  // 关闭 unsafe-eval (Next.js prod 模式不需要), 留 unsafe-inline for 内联 style.
+  // 不开 unsafe-eval (Next.js prod 模式不需要), 留 unsafe-inline for 内联 style.
   // 注意: 不加 frame-ancestors, 我们用 X-Frame-Options (兼容性更好).
   {
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel.com https://*.weixin.qq.com https://res.wx.qq.com https://*.xunhupay.com",
+      "script-src 'self' 'unsafe-inline' https://*.vercel.com https://*.weixin.qq.com https://res.wx.qq.com https://*.xunhupay.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",

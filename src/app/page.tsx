@@ -31,6 +31,7 @@ export default async function HomePage() {
           <nav className="hidden md:flex gap-6 text-slate-600 text-sm items-center" aria-label="主导航">
             <a href="#documents" className="hover:text-amber-600 transition">文书类型</a>
             <a href="#pricing" className="hover:text-amber-600 transition">定价</a>
+            <Link href="/guide" className="hover:text-amber-600 transition">法律指南</Link>
             <a href="/affiliate" className="hover:text-amber-600 transition">博主计划</a>
             <a
               href={H5_SITE}

@@ -27,7 +27,7 @@ export default function InheritanceGuide() {
       background="from-purple-50 via-white to-purple-50"
       breadcrumbs={[
         { name: '首页', url: '/' },
-        { name: '法律指南', url: '/guide/pre-marriage' },
+        { name: '幸福指南', url: '/guide/pre-marriage' },
         { name: '财富传承' },
       ]}
       ctaDocType="will"
@@ -75,7 +75,7 @@ export default function InheritanceGuide() {
             危急情况解除后, 口头遗嘱无效.
           </li>
           <li>
-            <strong>公证遗嘱</strong>: 到公证处办理, 由公证员代书或审查. 法律效力最强, 难以推翻.
+            <strong>公证遗嘱</strong>: 到公证处办理, 由公证员代书或审查. 保障效果最强, 难以推翻.
           </li>
         </ol>
       </section>
@@ -236,7 +236,7 @@ export default function InheritanceGuide() {
           想了解这类文书的完整写作规范、模板示例和签字要求？
           {' '}
           <Link href="/tutorial" className="text-amber-700 hover:underline font-medium">
-            查看家庭法律文书写作教程 →
+            查看家庭文书写作教程 →
           </Link>
         </p>
       </section>

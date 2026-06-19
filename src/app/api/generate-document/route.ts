@@ -92,7 +92,7 @@ function generateDefaultDocument(docType: string, formData: Record<string, unkno
     `日期: ________________________  日期: ________________________\n\n` +
     `---\n\n` +
     `【重要提示】\n` +
-    `本协议为标准模板生成版本, 不具备法律效力。\n` +
+    `本协议为标准模板生成版本, 不具备保障效果。\n` +
     `正式签署前, 请咨询专业资产规划人员, 重大事项建议办理公证。\n` +
     `本服务费用: ¥${(priceCents / 100).toFixed(2)}\n`;
 }

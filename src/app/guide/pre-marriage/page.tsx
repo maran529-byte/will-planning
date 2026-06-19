@@ -27,7 +27,7 @@ export default function PreMarriageGuide() {
       background="from-rose-50 via-white to-amber-50"
       breadcrumbs={[
         { name: '首页', url: '/' },
-        { name: '法律指南', url: '/guide/pre-marriage' },
+        { name: '幸福指南', url: '/guide/pre-marriage' },
         { name: '婚前财产' },
       ]}
       ctaDocType="marriage"
@@ -101,7 +101,7 @@ export default function PreMarriageGuide() {
           <li><strong>到公证处办理</strong>: 双方共同到任一方户籍所在地或经常居住地的公证处, 现场签字, 公证员审查. 公证费一般 200-500 元 / 份</li>
         </ol>
         <p className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm leading-relaxed-cn mt-3">
-          <strong>⚠️ 重要提示</strong>: 未公证的婚前协议同样具有法律效力, 但公证后的协议在举证时效力更强, 法院通常直接采信.
+          <strong>⚠️ 重要提示</strong>: 未公证的婚前协议同样具有保障效果, 但公证后的协议在举证时效力更强, 法院通常直接采信.
           涉及不动产的, 还可到不动产登记中心办理「夫妻财产约定备案」, 防止第三方善意取得.
         </p>
       </section>
@@ -168,7 +168,7 @@ export default function PreMarriageGuide() {
           想了解这类文书的完整写作规范、模板示例和签字要求？
           {' '}
           <Link href="/tutorial" className="text-amber-700 hover:underline font-medium">
-            查看家庭法律文书写作教程 →
+            查看家庭文书写作教程 →
           </Link>
         </p>
       </section>

@@ -29,7 +29,7 @@ export default function TermsPage() {
           <section className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm">
             <p className="text-amber-900 font-medium mb-2">⚠️ 重要法律声明</p>
             <p className="text-amber-800">
-              <strong>本平台提供的所有文书均为「参考模板」, 不具有法律效力.</strong>
+              <strong>本平台提供的所有文书均为「参考模板」, 不具有保障效果.</strong>
               涉及不动产, 大额资产, 复杂家庭关系的, 请务必咨询专业资产规划人员并办理公证.
               我们不对您因使用平台生成文书而遭受的任何损失承担责任.
             </p>

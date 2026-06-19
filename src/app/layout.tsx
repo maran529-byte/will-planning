@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | 家有所爱",
   },
   description:
-    "我们的模板 10 分钟帮您整理好婚姻协议、婚内财产、离婚协议、子女抚养、赠与等家庭法律文书。¥19.9 起, 资产规划专业人士在线审核, 让家庭财产清晰, 婚姻安稳。",
+    "我们的模板 10 分钟帮您整理好婚姻协议、婚内财产、离婚协议、子女抚养、赠与、家庭传承等家庭文书。¥19.9 起, 资产规划专业人士在线陪伴, 让家庭财产清晰, 婚姻安稳。",
   keywords: [
     "婚姻协议书",
     "婚内财产协议",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     "子女抚养协议",
     "赠与协议",
     "婚前财产公证",
-    "家庭法律文书",
+    "家庭文书",
     "家庭财产规划",
     "婚姻协议",
     "在线协议生成",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "家有所爱 · 婚姻财产与资产规划智能平台",
     description:
-      "系统化问卷 + 资产规划专业人士审核, 婚前/婚内/离婚/抚养/赠与 5 类家庭法律文书, ¥19.9 起。",
+      "系统化问卷 + 资产规划专业人士陪伴, 婚前/婚内/离婚/抚养/赠与/传承 6 类家庭文书, ¥19.9 起。",
     type: "website",
     locale: "zh_CN",
     siteName: "家有所爱",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "家有所爱 · 婚姻财产与资产规划智能平台",
-    description: "婚前/婚内/离婚/抚养/赠与 5 类家庭法律文书, ¥19.9 起",
+    description: "婚前/婚内/离婚/抚养/赠与/传承 6 类家庭文书, ¥19.9 起",
     images: ["/og-default.png"],
   },
   alternates: {

@@ -40,7 +40,7 @@ export default function LegalFooter() {
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-slate-300">
             <Link href="/" className="hover:text-white transition">首页</Link>
             <Link href="/doc-type" className="hover:text-white transition">文书类型</Link>
-            <Link href="/guide" className="hover:text-white transition">法律指南</Link>
+            <Link href="/guide" className="hover:text-white transition">幸福指南</Link>
             <Link href="/account" className="hover:text-white transition">我的账户</Link>
             <Link href="/affiliate" className="hover:text-white transition">博主计划</Link>
             <Link href="/about" className="hover:text-white transition">关于我们</Link>
@@ -66,21 +66,19 @@ export default function LegalFooter() {
           </div>
         </nav>
 
-        {/* 法律声明 + AI 合规披露 */}
+        {/* 内容声明 + 合规披露 */}
         <div className="border-t border-slate-700 pt-4">
           <p className="text-slate-400 text-xs text-center mb-3 leading-relaxed-cn">
-            <strong>法律免责声明</strong>: 本平台仅提供文书模板化生成参考服务, 不构成任何法律专业意见。
-            所有生成的文书仅供个人参考使用, 不具有法律函或法律咨询的效力。
-            如需具有法律效力的文书或专业建议, 请咨询具有相应资质的<strong>专业资产规划人员</strong>或法律服务机构。
+            <strong>内容性质说明</strong>: 本站为婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承 6 类家庭场景的文书生成参考平台,
+            所有内容由专业资产规划团队整理, 仅供学习参考。
+            使用本平台生成的任何文书, 您需自行核实其适用性, 并对使用结果承担全部责任。
           </p>
           <p className="text-slate-400 text-xs text-center mb-3 leading-relaxed-cn">
-            <strong>内容性质说明</strong>: 本站为婚姻 / 财产 / 抚养 / 赠与等家庭法律文书的模板化生成参考平台,
-            仅供学习参考, 不构成专业法律或财务建议。
-            使用本平台生成的任何文书, 您需自行核实其准确性和适用性, 并对使用结果承担全部责任。
+            <strong>数据安全</strong>: 所有数据存储于中国大陆腾讯云, PII 字段 AES-256 加密。
+            涉及大额资产 / 复杂家庭关系, 建议咨询专业资产规划人员并办理公证。
           </p>
-          {/* AI 境外声明 + 联系邮箱 — 合规手册要求 */}
           <p className="text-slate-400 text-xs text-center mb-3 leading-relaxed-cn">
-            本平台 AI 能力由境外服务器提供 ｜ 联系：support@aiwill-planner.cn
+            联系：support@aiwill-planner.cn
           </p>
           <p className="text-slate-500 text-xs text-center leading-relaxed-cn">
             <a

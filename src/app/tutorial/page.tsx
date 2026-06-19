@@ -9,15 +9,15 @@ import LegalFooter from '@/components/LegalFooter';
  *   - 之前: /tutorial 只有一篇"遗嘱写法"教程, 跟改版后的"家庭/爱/资产传承"主线不符
  *   - 现在: /tutorial 作为 6 类文书写作教程的统一索引, 每条直跳 /guide/{slug}
  *   - 关键词: 婚前协议怎么写 / 婚内财产协议模板 / 离婚协议写法 / 抚养费标准 / 赠与协议 / 财富传承
- *   - 不再直接以"遗嘱教程"为标题, 改为"家庭法律文书写作教程" — 涵盖婚前/婚内/离婚/抚养/赠与/传承
+ *   - 不再直接以"遗嘱教程"为标题, 改为"家庭文书写作教程" — 涵盖婚前/婚内/离婚/抚养/赠与/传承
  */
 
 export const metadata: Metadata = {
-  title: '家庭法律文书写作教程 - 婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承',
+  title: '家庭文书写作教程 - 婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承',
   description:
-    '把对家人的爱和财产安排写成清晰的文字。婚前协议 / 婚内财产 / 离婚协议 / 子女抚养 / 赠与 / 财富传承 6 类家庭法律文书完整写作教程, 依据《民法典》编写, 含模板与亲笔签名规范。',
+    '把对家人的爱和财产安排写成清晰的文字。婚前协议 / 婚内财产 / 离婚协议 / 子女抚养 / 赠与 / 财富传承 6 类家庭文书完整写作教程, 依据《民法典》编写, 含模板与亲笔签名规范。',
   keywords: [
-    '家庭法律文书写作教程',
+    '家庭文书写作教程',
     '婚前协议怎么写',
     '婚内财产协议模板',
     '离婚协议写法',
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
     '财产安排',
   ],
   openGraph: {
-    title: '家庭法律文书写作教程 - 6 大场景写作指南 | 家有所爱',
+    title: '家庭文书写作教程 - 6 大场景写作指南 | 家有所爱',
     description:
-      '婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承 6 类家庭法律文书完整写作教程, 1500+ 字深度长文, 依据《民法典》。',
+      '婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承 6 类家庭文书完整写作教程, 1500+ 字深度长文, 依据《民法典》。',
     url: 'https://aiwill-planner.cn/tutorial',
     siteName: '家有所爱',
     locale: 'zh_CN',
@@ -163,7 +163,7 @@ export default function TutorialIndex() {
             href="/guide"
             className="text-sm text-amber-700 hover:text-amber-800 font-medium"
           >
-            法律指南首页 →
+            幸福指南首页 →
           </Link>
         </div>
       </header>
@@ -172,7 +172,7 @@ export default function TutorialIndex() {
         {/* 标题区 */}
         <div className="text-center mb-10">
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3 leading-tight-cn text-balance">
-            <span aria-hidden>📝 </span>家庭法律文书写作教程
+            <span aria-hidden>📝 </span>家庭文书写作教程
           </h1>
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed-cn max-w-2xl mx-auto">
             把对家人的爱和财产安排, 写成清晰的文字。
@@ -252,8 +252,8 @@ export default function TutorialIndex() {
               <p>不确定的情况下, 建议先看对应场景的教程 (10 分钟阅读), 了解适用情形 + 必备条款, 再开始问卷。已经清楚的, 可直接 <Link href="/doc-type" className="text-amber-700 hover:underline">选文书类型</Link>。</p>
             </div>
             <div>
-              <h3 className="font-semibold text-slate-800 mb-1">教程里提到的写作规范, 法律效力如何?</h3>
-              <p>本平台提供的是写作模板参考, 依据《民法典》核心条款编写。涉及不动产 / 大额资产 / 复杂家庭关系, 建议办理公证以确保最大法律效力。</p>
+              <h3 className="font-semibold text-slate-800 mb-1">教程里提到的写作规范, 保障效果如何?</h3>
+              <p>本平台提供的是写作模板参考, 依据《民法典》核心条款编写。涉及不动产 / 大额资产 / 复杂家庭关系, 建议办理公证以确保最大保障效果。</p>
             </div>
             <div>
               <h3 className="font-semibold text-slate-800 mb-1">专家版和智能版区别?</h3>

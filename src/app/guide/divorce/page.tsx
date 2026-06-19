@@ -27,7 +27,7 @@ export default function DivorceGuide() {
       background="from-slate-50 via-white to-slate-50"
       breadcrumbs={[
         { name: '首页', url: '/' },
-        { name: '法律指南', url: '/guide/pre-marriage' },
+        { name: '幸福指南', url: '/guide/pre-marriage' },
         { name: '离婚协议' },
       ]}
       ctaDocType="divorce"
@@ -240,7 +240,7 @@ export default function DivorceGuide() {
           想了解这类文书的完整写作规范、模板示例和签字要求？
           {' '}
           <Link href="/tutorial" className="text-amber-700 hover:underline font-medium">
-            查看家庭法律文书写作教程 →
+            查看家庭文书写作教程 →
           </Link>
         </p>
       </section>

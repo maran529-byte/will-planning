@@ -3,23 +3,23 @@ import Link from 'next/link';
 import LegalFooter from '@/components/LegalFooter';
 
 /**
- * /guide - 法律指南索引页
+ * /guide - 幸福指南索引页
  *
  * 6 个场景的内容矩阵入口, 提供给用户「先看指南, 再填问卷」的旅程.
  * 这是 SEO 自然流量的关键页面 — 每篇 1500+ 字长文, 目标搜索 query:
  *   "婚前财产协议怎么写" / "离婚协议模板" / "抚养费标准" / "遗嘱继承" ...
  */
 export const metadata: Metadata = {
-  title: '家庭法律文书指南 - 婚前/婚内/离婚/抚养/赠与/传承 6 大场景',
-  description: '家有所爱 6 大场景家庭法律指南: 婚前财产, 婚内约定, 离婚协议, 子女抚养, 资产赠与, 财富传承. 1500+ 字深度长文, 覆盖《民法典》条款 + 实操模板 + 常见误区.',
+  title: '家庭文书指南 - 婚前/婚内/离婚/抚养/赠与/传承 6 大场景',
+  description: '家有所爱 6 大场景家庭幸福指南: 婚前财产, 婚内约定, 离婚协议, 子女抚养, 资产赠与, 财富传承. 1500+ 字深度长文, 覆盖《民法典》条款 + 实操模板 + 常见误区.',
   keywords: [
     '婚前财产协议', '婚内财产协议', '离婚协议', '子女抚养协议',
-    '赠与协议', '遗嘱', '财富传承', '民法典', '家庭法律文书',
+    '赠与协议', '遗嘱', '财富传承', '民法典', '家庭文书',
     '家庭财产规划', '协议模板',
   ],
   openGraph: {
-    title: '家庭法律文书指南 - 6 大场景深度解析 | 家有所爱',
-    description: '婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承 6 大场景法律指南, 覆盖《民法典》核心条款 + 实操模板 + 常见误区.',
+    title: '家庭文书指南 - 6 大场景深度解析 | 家有所爱',
+    description: '婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承 6 大场景幸福指南, 覆盖《民法典》核心条款 + 实操模板 + 常见误区.',
     url: 'https://aiwill-planner.cn/guide',
     siteName: '家有所爱',
     locale: 'zh_CN',
@@ -110,7 +110,7 @@ export default function GuideIndex() {
         {/* 标题区 */}
         <div className="text-center mb-10">
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3 leading-tight-cn text-balance">
-            <span aria-hidden>📚 </span>家庭法律文书指南
+            <span aria-hidden>📚 </span>家庭文书指南
           </h1>
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed-cn max-w-2xl mx-auto">
             婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承 6 大场景深度解析. 1500+ 字长文, 覆盖《民法典》核心条款 + 实操模板 + 常见误区.
@@ -179,8 +179,8 @@ export default function GuideIndex() {
           </h2>
           <div className="space-y-4 text-sm text-slate-700 leading-relaxed-cn">
             <div>
-              <h3 className="font-semibold text-slate-800 mb-1">家有所爱的文书有法律效力吗?</h3>
-              <p>本平台提供的所有文书均为「参考模板」, 不直接具有法律效力. 涉及不动产, 大额资产, 复杂家庭关系, 强烈建议咨询专业资产规划人员并办理公证.</p>
+              <h3 className="font-semibold text-slate-800 mb-1">家有所爱的文书有保障效果吗?</h3>
+              <p>本平台提供的所有文书均为「参考模板」, 不直接具有保障效果. 涉及不动产, 大额资产, 复杂家庭关系, 强烈建议咨询专业资产规划人员并办理公证.</p>
             </div>
             <div>
               <h3 className="font-semibold text-slate-800 mb-1">需要先看指南, 还是直接选文书?</h3>

@@ -27,7 +27,7 @@ export default function DuringMarriageGuide() {
       background="from-amber-50 via-white to-amber-50"
       breadcrumbs={[
         { name: '首页', url: '/' },
-        { name: '法律指南', url: '/guide/pre-marriage' },
+        { name: '幸福指南', url: '/guide/pre-marriage' },
         { name: '婚内财产' },
       ]}
       ctaDocType="marital-property"
@@ -47,7 +47,7 @@ export default function DuringMarriageGuide() {
         </p>
         <p className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm leading-relaxed-cn mt-3">
           <strong>💡 关键区别</strong>: 婚前协议是结婚前签订, 婚内协议是结婚后签订.
-          两者法律效力相同, 但适用场景不同.
+          两者保障效果相同, 但适用场景不同.
         </p>
       </section>
 
@@ -204,7 +204,7 @@ export default function DuringMarriageGuide() {
           想了解这类文书的完整写作规范、模板示例和签字要求？
           {' '}
           <Link href="/tutorial" className="text-amber-700 hover:underline font-medium">
-            查看家庭法律文书写作教程 →
+            查看家庭文书写作教程 →
           </Link>
         </p>
       </section>

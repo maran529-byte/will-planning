@@ -28,7 +28,7 @@ import { DOCUMENT_TYPES, COLOR_CLASSES } from '@/lib/document-types';
 
 export const metadata: Metadata = {
   title: '选择文书类型 · 婚姻财产规划 | 家有所爱',
-  description: '婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承, 6 类家庭法律文书, ¥19.9 起, 10 分钟完成',
+  description: '婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承, 6 类家庭文书, ¥19.9 起, 10 分钟完成',
 };
 
 interface PageProps {

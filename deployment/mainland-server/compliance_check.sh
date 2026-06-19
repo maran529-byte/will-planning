@@ -70,15 +70,17 @@ else
 fi
 
 # ============================================================
-sect "证据 4：法律 Footer 全站 100% 覆盖"
+sect "证据 4：内容性质说明 + 备案号 Footer 全站 100% 覆盖"
 # ============================================================
+# 2026-06-19 改版: footer 标题从"法律免责声明"调整为"内容性质说明" (符合品牌定位,
+# 避免"法律"字样). 脚本同时兼容旧关键字, 任何一项命中即视为合规.
 for url in "https://${MAINLAND_HOST}/" \
            "https://${MAINLAND_HOST}/faq" \
            "https://${MAINLAND_HOST}/tutorial" \
            "https://${MAINLAND_HOST}/compare" \
            "https://${MAINLAND_HOST}/tool"; do
     body=$(curl -s --max-time 10 "$url" 2>/dev/null)
-    if echo "$body" | grep -q "法律免责声明"; then
+    if echo "$body" | grep -qE "内容性质说明|法律免责声明|免责声明"; then
         pass "${url} 包含免责声明"
     else
         fail "${url} 缺免责声明"

@@ -100,7 +100,7 @@ function buildService(data?: Record<string, unknown>) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    serviceType: '系统化家庭法律文书生成',
+    serviceType: '系统化家庭文书生成参考',
     provider: {
       '@type': 'Organization',
       name: ORG_NAME,

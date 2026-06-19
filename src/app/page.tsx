@@ -31,7 +31,7 @@ export default async function HomePage() {
           <nav className="hidden md:flex gap-6 text-slate-600 text-sm items-center" aria-label="主导航">
             <a href="#documents" className="hover:text-amber-600 transition">文书类型</a>
             <a href="#pricing" className="hover:text-amber-600 transition">定价</a>
-            <Link href="/guide" className="hover:text-amber-600 transition">法律指南</Link>
+            <Link href="/guide" className="hover:text-amber-600 transition">幸福指南</Link>
             <a href="/affiliate" className="hover:text-amber-600 transition">博主计划</a>
             <a
               href={H5_SITE}
@@ -91,8 +91,8 @@ export default async function HomePage() {
             <span className="text-amber-300">1 份外卖的钱, 换 30 年安稳</span>
           </h1>
           <p className="text-xl text-slate-200 mb-8 max-w-2xl mx-auto text-center leading-relaxed-cn">
-            我们的模板 10 分钟帮您整理好婚姻协议、婚内财产、抚养安排等专业法律文书。
-            不用约专业资产规划人员、不用跑律所, 资产规划专业人士在线审核, ¥19.9 起。
+            我们的模板 10 分钟帮您整理好婚姻协议、婚内财产、抚养安排等家庭文书。
+            不用跑公证处, 资产规划专业人士在线陪伴, ¥19.9 起。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/doc-type" className="btn-primary">
@@ -112,7 +112,7 @@ export default async function HomePage() {
       <section id="documents" className="py-16 px-4">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 text-slate-800 text-balance">
-            6 类家庭法律文书, 一站搞定
+            6 类家庭文书, 一站搞定
           </h2>
           <p className="text-slate-600 text-center mb-12 leading-relaxed-cn">
             从婚前财产到子女抚养, 系统化生成符合《民法典》的文书模板 · ¥19.9 起
@@ -158,7 +158,7 @@ export default async function HomePage() {
             10 分钟, 把家庭财产讲清楚
           </h2>
           <p className="text-slate-600 text-center mb-12 leading-relaxed-cn">
-            全程在线, 不用排队, 不用跑律所
+            全程在线, 不用排队, 不用跑公证处
           </p>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -339,15 +339,15 @@ export default async function HomePage() {
 
             <details className="bg-white rounded-lg p-6 shadow-sm group">
               <summary className="font-semibold text-lg cursor-pointer list-none flex items-center justify-between">
-                <span>系统化起草的协议有法律效力吗？</span>
+                <span>系统化起草的协议有保障效果吗？</span>
                 <span
                   className="text-slate-400 group-open:rotate-180 transition-transform"
                   aria-hidden
                 >▾</span>
               </summary>
               <p className="mt-4 text-slate-600 leading-relaxed-cn">
-                模板为草稿文本, 需经当事人签字 (或公证) 后才具备法律效力。
-                我们建议涉及房产、股权、大额资产的文书完成公证以确保最大法律效力。
+                模板为草稿文本, 需经当事人签字 (或公证) 后才具备保障效果。
+                我们建议涉及房产、股权、大额资产的文书完成公证以确保最大保障效果。
                 选 ¥999 专家版可获得资产规划专业人士 1 对 1 视频审核。
               </p>
             </details>
@@ -391,7 +391,7 @@ export default async function HomePage() {
       <div className="bg-slate-100 border-t border-slate-200 py-6">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-slate-500 text-sm leading-relaxed-cn">
-            本平台仅提供婚姻 / 财产 / 抚养 / 赠与等家庭法律文书的智能生成参考, 不构成法律专业意见; 涉及不动产 / 大额资产 / 复杂家庭关系建议咨询专业资产规划人员并办理公证
+            本平台仅提供婚姻 / 财产 / 抚养 / 赠与等家庭文书的智能生成参考, 不构成法律专业意见; 涉及不动产 / 大额资产 / 复杂家庭关系建议咨询专业资产规划人员并办理公证
           </p>
         </div>
       </div>
@@ -402,7 +402,7 @@ export default async function HomePage() {
         type="faq"
         data={{
           faqs: [
-            { q: '系统化起草的婚姻协议有法律效力吗？', a: '模板版生成的为草稿, 需经双方签字 (或公证) 后才具备法律效力。涉及房产、股权、大额资产建议办理公证。' },
+            { q: '系统化起草的婚姻协议有保障效果吗？', a: '模板版生成的为草稿, 需经双方签字 (或公证) 后才具备保障效果。涉及房产、股权、大额资产建议办理公证。' },
             { q: '需要多长时间完成一份协议？', a: '填写问卷约 8-10 分钟, 系统化生成约 1 分钟, 即可下载 PDF/Word 文件。' },
             { q: '我的婚姻 / 财产信息会泄露吗？', a: '所有数据存储于中国大陆腾讯云, 符合《数据安全法》; PII 字段 (身份证/手机号) 单独加密, 30 天可申请彻底删除。' },
             { q: '专家版 (¥999) 和 智能版 (¥19.9) 的区别？', a: '智能版由系统化模板生成, 适合常见标准场景; 专家版增加资产规划专业人士 1 对 1 视频审核 + 修改建议, 适合跨境资产 / 股权设计等复杂情况。' },

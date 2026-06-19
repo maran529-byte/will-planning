@@ -58,7 +58,7 @@ function buildPrompt(docType: string, formData: Record<string, unknown>): string
   }
   parts.push("");
   parts.push(`要求: 保持与上一版相同的风格和结构, 但只更新用户修改的部分, 其它章节保持不变。`);
-  parts.push(`末尾注明"本协议为模板生成版本, 不具备法律效力, 双方签字后方可生效, 重大事项请咨询专业资产规划人员。"`);
+  parts.push(`末尾注明"本协议为模板生成版本, 不具备保障效果, 双方签字后方可生效, 重大事项请咨询专业资产规划人员。"`);
   return parts.join("\n");
 }
 

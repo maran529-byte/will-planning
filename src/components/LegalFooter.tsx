@@ -78,6 +78,10 @@ export default function LegalFooter() {
             仅供学习参考, 不构成专业法律或财务建议。
             使用本平台生成的任何文书, 您需自行核实其准确性和适用性, 并对使用结果承担全部责任。
           </p>
+          {/* AI 境外声明 + 联系邮箱 — 合规手册要求 */}
+          <p className="text-slate-400 text-xs text-center mb-3 leading-relaxed-cn">
+            本平台 AI 能力由境外服务器提供 ｜ 联系：support@aiwill-planner.cn
+          </p>
           <p className="text-slate-500 text-xs text-center leading-relaxed-cn">
             <a
               href="https://beian.miit.gov.cn"

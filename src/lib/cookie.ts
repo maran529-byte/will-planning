@@ -33,6 +33,24 @@ export async function setOpenidCookie(openid: string): Promise<void> {
   });
 }
 
+/**
+ * 返回 wx_openid 的 cookie 设置参数 (供 Route Handler 在 NextResponse 上手动 .cookies.set 使用).
+ * Next.js cookies() store 修改只在同请求内, 经由响应对象携带才能下发到浏览器.
+ * 在 Route Handler 中调用 setOpenidCookie 后, 再用 NextResponse.redirect 时,
+ * cookie 必须通过 response.cookies.set() 显式附加, 否则浏览器收不到.
+ */
+export function getOpenidCookieOptions(openid: string) {
+  return {
+    name: WX_OPENID_COOKIE,
+    value: openid,
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 365, // 1 year
+    path: '/',
+  };
+}
+
 export async function clearOpenidCookie(): Promise<void> {
   const store = await cookies();
   store.delete(WX_OPENID_COOKIE);

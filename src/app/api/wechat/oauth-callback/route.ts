@@ -18,7 +18,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { exchangeCode, getUserInfo } from '@/lib/wechat/oauth';
 import { supabaseAdmin } from '@/lib/supabase-server';
-import { setOpenidCookie } from '@/lib/cookie';
+import { getOpenidCookieOptions } from '@/lib/cookie';
+import { createClient } from '@supabase/supabase-js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/config';
 
 // ---------- Schemas ----------
 
@@ -119,19 +121,66 @@ async function handleOAuthCallback(params: { code: string; state: string; expect
       .eq('id', userId);
   }
 
-  // 5. 写入 HTTP-only cookie
-  await setOpenidCookie(token.openid);
-
+  // 5. 写入 HTTP-only cookie (注意: 必须通过 response.cookies.set 显式附加,
+  //    仅 setOpenidCookie() 操作 cookies() store 不会下发到浏览器)
   const { data: finalUser } = await supabaseAdmin
     .from('users')
     .select('id, openid, display_name, wechat_nickname, wechat_avatar_url')
     .eq('id', userId)
     .single();
 
-  return NextResponse.json({
+  // 6. 同时签发 Supabase user_session (magiclink → verifyOtp),
+  //    让 /dashboard 等需要 user_session 的页面也能用 WeChat 登录访问
+  let userSession: { access_token: string; expires_in: number } | null = null;
+  try {
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'magiclink',
+      email: tempEmail,
+    });
+    if (!linkError && linkData?.properties?.email_otp) {
+      const anon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { autoRefreshToken: false, persistSession: false },
+      });
+      const verifyType = (linkData.properties.verification_type || 'magiclink') as
+        | 'magiclink' | 'signup' | 'email' | 'recovery';
+      const { data: verifyData, error: verifyError } = await anon.auth.verifyOtp({
+        email: tempEmail,
+        token: linkData.properties.email_otp,
+        type: verifyType,
+      });
+      if (!verifyError && verifyData?.session) {
+        userSession = {
+          access_token: verifyData.session.access_token,
+          expires_in: verifyData.session.expires_in ?? 3600,
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('mintUserSessionForEmail threw:', e);
+  }
+
+  const response = NextResponse.json({
     user: finalUser,
     scope: token.scope,
   });
+  response.cookies.set(getOpenidCookieOptions(token.openid));
+  if (userSession) {
+    const payload = JSON.stringify({
+      access_token: userSession.access_token,
+      expires_at: Date.now() + userSession.expires_in * 1000,
+    });
+    const encoded = Buffer.from(payload, 'utf-8').toString('base64');
+    response.cookies.set({
+      name: 'user_session',
+      value: encoded,
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    });
+  }
+  return response;
 }
 
 // ---------- GET handler (WeChat browser fallback) ----------
@@ -151,6 +200,10 @@ export async function GET(req: NextRequest) {
 
   const result = await handleOAuthCallback({ code, state, expectedState });
   const body = await result.json();
+  // 关键修复: 保留 handleOAuthCallback 在 NextResponse.cookies 上设置的所有 cookie
+  // (wx_openid + user_session), 通过 new Response 的多个 Set-Cookie 头转发给浏览器.
+  // getSetCookie() 返回数组, get('set-cookie') 只返回第一个.
+  const setCookieHeaders = result.headers.getSetCookie?.() ?? [];
 
   if (result.status !== 200) {
     // 失败：返回一个 HTML，JS 跳转回 callback 页显示错误
@@ -158,20 +211,18 @@ export async function GET(req: NextRequest) {
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>登录失败</title></head><body>
 <script>window.location.replace('/wechat/callback?result=error&message=${msg}');</script>
 <p>登录失败: ${body.message || '未知错误'}，正在跳转…</p></body></html>`;
-    return new Response(html, {
-      headers: { 'Content-Type': 'text/html; charset=utf-8' },
-      status: 200,
-    });
+    const headers: HeadersInit = [['Content-Type', 'text/html; charset=utf-8']];
+    for (const sc of setCookieHeaders) headers.push(['Set-Cookie', sc]);
+    return new Response(html, { headers, status: 200 });
   }
 
-  // 成功：返回一个 HTML，JS 跳转回成功页（cookie 已在 handleOAuthCallback 中写入）
+  // 成功：返回一个 HTML，JS 跳转回成功页（cookie 已通过 Set-Cookie 头传递）
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>登录成功</title></head><body>
 <script>window.location.replace('/wechat/success?result=ok');</script>
 <p>登录成功，正在跳转…</p></body></html>`;
-  return new Response(html, {
-    headers: { 'Content-Type': 'text/html; charset=utf-8' },
-    status: 200,
-  });
+  const headers: HeadersInit = [['Content-Type', 'text/html; charset=utf-8']];
+  for (const sc of setCookieHeaders) headers.push(['Set-Cookie', sc]);
+  return new Response(html, { headers, status: 200 });
 }
 
 // ---------- POST handler ----------

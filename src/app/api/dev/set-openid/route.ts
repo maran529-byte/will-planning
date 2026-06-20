@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { setOpenidCookie, getOpenidFromCookie, clearOpenidCookie } from '@/lib/cookie';
+import { setOpenidCookie, getOpenidFromCookie, clearOpenidCookie, getOpenidCookieOptions } from '@/lib/cookie';
 
 /**
  * 手动 openid (访客编号) 绑定端点 (Phase 2 简化登录主路径)
@@ -71,11 +71,15 @@ export async function POST(request: NextRequest) {
     }
 
     await setOpenidCookie(parsed.data.openid);
-    return NextResponse.json({
+    // 显式附加 cookie 到响应 (虽然 Next.js 15+ 在某些情况下会自动附加,
+    // 但显式更可靠, 与其他 OAuth route handler 保持一致)
+    const response = NextResponse.json({
       success: true,
       openid: parsed.data.openid,
       message: '已设置 openid cookie',
     });
+    response.cookies.set(getOpenidCookieOptions(parsed.data.openid));
+    return response;
   } catch (error) {
     console.error('dev set-openid error:', error);
     return NextResponse.json(

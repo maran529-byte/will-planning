@@ -71,6 +71,9 @@ scp -i "${SSH_KEY}" \
 scp -i "${SSH_KEY}" \
     "${REPO_ROOT}/deployment/mainland-server/sitemap.xml" \
     "${REPO_ROOT}/deployment/mainland-server/robots.txt" \
+    "${REPO_ROOT}/deployment/mainland-server/llms.txt" \
+    "${REPO_ROOT}/deployment/mainland-server/googleca0c92e68f0ca67c.html" \
+    "${REPO_ROOT}/deployment/mainland-server/MP_verify_ZfvMTOA5IvTKBOHF.txt" \
     "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_WWW}/"
 
 echo "✅ 静态资源已上传"
@@ -123,6 +126,16 @@ if [[ "$code" == "200" ]]; then
 else
     echo "  ✅ /api/* 已切断（${code}）"
 fi
+
+# SEO 文件健康 (搜索引擎收录前置)
+for seo in /robots.txt /sitemap.xml /llms.txt /googleca0c92e68f0ca67c.html /MP_verify_ZfvMTOA5IvTKBOHF.txt; do
+    code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://aiwill-planner.cn${seo}" 2>/dev/null)
+    if [[ "$code" == "200" ]]; then
+        echo "  ✅ ${seo} → 200"
+    else
+        echo "  ❌ ${seo} → ${code}"
+    fi
+done
 
 echo ""
 echo "=========================================="

@@ -1,97 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://h5.aiwill-planner.cn/</loc>
+    <loc>https://aiwill-planner.cn/</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/doc-type</loc>
+    <loc>https://aiwill-planner.cn/doc-type</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/questionnaire</loc>
+    <loc>https://aiwill-planner.cn/questionnaire</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/guide</loc>
+    <loc>https://aiwill-planner.cn/faq</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/guide/pre-marriage</loc>
+    <loc>https://aiwill-planner.cn/tutorial</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://aiwill-planner.cn/compare</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://aiwill-planner.cn/tool</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://aiwill-planner.cn/about</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/guide/during-marriage</loc>
+    <loc>https://aiwill-planner.cn/guide</loc>
+    <lastmod>2026-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://aiwill-planner.cn/guide/pre-marriage</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/guide/divorce</loc>
+    <loc>https://aiwill-planner.cn/guide/during-marriage</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/guide/child-custody</loc>
+    <loc>https://aiwill-planner.cn/guide/divorce</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/guide/gift</loc>
+    <loc>https://aiwill-planner.cn/guide/child-custody</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/guide/inheritance</loc>
+    <loc>https://aiwill-planner.cn/guide/gift</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/login</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://h5.aiwill-planner.cn/register</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://h5.aiwill-planner.cn/about</loc>
+    <loc>https://aiwill-planner.cn/guide/inheritance</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/affiliate</loc>
-    <lastmod>2026-06-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://h5.aiwill-planner.cn/privacy</loc>
+    <loc>https://aiwill-planner.cn/privacy</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://h5.aiwill-planner.cn/terms</loc>
+    <loc>https://aiwill-planner.cn/terms</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

@@ -1,26 +1,98 @@
+# robots.txt for https://aiwill-planner.cn
+# Updated 2026-06-19
+
+# === General rules ===
+# Allow all major crawlers by default
 User-agent: *
 Allow: /
+Disallow: /admin/
 Disallow: /api/
+Disallow: /dashboard
+Disallow: /account
+Disallow: /orders
+Disallow: /result
+Disallow: /payment
+Disallow: /login
+Disallow: /register
+Disallow: /wechat/
+Disallow: /affiliate/dashboard
+Disallow: /affiliate/poster
+Crawl-delay: 1
 
-# 百度蜘蛛
+# === AI LLM Crawlers (explicitly allowed) ===
+# OpenAI (ChatGPT, GPTBot)
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+
+# Anthropic Claude
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+
+# Google (Gemini, Bard, AI Overviews)
+User-agent: Google-Extended
+Allow: /
+User-agent: GoogleOther
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+
+# Common Crawl (used by many LLMs)
+User-agent: CCBot
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot-Extended
+Allow: /
+
+# Meta AI
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# DeepSeek, Qwen, Wenxin, Doubao, etc. (Chinese LLMs)
+User-agent: DeepSeekBot
+Allow: /
+User-agent: TongyiCrawler
+Allow: /
+User-agent: WenxinCrawler
+Allow: /
+
+# Microsoft Copilot / Bing
+User-agent: MSNBot-Media
+Allow: /
+User-agent: BingPreview
+Allow: /
+
+# === Chinese search engines ===
 User-agent: Baiduspider
 Allow: /
 Crawl-delay: 1
-
-# 360蜘蛛
+User-agent: Baiduspider-image
+Allow: /
 User-agent: 360Spider
 Allow: /
-
-# 搜狗蜘蛛
-User-agent: Sogou
+User-agent: Sogou Pic Spider
+Allow: /
+User-agent: Sogou web spider
+Allow: /
+User-agent: YisouSpider
+Allow: /
+User-agent: ByteSpider
 Allow: /
 
-# 必应蜘蛛
-User-agent: bingbot
-Allow: /
-
-# Google
-User-agent: Googlebot
-Allow: /
-
+# === Sitemap ===
 Sitemap: https://aiwill-planner.cn/sitemap.xml
+
+# === LLM-specific resource (NEW: 2025) ===
+# Helps LLMs (ChatGPT, Claude, Perplexity) understand site structure
+# See: https://llmstxt.org
+# Available at https://aiwill-planner.cn/llms.txt

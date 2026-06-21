@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { headers } from 'next/headers';
 
 /**
  * Dynamic sitemap.ts (Next.js 16 App Router).
@@ -6,20 +7,25 @@ import type { MetadataRoute } from 'next';
  * 改版 v8 (2026-06-21): 拆分 PC / H5 双 sitemap, 解决百度"索引型 sitemap 误判"
  *  - 触发原因: 旧版 sitemap.xml 在 H5 域下同时包含 PC + H5 URL, 百度把
  *              `<loc>` 跨域识别为索引型, 触发"请勿提交索引型 sitemap"错误
- *  - 修复: 通过 NEXT_PUBLIC_SITE 环境变量 (pc | h5) 切换, 让两个部署产物
- *          各只暴露自己域名的 URL
+ *  - 修复: 通过 headers() 读取 nginx 转发的 Host header 决定输出
+ *    - H5 请求 → 仅含 h5.aiwill-planner.cn URL
+ *    - PC 请求 → 仅含 aiwill-planner.cn URL
  *
- * 环境变量约定:
- *  - H5 (Vercel, 主部署): NEXT_PUBLIC_SITE=h5
- *  - PC (next-on-nginx):   NEXT_PUBLIC_SITE=pc  (留空 = 默认 H5, 兼容旧部署)
+ * 部署约定:
+ *  - nginx 把 PC 和 H5 都代理到本地 Next.js (127.0.0.1:3001)
+ *  - nginx 在转发时保留原始 Host header
  */
-const SITE_MODE = (process.env.NEXT_PUBLIC_SITE ?? 'h5') as 'pc' | 'h5';
 const PC_BASE = 'https://aiwill-planner.cn';
 const H5_BASE = 'https://h5.aiwill-planner.cn';
-const BASE = SITE_MODE === 'pc' ? PC_BASE : H5_BASE;
 const LAST_MOD = new Date('2026-06-21');
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const h = await headers();
+  const host = h.get('host') || '';
+  const isH5 = host.startsWith('h5.');
+  const BASE = isH5 ? H5_BASE : PC_BASE;
+  const SITE = isH5 ? 'h5' : 'pc';
+
   const path = (
     p: string,
     priority: number,
@@ -31,7 +37,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority,
   });
 
-  if (SITE_MODE === 'pc') {
+  if (SITE === 'pc') {
     return [
       path('/', 1.0, 'weekly'),
       path('/doc-type', 0.9, 'weekly'),

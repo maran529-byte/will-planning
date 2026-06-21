@@ -1,16 +1,21 @@
 import type { MetadataRoute } from 'next';
+import { headers } from 'next/headers';
 
 /**
  * Dynamic robots.ts (Next.js 16 App Router).
- * 改版 v7 (2026-06-19): 与 public/robots.txt 静态版保持同步.
- *  - 显式 allow LLM crawlers (GPTBot / Claude / Perplexity / Google-Extended)
- *  - 显式 allow 中文搜索引擎 (百度 / 360 / 搜狗)
- *  - disallow 隐私/管理/支付/订单 路径
- *  - 同时声明 h5 子域 + 主站 sitemap
+ *
+ * 改版 v8 (2026-06-21): 根据请求 Host 输出对应域 sitemap, 避免跨域声明触发
+ * 百度索引型误判. 之前两个域都返回一样的 robots.txt 同时声明两个 sitemap,
+ * 百度 spider 在抓 h5 时把 aiwill 的 sitemap 当成跨域索引型.
+ *
+ *  - h5.aiwill-planner.cn → 只声明 h5 sitemap
+ *  - aiwill-planner.cn    → 只声明 PC sitemap
  */
-export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://aiwill-planner.cn';
-  const h5BaseUrl = 'https://h5.aiwill-planner.cn';
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const h = await headers();
+  const host = h.get('host') || '';
+  const isH5 = host.startsWith('h5.');
+  const baseUrl = isH5 ? 'https://h5.aiwill-planner.cn' : 'https://aiwill-planner.cn';
 
   return {
     rules: [
@@ -33,16 +38,28 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
       {
-        userAgent: ['GPTBot', 'OAI-SearchBot', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'GoogleOther', 'CCBot', 'Applebot-Extended', 'Meta-ExternalAgent', 'DeepSeekBot', 'TongyiCrawler', 'WenxinCrawler', 'MSNBot-Media', 'BingPreview'],
+        userAgent: [
+          'GPTBot', 'OAI-SearchBot',
+          'ClaudeBot', 'Claude-SearchBot', 'Claude-User',
+          'PerplexityBot', 'Perplexity-User',
+          'Google-Extended', 'GoogleOther',
+          'CCBot', 'Applebot-Extended', 'Meta-ExternalAgent',
+          'DeepSeekBot', 'TongyiCrawler', 'WenxinCrawler',
+          'MSNBot-Media', 'BingPreview',
+        ],
         allow: '/',
       },
       {
-        userAgent: ['Baiduspider', 'Baiduspider-image', '360Spider', 'Sogou web spider', 'Sogou Pic Spider', 'YisouSpider', 'ByteSpider'],
+        userAgent: [
+          'Baiduspider', 'Baiduspider-image',
+          '360Spider', 'Sogou web spider', 'Sogou Pic Spider',
+          'YisouSpider', 'ByteSpider',
+        ],
         allow: '/',
         crawlDelay: 1,
       },
     ],
-    sitemap: [`${baseUrl}/sitemap.xml`, `${h5BaseUrl}/sitemap-h5.xml`],
+    sitemap: [`${baseUrl}/sitemap.xml`],
     host: baseUrl,
   };
 }

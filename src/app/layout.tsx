@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import LegalFooter from "@/components/LegalFooter";
 import { StructuredData } from "@/components/StructuredData";
 import "./globals.css";
@@ -105,6 +106,33 @@ export default function RootLayout({
         <link rel="alternate" hrefLang="zh-CN" media="only screen and (max-width: 768px)" href="https://h5.aiwill-planner.cn/" />
         <StructuredData type="organization" />
         <StructuredData type="website" />
+        {/* GA4 — 2026-06-23 接入, Measurement ID: G-9XQ3Q29SEK */}
+        {process.env.NEXT_PUBLIC_GA4_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA4_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${process.env.NEXT_PUBLIC_GA4_ID}');`}
+            </Script>
+          </>
+        )}
+        {/* 百度统计 — 2026-06-23 接入, Site ID: 51b33a32b85e6ec0389b80e07e1b5458 */}
+        {process.env.NEXT_PUBLIC_BAIDU_TJ_ID && (
+          <Script id="baidu-tj-init" strategy="afterInteractive">
+            {`var _hmt = _hmt || [];
+            (function() {
+              var hm = document.createElement("script");
+              hm.src = "https://hm.baidu.com/hm.js?${process.env.NEXT_PUBLIC_BAIDU_TJ_ID}";
+              var s = document.getElementsByTagName("script")[0];
+              s.parentNode.insertBefore(hm, s);
+            })();`}
+          </Script>
+        )}
       </head>
       <body className="min-h-full flex flex-col">
         {children}

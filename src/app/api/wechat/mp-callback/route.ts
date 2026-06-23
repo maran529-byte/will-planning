@@ -111,9 +111,9 @@ async function handleMessage(msg: WeChatRecvMessage): Promise<string> {
   if (msg.msgType === 'event') {
     switch (msg.event) {
       case 'subscribe':
-        // 关注: 记录 + 欢迎语
+        // 关注: 记录 + 欢迎语 (图文 - 6 类文书入口)
         await recordUserInteractionSafe(openid, { menuKey: 'subscribe' });
-        return buildTextReply(msg, getWelcomeText());
+        return buildWelcomeReply(msg);
 
       case 'unsubscribe':
         // 取消关注: 仅记录, 不主动回复 (微信不允许)
@@ -240,18 +240,83 @@ function handleMenuClick(msg: WeChatRecvMessage, key: string): string {
 // 文案常量
 // ============================================================================
 
-function getWelcomeText(): string {
+/**
+ * 关注欢迎语 - 图文消息 (6 类文书入口)
+ * 微信限制: 最多 10 条 article, 我们用 6 条 (1 主标题 + 5 子类目入口)
+ */
+function buildWelcomeReply(msg: WeChatRecvMessage): string {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://h5.aiwill-planner.cn';
+  return buildNewsReply(msg, [
+    {
+      title: '👋 欢迎关注 家有所爱 — 家庭财产与爱的传承助手',
+      description: '基于专业模板的智能文书生成服务。6 类家庭文书 (遗嘱/婚内财产/婚前/离婚/抚养/赠与) 在线生成, ¥19.9 起。',
+      picUrl: `${baseUrl}/icon-512.png`,
+      url: `${baseUrl}/`,
+    },
+    {
+      title: '📜 1. 智能遗嘱 — 我的财产我做主',
+      description: '中华遗嘱库对接模板 · 法定/自书/代书/录音/危急 5 种形式 · AI 引导填写, ¥19.9 起',
+      picUrl: `${baseUrl}/icon-192.png`,
+      url: `${baseUrl}/questionnaire?doc_type=will`,
+    },
+    {
+      title: '💍 2. 婚内财产协议 — 给婚姻加一份安心',
+      description: '婚姻关系存续期间财产约定 · 保护个人财产与共同财产 · 一键生成规范文本',
+      picUrl: `${baseUrl}/icon-192.png`,
+      url: `${baseUrl}/questionnaire?doc_type=marital_property`,
+    },
+    {
+      title: '💑 3. 婚前财产协议 — 理性守护爱情',
+      description: '婚前财产清晰约定 · 避免婚后纠纷 · 律师审核模板',
+      picUrl: `${baseUrl}/icon-192.png`,
+      url: `${baseUrl}/questionnaire?doc_type=marriage`,
+    },
+    {
+      title: '📋 4. 离婚协议书 — 平和分手',
+      description: '民政局标准格式 · 财产分割/子女抚养/债务约定 · 离婚冷静期 30 天内可用',
+      picUrl: `${baseUrl}/icon-192.png`,
+      url: `${baseUrl}/questionnaire?doc_type=divorce`,
+    },
+    {
+      title: '👶 5. 子女抚养协议 — 给孩子的爱不缺席',
+      description: '抚养费/探视权/教育规划 · 民法典婚姻家庭编合规 · 法官视角条款设计',
+      picUrl: `${baseUrl}/icon-192.png`,
+      url: `${baseUrl}/questionnaire?doc_type=child_custody`,
+    },
+    {
+      title: '🎁 6. 赠与协议 — 把爱说在前面',
+      description: '动产/不动产/股权赠与 · 公证/非公证双版本 · 撤销权与税费说明',
+      picUrl: `${baseUrl}/icon-192.png`,
+      url: `${baseUrl}/questionnaire?doc_type=gift`,
+    },
+  ]);
+}
+
+/**
+ * 关注欢迎语 - 纯文本版本 (备用, 部分老版本微信不支持 news)
+ * 当前默认走图文版 buildWelcomeReply, 此函数保留以备未来切换
+ */
+function _getWelcomeTextFallback(): string {
   return [
-    '欢迎关注 家有所爱 智能遗嘱助手 👋',
+    '👋 欢迎关注 家有所爱 — 家庭财产与爱的传承助手',
     '',
-    '我们提供基于专业模板的智能遗嘱文书生成服务, 非法律咨询。',
+    '我们是基于专业模板的智能文书生成平台, 非法律咨询。',
+    '提供 6 类家庭文书在线生成: 遗嘱/婚内财产/婚前/离婚/抚养/赠与, ¥19.9 起。',
     '',
-    '📌 推荐菜单',
-    '👉 立即体验 → 制作我的遗嘱',
-    '👉 我的账户 → 账号绑定',
+    '📌 三步开启',
+    '① 点击下方菜单 【立即体验】→ 选择文书类型',
+    '② AI 引导填写, 5-10 分钟完成',
+    '③ 在线支付, 立即下载 Word/PDF',
     '',
-    '📋 备案信息',
-    '沪ICP备2026020925号-1',
+    '💡 推荐菜单',
+    '👉 立即体验 → 制作我的文书',
+    '👉 我的账户 → 账号绑定/订单查询',
+    '👉 帮助 → 查看使用指南',
+    '',
+    '⏰ 服务时间: 工作日 9:00-21:00',
+    '📧 邮件支持: support@aiwill-planner.cn',
+    '',
+    '📋 备案: 沪ICP备2026020925号-1',
     '本服务由 家有所爱 提供',
   ].join('\n');
 }

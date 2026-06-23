@@ -12,6 +12,14 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-9XQ3Q29SEK');
+
+    // 关键转化事件追踪 — 2026-06-23
+    gtag('event', 'page_view', {
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: window.location.pathname,
+      send_page_view: true
+    });
   </script>
   <!-- 百度统计 — 2026-06-23 接入, Site ID: 51b33a32b85e6ec0389b80e07e1b5458 -->
   <script>

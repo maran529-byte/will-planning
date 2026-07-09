@@ -1,7 +1,7 @@
 /**
  * JSON-LD 结构化数据组件.
  *
- * 业务: 帮搜索引擎 / 微信爬虫 / 百度小程序 理解页面内容.
+ * 业务: 帮搜索引擎 / 微信爬虫 / 百度小程序 / LLM Crawler 理解页面内容.
  * 用法: <StructuredData type="organization" /> 或 <StructuredData type="service" data={...} />
  *
  * 文档:
@@ -10,6 +10,8 @@
  *  - Service: https://schema.org/Service
  *  - FAQPage: https://schema.org/FAQPage
  *  - BreadcrumbList: https://schema.org/BreadcrumbList
+ *  - Article (BlogPosting): https://schema.org/BlogPosting
+ *  - SpeakableSpecification: https://schema.org/SpeakableSpecification
  */
 
 const BASE_URL = 'https://aiwill-planner.cn';
@@ -17,12 +19,12 @@ const ORG_NAME = '家有所爱工作室';
 const ORG_NAME_EN = 'aiwill-planner';
 
 interface BaseProps {
-  type: 'organization' | 'website' | 'service' | 'faq' | 'breadcrumb';
+  type: 'organization' | 'website' | 'service' | 'faq' | 'breadcrumb' | 'article' | 'speakable';
   data?: Record<string, unknown>;
 }
 
 export function StructuredData({ type, data }: BaseProps) {
-  let ld: Record<string, unknown>;
+  let ld: Record<string, unknown> | Record<string, unknown>[];
 
   switch (type) {
     case 'organization':
@@ -39,6 +41,12 @@ export function StructuredData({ type, data }: BaseProps) {
       break;
     case 'breadcrumb':
       ld = buildBreadcrumb(data);
+      break;
+    case 'article':
+      ld = buildArticle(data);
+      break;
+    case 'speakable':
+      ld = buildSpeakable(data);
       break;
     default:
       return null;
@@ -78,8 +86,16 @@ function buildOrganization() {
       availableLanguage: ['zh-Hans'],
     },
     sameAs: [
-      // 微信公众号 (公众号无标准 URL 协议, 此处留空避免 Google 富摘要被拒)
-      // 如未来开通官方微博/知乎/B站, 在此追加
+      'https://aiwill-planner.cn',
+      'https://h5.aiwill-planner.cn',
+      // 微信公众号主页 (通用搜索 URL, 微信内可跳转; 公众号无标准 schema URL)
+      'https://mp.weixin.qq.com/s/家有所爱',
+      // 知乎机构主页 (占位 ID, 后续开通后替换为真实 slug)
+      'https://www.zhihu.com/org/aiwill-planner',
+      // 小红书企业号 (占位)
+      'https://www.xiaohongshu.com/user/aiwill-planner',
+      // 官方微博 (占位)
+      'https://weibo.com/aiwillplanner',
     ],
   };
 }
@@ -167,5 +183,93 @@ function buildBreadcrumb(data?: Record<string, unknown>) {
       name: it.name,
       item: it.url.startsWith('http') ? it.url : `${BASE_URL}${it.url}`,
     })),
+  };
+}
+
+/**
+ * 文章级 Schema (BlogPosting).
+ * data: { headline, description, url, image?, datePublished, dateModified,
+ *         author?, category?, keywords?, inLanguage? }
+ * - author 默认 "家有所爱工作室"
+ * - dateModified 缺省回退到 datePublished
+ */
+function buildArticle(data?: Record<string, unknown>): Record<string, unknown> {
+  const d = data || {};
+  const url = (d.url as string) || BASE_URL;
+  const datePublished = (d.datePublished as string) || new Date().toISOString();
+  const dateModified = (d.dateModified as string) || datePublished;
+  const author = (d.author as string) || ORG_NAME;
+  const reviewedBy = (d.reviewedBy as string) || undefined;
+  const sourceCitations = (d.sourceCitations as string[]) || [];
+  const result: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    // 改版 v3 (2026-07-09): 14 长文页改用 Article, 更精准 (BlogPosting 是较旧类型)
+    '@type': 'Article',
+    headline: d.headline,
+    description: d.description,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    url,
+    image: d.image || [`${BASE_URL}/og-default.png`],
+    datePublished,
+    dateModified,
+    author: {
+      '@type': 'Organization',
+      name: author,
+      url: BASE_URL,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: ORG_NAME,
+      logo: { '@type': 'ImageObject', url: `${BASE_URL}/logo.png` },
+    },
+    inLanguage: (d.inLanguage as string) || 'zh-CN',
+    articleSection: d.category,
+    keywords: d.keywords,
+    // E-E-A-T: 直接挂 SpeakableSpecification, 帮 LLM/语音助手快速摘要
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      xpath: [
+        '/html/head/title',
+        '/html/body//h1',
+        '/html/body//article/p[1]',
+      ],
+    },
+  };
+  // 改版 v10 (2026-06-29): 加入 reviewedBy + citation 字段, 强化 E-E-A-T (经验/专业/权威/信任)
+  // Schema.org Person (reviewedBy) 和 CreativeWork (citation) 都有官方支持
+  if (reviewedBy) {
+    result.reviewedBy = {
+      '@type': 'Person',
+      name: reviewedBy,
+    };
+  }
+  if (sourceCitations.length > 0) {
+    result.citation = sourceCitations.map((c) => ({
+      '@type': 'CreativeWork',
+      name: c,
+    }));
+  }
+  return result;
+}
+
+/**
+ * SpeakableSpecification (改版 v12, 2026-07-08, P0-21)
+ * 让 LLM/语音助手知道页面哪些节点是"可读的摘要" (适合 TTS / 文章截取).
+ * - 默认 3 个 XPath: title / h1 / article 第一段
+ * - data.xpath 可自定义 (如长文页只取 .summary)
+ *
+ * 文档: https://schema.org/SpeakableSpecification
+ * 用法: <StructuredData type="speakable" /> 或带 data.xpath
+ */
+function buildSpeakable(data?: Record<string, unknown>): Record<string, unknown> {
+  const xpath = (data?.xpath as string[]) || [
+    '/html/head/title',
+    '/html/body//h1',
+    '/html/body//article/p[1]',
+  ];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SpeakableSpecification',
+    xpath,
   };
 }

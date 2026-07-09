@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import LegalFooter from "@/components/LegalFooter";
 import { StructuredData } from "@/components/StructuredData";
 import "./globals.css";
@@ -23,6 +22,8 @@ export const metadata: Metadata = {
   description:
     "我们的模板 10 分钟帮您整理好婚姻协议、婚内财产、离婚协议、子女抚养、赠与、家庭传承等家庭文书。¥19.9 起, 资产规划专业人士在线陪伴, 让家庭财产清晰, 婚姻安稳。",
   keywords: [
+    "家庭财产规划",
+    "知识中心",
     "婚姻协议书",
     "婚内财产协议",
     "离婚协议书",
@@ -30,10 +31,10 @@ export const metadata: Metadata = {
     "赠与协议",
     "婚前财产公证",
     "家庭文书",
-    "家庭财产规划",
     "婚姻协议",
     "在线协议生成",
     "资产规划专业人士",
+    "民法典",
   ],
   authors: [{ name: "家有所爱工作室" }],
   creator: "家有所爱工作室",
@@ -63,6 +64,11 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://aiwill-planner.cn",
+    languages: {
+      'zh-CN': 'https://aiwill-planner.cn',
+      'zh-HK': 'https://aiwill-planner.cn',
+      'x-default': 'https://aiwill-planner.cn',
+    },
   },
   icons: {
     icon: [
@@ -104,35 +110,12 @@ export default function RootLayout({
         <meta name="baidu-site-verification" content="codeva-e5pri3Sh3g" />
         <link rel="alternate" hrefLang="zh-CN" href="https://aiwill-planner.cn/" />
         <link rel="alternate" hrefLang="zh-CN" media="only screen and (max-width: 768px)" href="https://h5.aiwill-planner.cn/" />
+        {/* 修复 (2026-07-09): 加 PWA manifest link, 否则浏览器拿不到 manifest */}
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
         <StructuredData type="organization" />
         <StructuredData type="website" />
-        {/* GA4 — 2026-06-23 接入, Measurement ID: G-9XQ3Q29SEK */}
-        {process.env.NEXT_PUBLIC_GA4_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA4_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga4-init" strategy="afterInteractive">
-              {`window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GA4_ID}');`}
-            </Script>
-          </>
-        )}
-        {/* 百度统计 — 2026-06-23 接入, Site ID: 51b33a32b85e6ec0389b80e07e1b5458 */}
-        {process.env.NEXT_PUBLIC_BAIDU_TJ_ID && (
-          <Script id="baidu-tj-init" strategy="afterInteractive">
-            {`var _hmt = _hmt || [];
-            (function() {
-              var hm = document.createElement("script");
-              hm.src = "https://hm.baidu.com/hm.js?${process.env.NEXT_PUBLIC_BAIDU_TJ_ID}";
-              var s = document.getElementsByTagName("script")[0];
-              s.parentNode.insertBefore(hm, s);
-            })();`}
-          </Script>
-        )}
+        {/* GA4 / 百度统计 — 2026-06-28 取消 (用户要求) */}
       </head>
       <body className="min-h-full flex flex-col">
         {children}

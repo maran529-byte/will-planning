@@ -16,10 +16,19 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { RegisterForm } from './RegisterForm';
 import { BrandLogo } from '@/components/BrandLogo';
+import WeChatFollow from '@/components/WeChatFollow';
+import { safeReturnTo } from '@/lib/safe-return';
 
 export const metadata: Metadata = {
-  title: '注册 | 家有所爱',
-  description: '免费注册家有所爱账号, 开始管理您的法律文书',
+  title: '注册',
+  description: '免费注册家有所爱账号, 3 分钟即可开始生成您的家庭文书',
+  alternates: {
+    canonical: 'https://h5.aiwill-planner.cn/register',
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 interface PageProps {
@@ -28,7 +37,9 @@ interface PageProps {
 
 export default async function RegisterPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const returnTo = params.return || '/login?registered=1';
+  const returnTo = safeReturnTo(params.return, '/login?registered=1');
+  // 给"已有账号"链接的 returnTo: 优先保留用户传入的 return, 否则用 /dashboard
+  const loginReturnTo = returnTo.startsWith('/login') ? '/dashboard' : returnTo;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-slate-50 flex items-center justify-center px-4 py-12">
@@ -53,7 +64,7 @@ export default async function RegisterPage({ searchParams }: PageProps) {
           <div className="mt-6 pt-6 border-t border-slate-100 text-center text-sm text-slate-600">
             已有账号?{' '}
             <Link
-              href={`/login${returnTo ? `?return=${encodeURIComponent(returnTo.replace('/login?registered=1', '/dashboard'))}` : ''}`}
+              href={`/login?return=${encodeURIComponent(loginReturnTo)}&intent=login`}
               className="text-amber-600 hover:text-amber-700 font-semibold"
             >
               立即登录
@@ -66,6 +77,12 @@ export default async function RegisterPage({ searchParams }: PageProps) {
             管理员请去{' '}
             <a href="/admin/login" className="text-slate-700 hover:text-amber-600 underline">管理员入口</a>
           </p>
+        </div>
+
+        {/* 改版 v2 (2026-07-11): 公众号二维码引导卡片 (放在注册表单下方,
+            用户注册前后扫码关注, 提升公众号关注率). 图为 WechatIMG344.jpg. */}
+        <div className="mt-8">
+          <WeChatFollow variant="card" mpName="爱的延续" mpSearchKeyword="爱的延续" />
         </div>
       </div>
     </div>

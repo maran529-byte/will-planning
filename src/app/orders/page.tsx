@@ -25,7 +25,7 @@ export default function OrdersPage() {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const res = await fetch('/api/create-order');
+      const res = await fetch('/api/orders');
       const data = await res.json();
       if (data.success) {
         setOrders(data.orders);
@@ -101,7 +101,7 @@ export default function OrdersPage() {
           >
             ← 返回首页
           </Link>
-          <span className="font-bold text-slate-800 text-lg leading-tight-cn">我的订单</span>
+          <h1 className="font-bold text-slate-800 text-lg leading-tight-cn">我的订单</h1>
           <div className="w-24" aria-hidden />
         </div>
       </header>
@@ -125,16 +125,24 @@ export default function OrdersPage() {
               <>
                 <h2 className="text-xl font-bold text-slate-800 mb-2 leading-tight-cn">请先登录</h2>
                 <p className="text-slate-500 mb-6 leading-relaxed-cn">
-                  绑定微信公众号后查看您的订单
+                  选择您方便的登录方式查看订单
                 </p>
-                <Link
-                  href="/wechat/bind?return=/orders"
-                  className="inline-block bg-[#07C160] hover:bg-[#06B05A] text-white font-semibold px-6 py-3 rounded-xl transition"
-                >
-                  <span aria-hidden>🔗 </span>绑定微信账号
-                </Link>
+                <div className="space-y-3">
+                  <Link
+                    href="/login?return=/orders"
+                    className="block w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-xl transition text-center"
+                  >
+                    <span aria-hidden>🔑 </span>立即登录（邮箱密码）
+                  </Link>
+                  <Link
+                    href="/wechat/bind?return=/orders"
+                    className="block w-full bg-[#07C160] hover:bg-[#06B05A] text-white font-semibold px-6 py-3 rounded-xl transition text-center"
+                  >
+                    <span aria-hidden>🔗 </span>绑定微信账号
+                  </Link>
+                </div>
                 <p className="mt-3 text-xs text-slate-400 leading-relaxed-cn">
-                  绑定后订单将自动关联到您的微信账号
+                  老用户用邮箱密码登录 · 新用户可绑定公众号
                 </p>
               </>
             )}
@@ -278,11 +286,7 @@ export default function OrdersPage() {
           </div>
         )}
 
-        {/* 底部提示 */}
-        <div className="mt-8 text-center text-sm text-slate-500 leading-relaxed-cn">
-          <p>这是模拟订单数据,实际支付功能需对接微信/支付宝商户</p>
-        </div>
-      </main>
+        </main>
     </div>
   );
 }

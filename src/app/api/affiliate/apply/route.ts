@@ -11,7 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { applyForBlogger } from '@/lib/affiliate';
-import { requireAuth } from '@/lib/admin-auth';
+import { requireAuth } from '@/lib/user-auth';
 import { getRefFromCookie, clearRefCookie } from '@/lib/affiliate-cookie';
 
 const applySchema = z.object({

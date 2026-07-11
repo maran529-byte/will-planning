@@ -34,6 +34,13 @@ export async function SiteHeader() {
           <Link href="/affiliate" className="hover:text-amber-600 transition">
             博主计划
           </Link>
+          {/* deploy-fix 审计: 增加「成为博主」CTA, 提高 affiliate 入口转化 */}
+          <Link
+            href="/affiliate"
+            className="inline-block bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition leading-tight-cn"
+          >
+            成为博主
+          </Link>
           <a
             href={H5_SITE}
             className="hover:text-amber-600 transition inline-flex items-center gap-1"

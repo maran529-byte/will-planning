@@ -51,8 +51,9 @@ export async function POST(request: NextRequest) {
   let body: unknown;
   try {
     body = await request.json();
-  } catch {
-    return NextResponse.json({ code: 'INVALID_JSON', error: '请求格式错误' }, { status: 400 });
+  } catch (e) {
+    console.error('[register] request.json() failed:', (e as Error)?.message, 'content-type=', request.headers.get('content-type'));
+    return NextResponse.json({ code: 'INVALID_JSON', error: '请求格式错误', detail: (e as Error)?.message }, { status: 400 });
   }
 
   const parsed = registerSchema.safeParse(body);

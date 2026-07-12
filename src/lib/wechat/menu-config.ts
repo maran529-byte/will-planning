@@ -13,18 +13,18 @@ export const MP_MENU: MenuConfig = {
       sub_button: [
         {
           type: 'view',
-          name: '起草遗嘱',
+          name: '起草文书',
           url: 'https://h5.aiwill-planner.cn/questionnaire',
         },
         {
           type: 'view',
-          name: '我的订单',
-          url: 'https://h5.aiwill-planner.cn/orders',
+          name: '6 类文书价格',
+          url: 'https://h5.aiwill-planner.cn/pricing',
         },
         {
           type: 'view',
-          name: '联系专业资产规划人员',
-          url: 'https://h5.aiwill-planner.cn/?action=planner',
+          name: '今日热点解读',
+          url: 'https://h5.aiwill-planner.cn/knowledge',
         },
       ],
     },
@@ -38,13 +38,13 @@ export const MP_MENU: MenuConfig = {
         },
         {
           type: 'view',
-          name: '我的订单',
-          url: 'https://h5.aiwill-planner.cn/orders',
+          name: '电脑端登录',
+          url: 'https://h5.aiwill-planner.cn/wechat/pc-confirm',
         },
         {
           type: 'view',
-          name: '联系专业资产规划人员',
-          url: 'https://h5.aiwill-planner.cn/?action=planner',
+          name: '我的订单',
+          url: 'https://h5.aiwill-planner.cn/orders',
         },
       ],
     },
@@ -53,18 +53,18 @@ export const MP_MENU: MenuConfig = {
       sub_button: [
         {
           type: 'view',
-          name: '使用帮助',
-          url: 'https://aiwill-planner.cn/faq',
+          name: '常见问题',
+          url: 'https://h5.aiwill-planner.cn/faq',
+        },
+        {
+          type: 'view',
+          name: '联系客服',
+          url: 'https://h5.aiwill-planner.cn/contact',
         },
         {
           type: 'click',
           name: '人工客服',
           key: 'V1001_HUMAN_SERVICE',
-        },
-        {
-          type: 'click',
-          name: '备案查询',
-          key: 'V1001_BEIAN',
         },
       ],
     },

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { PRICING } from "@/lib/config";
 import { VisitorIdBanner } from "@/components/VisitorIdBanner";
 import { StructuredData } from "@/components/StructuredData";
@@ -7,6 +8,33 @@ import { getAllArticles, ARTICLE_CATEGORIES } from "@/lib/articles";
 
 const MAIN_SITE = "https://aiwill-planner.cn";   // 主站 (CN, 合规)
 const H5_SITE   = "https://h5.aiwill-planner.cn"; // 移动端 (overseas)
+
+// 改版 v23 (2026-07-15, GEO): 首页专属 metadata
+// - 与根 layout 的品牌词不同, 强调「核心转化路径」(6 类文书 + 知识中心)
+// - keywords 锚定 P0 高频搜索词, 提升搜索引擎收录命中率
+export const metadata: Metadata = {
+  title: "家有所爱 · 婚前/婚内/离婚/抚养/赠与/传承 6 类家庭文书 ¥19.9 起",
+  description:
+    "10 分钟帮您整理好婚姻协议、婚内财产、离婚协议、子女抚养、赠与、家庭传承 6 类家庭文书。¥19.9 起, 资产规划专业人士在线陪伴, 30+ 篇民法典深度指南免费查阅。",
+  keywords: [
+    "婚前财产协议",
+    "婚前协议怎么写",
+    "婚内财产协议",
+    "离婚协议书",
+    "离婚协议怎么写才有效",
+    "子女抚养协议",
+    "抚养费一个月多少钱",
+    "赠与协议",
+    "房产赠与子女怎么操作",
+    "遗嘱怎么写才有效",
+    "遗产继承顺序",
+    "民法典",
+    "家庭文书",
+  ],
+  alternates: {
+    canonical: "https://aiwill-planner.cn",
+  },
+};
 
 export default async function HomePage() {
   // 改版 v5 (2026-06-09): DOCUMENT_TYPES 提取到 @/lib/document-types

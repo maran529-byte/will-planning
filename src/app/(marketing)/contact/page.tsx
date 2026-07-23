@@ -1,121 +1,88 @@
+/**
+ * /contact - host-aware 渲染
+ *
+ * 架构 (2026-07-23):
+ *   - 主站 host: 跳 H5 卡片 (0 form 0 input)
+ *   - H5 host: 真实留言表单
+ */
+
 import { Metadata } from 'next';
+import { headers } from 'next/headers';
+import Link from 'next/link';
+import { BrandLogo } from '@/components/BrandLogo';
+import { isH5Host } from '@/lib/host';
+import { ContactForm } from './ContactForm';
 
 export const metadata: Metadata = {
   title: '联系客服 - 家有所爱',
-  description: '联系家有所爱客服团队：工作时间 9:00-21:00，留言后 24h 内回复；紧急问题请发邮件至 support@aiwill-planner.cn。',
-  keywords: '家有所爱客服、家庭法律咨询、资产规划专业人士',
+  description: '联系家有所爱客服团队: 工作时间 9:00-21:00, 留言后 24h 内回复',
   alternates: {
-    canonical: 'https://aiwill-planner.cn/contact',
-    languages: {
-      'zh-CN': 'https://aiwill-planner.cn/contact',
-      'zh-HK': 'https://aiwill-planner.cn/contact',
-      'x-default': 'https://aiwill-planner.cn/contact',
-    },
+    canonical: 'https://h5.aiwill-planner.cn/contact',
   },
   robots: { index: true, follow: true },
 };
 
-export default function ContactPage() {
-  return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-2">联系客服</h1>
-      <p className="text-slate-600 mb-8">工作时间 9:00-21:00 · 留言后 24 小时内回复</p>
+export default async function ContactPage() {
+  const host = (await headers()).get('host') ?? '';
+  const isH5 = isH5Host(host);
 
-      <div className="grid md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
-          <div className="text-2xl mb-2">💬</div>
-          <div className="font-medium">公众号</div>
-          <div className="text-sm text-slate-600 mt-1">微信内回复消息</div>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
-          <div className="text-2xl mb-2">📧</div>
-          <div className="font-medium">邮件</div>
-          <a href="mailto:support@aiwill-planner.cn" className="text-sm text-amber-600 mt-1 block hover:underline">
-            support@aiwill-planner.cn
-          </a>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
-          <div className="text-2xl mb-2">📋</div>
-          <div className="font-medium">常见问题</div>
-          <a href="/faq" className="text-sm text-amber-600 mt-1 block hover:underline">
-            查看 FAQ →
-          </a>
-        </div>
+  if (!isH5) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-slate-50">
+        <header className="px-6 py-8 text-center">
+          <Link href="/" className="inline-flex items-center gap-2 text-slate-600 hover:text-amber-600 transition">
+            <BrandLogo size="sm" />
+          </Link>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-2">联系客服</h1>
+          <p className="text-slate-600 mb-8">工作时间 9:00-21:00 · 留言后 24 小时内回复</p>
+
+          <div className="grid md:grid-cols-3 gap-4 mb-8">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+              <div className="text-2xl mb-2" aria-hidden="true">💬</div>
+              <div className="font-medium">公众号</div>
+              <div className="text-sm text-slate-600 mt-1">微信内回复消息</div>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+              <div className="text-2xl mb-2" aria-hidden="true">📧</div>
+              <div className="font-medium">邮件</div>
+              <a href="mailto:support@aiwill-planner.cn" className="text-sm text-amber-600 mt-1 block hover:underline break-all">
+                support@aiwill-planner.cn
+              </a>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+              <div className="text-2xl mb-2" aria-hidden="true">📋</div>
+              <div className="font-medium">常见问题</div>
+              <Link href="/faq" className="text-sm text-amber-600 mt-1 block hover:underline">查看 FAQ →</Link>
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center shadow-lg">
+            <div className="text-5xl mb-4" aria-hidden="true">📩</div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">在线留言已迁移到 H5</h2>
+            <p className="text-sm text-slate-600 mb-6 leading-relaxed-cn">
+              为了给您提供更完善的咨询体验，在线客服与留言表单已迁移到 H5 移动端，请在下方入口提交。
+            </p>
+            <Link
+              href="https://h5.aiwill-planner.cn/contact"
+              className="inline-block px-8 py-4 bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-2xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              前往 H5 联系客服 →
+            </Link>
+            <p className="mt-6 text-xs text-slate-400">
+              遇到问题?微信搜 <span className="text-amber-500">家有所爱</span> 联系客服
+            </p>
+          </div>
+        </main>
+
+        <footer className="px-6 py-12 text-center text-xs text-slate-400">
+          家有所爱工作室 © 2026 · 沪ICP备2026020925号-1
+        </footer>
       </div>
+    );
+  }
 
-      <form
-        action="/api/contact"
-        method="POST"
-        className="bg-white border border-slate-200 rounded-lg p-6 space-y-4"
-      >
-        <h2 className="text-lg font-semibold mb-2">留言咨询</h2>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">您的称呼 *</label>
-          <input
-            name="name"
-            type="text"
-            required
-            maxLength={40}
-            placeholder="如：李女士"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">联系邮箱 *</label>
-          <input
-            name="email"
-            type="email"
-            required
-            placeholder="example@email.com"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-          />
-          <p className="text-xs text-slate-500 mt-1">我们会将回复发到此邮箱</p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">咨询类型</label>
-          <select
-            name="topic"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-          >
-            <option value="general">一般咨询</option>
-            <option value="pre-marriage">婚前财产</option>
-            <option value="during-marriage">婚内财产</option>
-            <option value="divorce">离婚协议</option>
-            <option value="child-custody">子女抚养</option>
-            <option value="gift">赠与</option>
-            <option value="inheritance">财富传承</option>
-            <option value="expert-review">专家护航服务</option>
-            <option value="payment">付款问题</option>
-            <option value="other">其他</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">详细描述 *</label>
-          <textarea
-            name="message"
-            required
-            rows={6}
-            maxLength={2000}
-            placeholder="请简要描述您的情况或问题（2000 字以内）"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="w-full px-6 py-3 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 transition"
-        >
-          提交留言
-        </button>
-
-        <p className="text-xs text-slate-500 text-center">
-          提交即表示您同意我们的 <a href="/privacy" className="text-amber-600 hover:underline">隐私政策</a>
-        </p>
-      </form>
-    </div>
-  );
+  return <ContactForm />;
 }

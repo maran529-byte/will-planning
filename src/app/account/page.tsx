@@ -1,111 +1,56 @@
+/**
+ * /account - 静态展示 + 跳 H5
+ *
+ * 改版 v2 (2026-07-22, 方案 A 合规修复):
+ *   - 旧: 嵌入 AccountContent, 调 /api/* 拉订单/发票 (主站变成 dynamic)
+ *   - 新: 纯静态展示页, 跳 H5 account
+ *   - 架构要求: 主站 0 form 0 input 0 /api/* 调用
+ *   - 架构要求文档: /Users/maran/Desktop/架构要求.md
+ */
+
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
-import LegalFooter from '@/components/LegalFooter';
-import { getOrdersByOpenidServer } from '@/lib/orders';
-import { supabaseAdmin } from '@/lib/supabase-server';
-import { getInvoiceRequestsServer } from '@/lib/invoices';
-import type { Order } from '@/lib/orders';
-import AccountContent from './AccountContent';
 
-export const dynamic = 'force-dynamic';
+export const metadata: Metadata = {
+  title: '我的账户 · 家有所爱',
+  description: '管理家有所爱账户信息',
+  alternates: {
+    canonical: 'https://h5.aiwill-planner.cn/account',
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
-async function loadAccountData(openid: string) {
-  const orders = await getOrdersByOpenidServer(openid);
-  const invoices = await getInvoiceRequestsServer(openid);
-
-  // 统计
-  const paidOrders = orders.filter((o) => o.status === 'paid');
-  const pendingOrders = orders.filter((o) => o.status === 'pending');
-  const refundedOrders = orders.filter((o) => o.status === 'refunded');
-
-  const totalSpent = paidOrders.reduce((sum, o) => sum + o.amount, 0);
-  const pendingAmount = pendingOrders.reduce((sum, o) => sum + o.amount, 0);
-
-  return {
-    orders,
-    invoices,
-    stats: {
-      total_orders: orders.length,
-      paid_orders: paidOrders.length,
-      pending_orders: pendingOrders.length,
-      refunded_orders: refundedOrders.length,
-      total_spent: totalSpent,
-      pending_amount: pendingAmount,
-    },
-  };
-}
-
-export default async function AccountPage() {
-  const cookieStore = await cookies();
-  const openid = cookieStore.get('wx_openid')?.value ?? null;
-
-  if (!openid) {
-    return <NotLoggedInView />;
-  }
-
-  const data = await loadAccountData(openid);
-
+export default function AccountPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-amber-50 to-white">
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 sm:py-10 pb-safe">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight-cn text-balance">
-            <span aria-hidden>👤 </span>我的账户
-          </h1>
-          <Link
-            href="/"
-            className="text-sm text-slate-600 hover:text-amber-600 transition"
-          >
-            <span aria-hidden>← </span>返回首页
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 to-white px-4">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-10 text-center">
+        <div className="text-6xl mb-4" aria-hidden="true">👤</div>
+        <h1 className="text-3xl font-bold text-slate-900">我的账户</h1>
+        <p className="mt-4 text-slate-600">
+          账户信息、订单历史、佣金记录均在 H5 移动端管理。
+        </p>
+
+        <Link
+          href="https://h5.aiwill-planner.cn/account"
+          className="mt-8 block w-full py-4 bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-2xl text-lg font-semibold"
+        >
+          前往 H5 我的账户 →
+        </Link>
+
+        <div className="mt-6 text-sm text-slate-500">
+          未登录?{' '}
+          <Link href="https://h5.aiwill-planner.cn/login" className="text-amber-500">
+            立即登录
           </Link>
         </div>
 
-        <AccountContent
-          openid={openid}
-          orders={data.orders}
-          invoices={data.invoices}
-          stats={data.stats}
-        />
-      </main>
-
-      <LegalFooter />
-    </div>
-  );
-}
-
-function NotLoggedInView() {
-  return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-amber-50 to-white">
-      <main className="flex-1 flex items-center justify-center px-4 py-12 pb-safe">
-        <div
-          className="max-w-md w-full bg-white rounded-2xl shadow-sm p-8 text-center"
-          role="status"
-        >
-          <div className="text-5xl mb-4" aria-hidden>🔒</div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2 leading-tight-cn">请先登录</h1>
-          <p className="text-sm text-slate-600 mb-6 leading-relaxed-cn">
-            查看订单 / 下载文书 / 申请发票, 需要先关注公众号「家有所爱」并完成绑定
-          </p>
-          <div className="space-y-3">
-            <a
-              href="/wechat/bind"
-              className="block w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl transition"
-            >
-              <span aria-hidden>🔗 </span>绑定公众号登录
-            </a>
-            <Link
-              href="/"
-              className="block w-full border-2 border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 rounded-xl transition"
-            >
-              <span aria-hidden>← </span>返回首页
-            </Link>
-          </div>
-          <p className="text-xs text-slate-500 mt-6 leading-relaxed-cn">
-            遇到问题? 联系客服微信 (见网站底部)
-          </p>
+        <div className="mt-8 text-xs text-slate-400">
+          家有所爱工作室 © 2026 · 沪ICP备2026020925号-1
         </div>
-      </main>
-      <LegalFooter />
-    </div>
+      </div>
+    </main>
   );
 }

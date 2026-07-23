@@ -1,14 +1,20 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
 import { HeaderAuthButtons } from "@/components/HeaderAuthButtons";
-import { readUserSession } from "@/lib/user-auth";
 
 const H5_SITE = "https://h5.aiwill-planner.cn";
+const H5_DASHBOARD = "https://h5.aiwill-planner.cn/dashboard";
 
-export async function SiteHeader() {
-  const session = await readUserSession();
-  const isLoggedIn = !!session;
-
+/**
+ * SiteHeader - 主站导航
+ *
+ * 改版 v2 (2026-07-22, 方案 A 合规修复):
+ *   - 旧: 调 readUserSession() (触发 /api/auth/* 链路, 主页变成 dynamic)
+ *   - 新: 删除 session 检测, 「我的」直接跳 H5 dashboard
+ *   - 架构要求: 主站 0 form 0 input 0 /api/* 调用
+ *   - 架构要求文档: /Users/maran/Desktop/架构要求.md
+ */
+export function SiteHeader() {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -34,7 +40,13 @@ export async function SiteHeader() {
           <Link href="/affiliate" className="hover:text-amber-600 transition">
             博主计划
           </Link>
-          {/* deploy-fix 审计: 增加「成为博主」CTA, 提高 affiliate 入口转化 */}
+          <Link
+            href="/overseas"
+            className="hover:text-amber-600 transition inline-flex items-center gap-1"
+          >
+            <span aria-hidden>🌏</span>
+            海外华人
+          </Link>
           <Link
             href="/affiliate"
             className="inline-block bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition leading-tight-cn"
@@ -65,16 +77,13 @@ export async function SiteHeader() {
           </a>
         </nav>
         <div className="flex items-center gap-2">
-          {isLoggedIn ? (
-            <Link
-              href="/dashboard"
-              className="text-slate-600 hover:text-amber-600 text-sm font-medium transition px-3 py-2"
-            >
-              我的
-            </Link>
-          ) : (
-            <HeaderAuthButtons />
-          )}
+          <Link
+            href={H5_DASHBOARD}
+            className="text-slate-600 hover:text-amber-600 text-sm font-medium transition px-3 py-2"
+          >
+            我的
+          </Link>
+          <HeaderAuthButtons />
         </div>
       </div>
     </header>

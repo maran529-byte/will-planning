@@ -13,11 +13,12 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { safeReturnTo } from '@/lib/safe-return';
 
 function WechatSuccessInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get('return') || '/orders';
+  const returnTo = safeReturnTo(searchParams.get('return'), '/orders');
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {

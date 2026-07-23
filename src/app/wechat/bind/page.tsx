@@ -27,10 +27,11 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { safeReturnTo } from '@/lib/safe-return';
 
 function WechatBindInner() {
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get('return') || '/orders';
+  const returnTo = safeReturnTo(searchParams.get('return'), '/orders');
   const [error, setError] = useState<string | null>(null);
   const [devOpenid, setDevOpenid] = useState('');
   const [devStatus, setDevStatus] = useState<string | null>(null);

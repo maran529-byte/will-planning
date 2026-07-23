@@ -16,7 +16,14 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { StructuredData } from '@/components/StructuredData';
+import { detectLocaleFromCookie } from '@/lib/i18n';
+import {
+  currencyForLocale,
+  formatPrice,
+  type DisplayCurrency,
+} from '@/lib/currency';
 
 export const metadata: Metadata = {
   title: '价格对比',
@@ -101,8 +108,13 @@ const DOC_TYPE_PRICING: DocTypePricing[] = [
   },
 ];
 
-function formatPrice(cents: number): string {
+function formatYuan(cents: number): string {
   return (cents / 100).toFixed(2);
+}
+
+// cents → 元 (number), 用于多币种转换
+function formatYuanAsCNY(cents: number): number {
+  return cents / 100;
 }
 
 const FAQ_ITEMS = [
@@ -124,7 +136,12 @@ const FAQ_ITEMS = [
   },
 ];
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const cookieStore = await cookies();
+  const locale = detectLocaleFromCookie(cookieStore.get('NEXT_LOCALE')?.value);
+  const currency: DisplayCurrency = currencyForLocale(locale);
+  const isForeign = currency !== 'CNY';
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-slate-50">
       {/* 顶部 nav */}
@@ -145,6 +162,15 @@ export default function PricingPage() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
+        {/* 海外华人货币提示 (W2.1) */}
+        {isForeign && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800 leading-relaxed-cn">
+            <p>
+              <span aria-hidden>💱 </span>
+              当前显示币种: <strong>{currency}</strong> (估算价)。实际扣款以人民币 (¥) 为准, 汇率参考 2026-07。
+            </p>
+          </div>
+        )}
         {/* Hero */}
         <div className="text-center mb-10 sm:mb-14">
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3 text-balance">
@@ -179,10 +205,10 @@ export default function PricingPage() {
                 <tr className="border-b border-slate-100">
                   <td className="p-3 text-slate-700 leading-tight-cn">价格</td>
                   <td className="p-3 text-center font-bold text-amber-600 tabular-nums">
-                    ¥19.9
+                    {formatPrice(19.9, currency)}
                   </td>
                   <td className="p-3 text-center font-bold text-purple-600 tabular-nums">
-                    ¥999
+                    {formatPrice(999, currency)}
                   </td>
                 </tr>
                 <tr className="border-b border-slate-100">
@@ -256,13 +282,13 @@ export default function PricingPage() {
                   <div className="flex justify-between items-baseline">
                     <span className="text-slate-600">智能版</span>
                     <span className="font-bold text-amber-600 tabular-nums">
-                      ¥{formatPrice(d.smart)}
+                      {formatPrice(formatYuanAsCNY(d.smart), currency)}
                     </span>
                   </div>
                   <div className="flex justify-between items-baseline">
                     <span className="text-slate-600">专家版</span>
                     <span className="font-bold text-purple-600 tabular-nums">
-                      ¥{formatPrice(d.expert)}
+                      {formatPrice(formatYuanAsCNY(d.expert), currency)}
                     </span>
                   </div>
                 </div>
@@ -353,7 +379,7 @@ export default function PricingPage() {
                 brand: { '@type': 'Brand', name: '家有所爱' },
                 offers: {
                   '@type': 'Offer',
-                  price: formatPrice(d.smart),
+                  price: formatYuan(d.smart),
                   priceCurrency: 'CNY',
                   availability: 'https://schema.org/InStock',
                   url: `https://aiwill-planner.cn/payment?plan=ai&type=${d.id}`,
@@ -367,7 +393,7 @@ export default function PricingPage() {
                 brand: { '@type': 'Brand', name: '家有所爱' },
                 offers: {
                   '@type': 'Offer',
-                  price: formatPrice(d.expert),
+                  price: formatYuan(d.expert),
                   priceCurrency: 'CNY',
                   availability: 'https://schema.org/InStock',
                   url: `https://aiwill-planner.cn/payment?plan=expert&type=${d.id}`,

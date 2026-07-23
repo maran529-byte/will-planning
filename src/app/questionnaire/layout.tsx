@@ -9,6 +9,10 @@ import type { Metadata } from 'next';
  */
 export const metadata: Metadata = {
   title: '智能问卷',
+  description: '10 分钟帮您完成婚前/婚内/离婚/抚养/赠与/传承 6 类家庭文书问卷',
+  alternates: {
+    canonical: 'https://h5.aiwill-planner.cn/questionnaire',
+  },
   robots: {
     index: false,
     follow: false,

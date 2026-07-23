@@ -1,97 +1,105 @@
 /**
- * /login - 用户登录页
+ * /login - host-aware 渲染
  *
- * 改版 v1 (2026-06-08, Phase B):
- *   - 邮箱+密码登录 (任意 role: user/blogger/admin)
- *   - 博主也走这个入口 (审核通过后, 用注册时的邮箱密码登录)
- *   - ?return=/path 参数支持登录后跳回
- *   - ?registered=1 参数显示"注册成功, 请登录"提示
- *
- * 注意: 这是普通用户登录 (/admin/login 是管理员专用, 不要混用)
+ * 架构 (2026-07-23):
+ *   - 主站 host (aiwill-planner.cn): 跳 H5 卡片, 0 form 0 input (合规要求)
+ *   - H5 host (h5.aiwill-planner.cn): 真实登录表单 (邮箱密码)
+ *   - 通过 headers().get('host') 区分
  */
 
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import Link from 'next/link';
-import { LoginForm } from './LoginForm';
 import { BrandLogo } from '@/components/BrandLogo';
-import WeChatFollow from '@/components/WeChatFollow';
-
-const MP_NAME = '家有所爱';
-const MP_SEARCH_KEYWORD = '家有所爱';
+import { isH5Host } from '@/lib/host';
+import { LoginForm } from './LoginForm';
 
 export const metadata: Metadata = {
-  title: '登录 | 家有所爱',
-  description: '登录家有所爱, 管理您的文书草稿、订单与博主推广',
+  title: '登录 · 家有所爱',
+  description: '登录账号 · 继续管理您的智能文书订单',
+  alternates: {
+    canonical: 'https://h5.aiwill-planner.cn/login',
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
 interface PageProps {
-  searchParams: Promise<{ return?: string; registered?: string }>;
+  searchParams: {
+    return?: string;
+    intent?: 'login' | 'register';
+  };
 }
 
 export default async function LoginPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const returnTo = params.return || '/dashboard';
-  const justRegistered = params.registered === '1';
+  const host = (await headers()).get('host') ?? '';
+  const isH5 = isH5Host(host);
+  const returnTo = searchParams.return ?? '/orders';
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-slate-50 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* 顶部 logo */}
-        <div className="text-center mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-amber-600 transition"
-          >
-            <BrandLogo size="sm" />
-          </Link>
-        </div>
-
-        {/* 登录卡片 */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-2xl font-bold text-slate-800 mb-2 leading-tight-cn">欢迎回来</h1>
-          <p className="text-sm text-slate-500 mb-6 leading-relaxed-cn">
-            登录后可以管理您的草稿、订单和博主推广
-          </p>
-
-          {justRegistered && (
-            <div
-              className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-lg p-3 mb-5 leading-relaxed-cn"
-              role="status"
-            >
-              <span aria-hidden>🎉 </span>注册成功, 请用刚注册的邮箱密码登录
-            </div>
-          )}
-
-          <LoginForm returnTo={returnTo} />
-
-            {/* 公众号关注引导 */}
-            <WeChatFollow variant="card" mpName={MP_NAME} mpSearchKeyword={MP_SEARCH_KEYWORD} />
-
-            {/* 切换到注册 */}
-            <div className="mt-6 pt-6 border-t border-slate-100 text-center text-sm text-slate-600">
-            还没有账号?{' '}
+  // 主站: 合规卡片 (无表单)
+  if (!isH5) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-slate-50 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
             <Link
-              href={`/register${returnTo ? `?return=${encodeURIComponent(returnTo)}` : ''}`}
-              className="text-amber-600 hover:text-amber-700 font-semibold"
+              href="/"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-amber-600 transition"
             >
-              立即注册
+              <BrandLogo size="sm" />
             </Link>
           </div>
-        </div>
 
-        {/* 底部提示 */}
-        <div className="mt-6 text-center text-xs text-slate-500 leading-relaxed-cn">
-          <p>
-            管理员请去{' '}
-            <a href="/admin/login" className="text-slate-700 hover:text-amber-600 underline">管理员入口</a>
-          </p>
-          <p className="mt-2">
-            登录即表示同意{' '}
-            <a href="/terms" className="underline">服务条款</a> 与{' '}
-            <a href="/privacy" className="underline">隐私政策</a>
-          </p>
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <div className="text-6xl mb-4" aria-hidden="true">👋</div>
+            <h1 className="text-2xl font-bold text-slate-800 mb-2 leading-tight-cn">
+              欢迎回来
+            </h1>
+            <p className="text-sm text-slate-500 mb-6 leading-relaxed-cn">
+              为了给您提供更安全的账号服务，我们的登录入口已迁移到 H5 移动端。
+            </p>
+
+            <Link
+              href="https://h5.aiwill-planner.cn/login"
+              className="block w-full py-4 bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-2xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              前往 H5 登录 →
+            </Link>
+
+            <div className="mt-6 pt-6 border-t border-slate-100 text-sm text-slate-600">
+              还没有账号?{' '}
+              <Link
+                href="https://h5.aiwill-planner.cn/register"
+                className="text-amber-600 hover:text-amber-700 font-semibold"
+              >
+                立即注册
+              </Link>
+            </div>
+
+            <hr className="my-8" />
+
+            <div className="text-xs text-slate-400 space-y-1">
+              <p>遇到问题?</p>
+              <p>
+                微信搜 <span className="text-amber-500">家有所爱</span> 联系客服
+                · 或发邮件至{' '}
+                <a href="mailto:support@aiwill-planner.cn" className="text-amber-500">
+                  support@aiwill-planner.cn
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 text-xs text-slate-400 text-center">
+            家有所爱工作室 © 2026 · 沪ICP备2026020925号-1
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // H5: 真实登录表单
+  return <LoginForm returnTo={returnTo} intent={searchParams.intent} />;
 }

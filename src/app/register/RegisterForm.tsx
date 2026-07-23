@@ -181,6 +181,7 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
           checked={acceptTerms}
           onChange={(e) => setAcceptTerms(e.target.checked)}
           className="mt-0.5 w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500"
+          aria-required="true"
         />
         <span className="text-xs text-slate-600 leading-relaxed-cn">
           我已阅读并同意{' '}
@@ -189,6 +190,11 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
           <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline">隐私政策</a>
         </span>
       </label>
+      {!acceptTerms && (
+        <p className="text-xs text-slate-500 leading-relaxed-cn -mt-2" role="note">
+          请勾选同意条款才能注册
+        </p>
+      )}
 
       {error && (
         <div
@@ -201,8 +207,9 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
 
       <button
         type="submit"
-        disabled={busy}
-        className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white font-semibold py-3 rounded-lg transition"
+        disabled={busy || !acceptTerms}
+        aria-disabled={busy || !acceptTerms}
+        className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition"
       >
         {busy ? '注册中...' : '注册'}
       </button>

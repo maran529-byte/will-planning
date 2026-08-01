@@ -77,12 +77,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Plan descriptions for payment
-    // 改版 v3: 加 'expert' 套餐 (原 'lawyer' 显示名升级为 '资产规划专业人士审核')
+    // 改版 v4 (2026-07-31): expert/lawyer 统一映射到「智能版」, 不再暴露 ¥999 专家护航版
     const planDescriptions: Record<string, string> = {
       ai: '智能版 · 文书生成',
-      expert: '专家护航版 · 资产规划专业人士审核',
-      lawyer: '专家护航版 · 资产规划专业人士审核',  // 历史值兼容
-      family: '家族传承综合服务',                      // 已下架
+      expert: '智能版 · 文书生成',        // 历史值兼容, 不再显示 ¥999 字样
+      lawyer: '智能版 · 文书生成',        // 历史值兼容, 不再显示 ¥999 字样
+      family: '家族传承综合服务',         // 已下架
     };
 
     const description = planDescriptions[order.plan] || '遗嘱规划服务';

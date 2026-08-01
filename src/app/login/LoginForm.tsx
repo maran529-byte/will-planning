@@ -8,22 +8,25 @@ interface LoginFormProps {
   returnTo: string;
   /**
    * 改版 v15 (2026-07-03): ?intent=login|register
-   * - intent=register: 优先手机号验证码 (首次使用手机号即注册, 流程最短)
+   * - intent=register: 引导到 /register 邮箱注册
    * - intent=login:   保持邮箱密码为默认 (老用户路径, 兼容性强)
+   *
+   * 改版 v4 (2026-07-30): 删除手机号验证码 tab — 当前未实装 SMS 服务, 用户点了之后
+   *   走 /api/auth/send-otp → 永远走 console 打印验证码, 不能真实下发, 体验差.
+   *   只保留: 邮箱密码 + 微信扫码
    */
   intent?: 'login' | 'register';
 }
 
-type LoginMethod = 'password' | 'phone' | 'mpqr';
+type LoginMethod = 'password' | 'mpqr';
 
 export function LoginForm({ returnTo, intent = 'login' }: LoginFormProps) {
   const router = useRouter();
-  // 改版 v15: 注册意图默认切到手机号 tab (首次使用即注册, 体验最顺)
-  const [method, setMethod] = useState<LoginMethod>(intent === 'register' ? 'phone' : 'password');
+  const [method, setMethod] = useState<LoginMethod>('password');
 
   return (
     <div>
-      {/* 登录方式切换 */}
+      {/* 登录方式切换 — 改版 v4: 删除手机号验证码 tab */}
       <div
         role="tablist"
         aria-label="登录方式"
@@ -43,18 +46,6 @@ export function LoginForm({ returnTo, intent = 'login' }: LoginFormProps) {
         </button>
         <button
           role="tab"
-          aria-selected={method === 'phone'}
-          onClick={() => setMethod('phone')}
-          className={`flex-1 py-2 font-medium rounded-md transition ${
-            method === 'phone'
-              ? 'bg-white text-amber-600 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          手机号
-        </button>
-        <button
-          role="tab"
           aria-selected={method === 'mpqr'}
           onClick={() => setMethod('mpqr')}
           className={`flex-1 py-2 font-medium rounded-md transition ${
@@ -69,8 +60,6 @@ export function LoginForm({ returnTo, intent = 'login' }: LoginFormProps) {
 
       {method === 'password' ? (
         <PasswordLoginForm returnTo={returnTo} router={router} />
-      ) : method === 'phone' ? (
-        <PhoneOtpForm returnTo={returnTo} router={router} />
       ) : (
         <MpQrLoginGuide returnTo={returnTo} router={router} />
       )}
@@ -85,9 +74,18 @@ export function LoginForm({ returnTo, intent = 'login' }: LoginFormProps) {
           <WechatLoginButton
             returnTo={returnTo}
             className="w-full"
-            text="微信登录"
+            text="微信一键登录 (推荐)"
           />
         </>
+      )}
+
+      {intent === 'register' && (
+        <p className="text-xs text-slate-500 text-center mt-4 leading-relaxed-cn">
+          还没有账号?{' '}
+          <a href={`/register?return=${encodeURIComponent(returnTo)}`} className="text-amber-600 hover:underline">
+            邮箱注册 →
+          </a>
+        </p>
       )}
     </div>
   );
@@ -199,201 +197,6 @@ function PasswordLoginForm({
           忘记密码?
         </button>
       </div>
-    </form>
-  );
-}
-
-// =============================================================================
-// 手机号验证码登录 (改版 v9, 2026-06-28)
-// =============================================================================
-
-function PhoneOtpForm({
-  returnTo,
-  router,
-}: {
-  returnTo: string;
-  router: ReturnType<typeof useRouter>;
-}) {
-  const [phone, setPhone] = useState('');
-  const [code, setCode] = useState('');
-  const [cooldown, setCooldown] = useState(0);
-  const [sending, setSending] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
-  const startCooldown = (seconds: number) => {
-    setCooldown(seconds);
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setCooldown((prev) => {
-        if (prev <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const handleSendCode = async () => {
-    setError(null);
-    setInfo(null);
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-      setError('请输入有效的中国大陆手机号');
-      return;
-    }
-    setSending(true);
-    try {
-      const res = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel: 'sms', target: phone.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || '发送失败, 请稍后重试');
-        return;
-      }
-      setInfo('验证码已发送, 5 分钟内有效');
-      startCooldown(60);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '网络错误, 请重试');
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setInfo(null);
-
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-      setError('请输入有效手机号');
-      return;
-    }
-    if (!/^\d{6}$/.test(code)) {
-      setError('请输入 6 位验证码');
-      return;
-    }
-
-    setVerifying(true);
-    try {
-      const res = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel: 'sms', target: phone.trim(), code: code.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data.code === 'SESSION_ISSUE_FAILED') {
-          setError(
-            '验证码已通过, 但当前 Supabase 版本暂未开启免密登录, 请使用邮箱密码或微信登录',
-          );
-        } else if (data.remainingAttempts !== undefined && data.remainingAttempts > 0) {
-          setError(`${data.error} (还剩 ${data.remainingAttempts} 次机会)`);
-        } else {
-          setError(data.error || '验证失败, 请重试');
-        }
-        return;
-      }
-      router.push(returnTo);
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '网络错误, 请重试');
-    } finally {
-      setVerifying(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleVerify} className="space-y-4">
-      <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">
-          手机号
-        </label>
-        <input
-          id="phone"
-          type="tel"
-          required
-          value={phone}
-          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
-          placeholder="请输入 11 位手机号"
-          autoComplete="tel"
-          inputMode="numeric"
-          style={{ fontSize: '16px' }}
-          className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-        />
-        <p className="text-xs text-slate-500 mt-1">
-          <span aria-hidden>🔒 </span>仅中国大陆手机号, 数据加密存储
-        </p>
-      </div>
-
-      <div>
-        <label htmlFor="code" className="block text-sm font-medium text-slate-700 mb-1">
-          验证码
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="code"
-            type="text"
-            required
-            maxLength={6}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            placeholder="6 位数字"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            style={{ fontSize: '16px' }}
-            className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent tabular-nums tracking-widest"
-          />
-          <button
-            type="button"
-            onClick={handleSendCode}
-            disabled={sending || cooldown > 0}
-            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 disabled:bg-slate-100 disabled:text-slate-400 text-slate-700 text-sm font-medium rounded-lg transition whitespace-nowrap min-w-[112px]"
-          >
-            {sending ? '发送中...' : cooldown > 0 ? `${cooldown} 秒后重发` : '获取验证码'}
-          </button>
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3" role="alert">
-          <span aria-hidden>⚠️ </span>{error}
-        </div>
-      )}
-      {info && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-lg p-3" role="status">
-          <span aria-hidden>✅ </span>{info}
-        </div>
-      )}
-
-      <button
-        type="submit"
-        disabled={verifying}
-        className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white font-semibold py-3 rounded-lg transition"
-      >
-        {verifying ? '验证中...' : '登录 / 注册'}
-      </button>
-
-      <p className="text-xs text-slate-500 text-center leading-relaxed-cn">
-        首次使用手机号将自动注册账号, 继续即表示同意{' '}
-        <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
-          服务条款
-        </a>{' '}与{' '}
-        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline">
-          隐私政策
-        </a>
-      </p>
     </form>
   );
 }
@@ -561,7 +364,7 @@ function MpQrLoginGuide({
           </p>
           <div className="inline-block p-3 bg-white border-2 border-emerald-100 rounded-2xl shadow-sm">
             <img
-              src="/wechat-mp-qr.png"
+              src="/wechat-mp-qr.png?v=20260731"
               alt="扫码关注公众号"
               className="w-44 h-44 object-contain"
             />

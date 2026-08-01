@@ -7,9 +7,11 @@
  *
  * 处理:
  *   - 关注 / 取消关注
- *   - 文本消息 (关键词: help / 价格 / 备案 / 人工 / 订单)
+ *   - 文本消息 (关键词: help / 价格 / 备案 / 人工 / 订单 / PC)
  *   - 菜单点击 (CLICK)
  *   - 菜单跳转 (VIEW) - 微信不回调, 忽略
+ *
+ * 改版 v13 (2026-06-29): 新增 PC 端登录 (用户回复【PC】触发)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,6 +20,7 @@ import { parseWeChatXml, buildTextReply, buildNewsReply, buildEmptyResponse, WeC
 import { recordUserInteraction } from '@/lib/wechat/cs-window';
 import { assertWeChatMpConfigured } from '@/lib/wechat/config';
 import { supabaseAdmin } from '@/lib/supabase-server';
+import { ensurePcLoginTicket, findExistingPcLoginTicket } from '@/lib/wechat/pc-login';
 
 // ============================================================================
 // GET: URL 验证
@@ -111,8 +114,17 @@ async function handleMessage(msg: WeChatRecvMessage): Promise<string> {
   if (msg.msgType === 'event') {
     switch (msg.event) {
       case 'subscribe':
-        // 关注: 记录 + 欢迎语 (图文 - 6 类文书入口)
+        // 关注: 记录 + 欢迎语 (图文 - 6 类文书入口 + PC 登录引导)
         await recordUserInteractionSafe(openid, { menuKey: 'subscribe' });
+        // 如果是"带参数二维码"扫码关注 (EventKey 以 qrscene_ 开头),
+        // 自动识别意图并推送 PC 登录验证码
+        if (msg.eventKey && msg.eventKey.startsWith('qrscene_')) {
+          const scene = msg.eventKey.replace(/^qrscene_/, '');
+          if (scene.startsWith('pc_login')) {
+            // PC 端登录场景: 自动生成/认领 ticket, 直接推 8 位验证码
+            return handlePcLoginRequest(msg, openid);
+          }
+        }
         return buildWelcomeReply(msg);
 
       case 'unsubscribe':
@@ -142,13 +154,13 @@ async function handleMessage(msg: WeChatRecvMessage): Promise<string> {
   // ----- 文本消息 (关键词) -----
   if (msg.msgType === 'text') {
     await recordUserInteractionSafe(openid, { menuKey: 'text_msg' });
-    return handleTextContent(msg, msg.content.trim());
+    return handleTextContent(msg, msg.content.trim(), openid);
   }
 
   // ----- 其他消息类型 (image/voice/video/location/link), 简单回复 -----
   return buildTextReply(
     msg,
-    '收到您的消息,客服小助手正在路上。\n回复【订单】/【价格】/【备案】获取快捷帮助'
+    '收到您的消息,客服小助手正在路上。\n回复【订单】/【价格】/【备案】/【PC】获取快捷帮助'
   );
 }
 
@@ -156,7 +168,7 @@ async function handleMessage(msg: WeChatRecvMessage): Promise<string> {
 // 关键词 / 菜单处理
 // ============================================================================
 
-function handleTextContent(msg: WeChatRecvMessage, content: string): string {
+async function handleTextContent(msg: WeChatRecvMessage, content: string, openid: string): Promise<string> {
   const lower = content.toLowerCase();
 
   if (lower.includes('订单') || lower.includes('order')) {
@@ -169,8 +181,8 @@ function handleTextContent(msg: WeChatRecvMessage, content: string): string {
   if (lower.includes('价格') || lower.includes('price') || lower.includes('多少钱')) {
     return buildNewsReply(msg, [
       {
-        title: '查看完整价格与服务对比',
-        description: '系统化生成版 ¥19.9 / 专业资产规划人员护航版 ¥999 / 家庭年度版 ¥4699',
+        title: '查看完整价格与服务说明',
+        description: '智能版 ¥19.9 起 (全站唯一标准产品). 复杂场景 (跨境 / 股权 / 大额资产) 可在 /contact 留言定制服务, 由资产规划专业人士 1 对 1 对接.',
         url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://h5.aiwill-planner.cn'}/pricing`,
       },
     ]);
@@ -187,7 +199,7 @@ function handleTextContent(msg: WeChatRecvMessage, content: string): string {
   if (lower.includes('人工') || lower.includes('客服') || lower.includes('kefu')) {
     return buildTextReply(
       msg,
-      '工作时间 9:00-21:00,公众号「家有所爱」内直接回复消息即可\n紧急问题请邮件至 support@aiwill-planner.cn'
+      '工作时间 9:00-21:00,公众号「家有所爱」内直接回复消息即可\n紧急问题请邮件至 330320991@qq.com'
     );
   }
   if (lower.includes('绑定') || lower.includes('bind')) {
@@ -197,13 +209,73 @@ function handleTextContent(msg: WeChatRecvMessage, content: string): string {
     );
   }
 
+  // 改版 v13: PC 端登录 (用户回复【PC】/【电脑】/【电脑登录】)
+  if (
+    lower === 'pc' ||
+    lower === '电脑' ||
+    lower === '登录电脑' ||
+    lower.includes('电脑登录') ||
+    lower.includes('pc登录') ||
+    lower.includes('电脑端')
+  ) {
+    return handlePcLoginRequest(msg, openid);
+  }
+
   return buildTextReply(
     msg,
-    '抱歉,小助手还在学习中~ 您可以试试:【订单】【价格】【备案】【帮助】'
+    '抱歉,小助手还在学习中~ 您可以试试:【订单】【价格】【备案】【PC】'
   );
 }
 
-function handleMenuClick(msg: WeChatRecvMessage, key: string): string {
+/**
+ * 改版 v13: 处理 PC 端登录请求
+ * 用户在公众号内回复【PC】→ 复用或创建 ticket → 推送 8 位验证码
+ */
+async function handlePcLoginRequest(msg: WeChatRecvMessage, openid: string): Promise<string> {
+  const pcUrl = 'https://aiwill-planner.cn';
+
+  // 优先复用未过期的 ticket
+  const existing = await findExistingPcLoginTicket(openid);
+  if (existing) {
+    return buildTextReply(
+      msg,
+      '🔐 电脑端登录验证码\n\n' +
+      '您刚才已请求过验证码,可以直接使用:\n\n' +
+      `👉 ${existing.code}\n\n` +
+      '📌 操作步骤:\n' +
+      `1. 在您电脑浏览器打开 ${pcUrl}\n` +
+      '2. 点击页面右上角「登录」按钮\n' +
+      `3. 在弹窗中输入验证码: ${existing.code}\n` +
+      '4. 点击「确认登录」即可\n\n' +
+      '⏰ 验证码将在 5 分钟后过期,过期请重新回复【PC】'
+    );
+  }
+
+  // 没有 pending ticket, 创建新的
+  const result = await ensurePcLoginTicket(openid, { returnTo: '/orders' });
+  if (!result.success || !result.code) {
+    return buildTextReply(
+      msg,
+      '❌ 验证码生成失败,请稍后重试\n' +
+      '如持续失败,请联系客服: 公众号内回复【人工】'
+    );
+  }
+
+  return buildTextReply(
+    msg,
+    '🔐 电脑端登录验证码\n\n' +
+    '您的验证码是:\n\n' +
+    `👉 ${result.code}\n\n` +
+    '📌 操作步骤:\n' +
+    `1. 在您电脑浏览器打开 ${pcUrl}\n` +
+    '2. 点击页面右上角「登录」按钮\n' +
+    `3. 在弹窗中输入验证码: ${result.code}\n` +
+    '4. 点击「确认登录」即可\n\n' +
+    '⏰ 验证码 5 分钟内有效,过期请重新回复【PC】'
+  );
+}
+
+async function handleMenuClick(msg: WeChatRecvMessage, key: string): Promise<string> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://h5.aiwill-planner.cn';
 
   switch (key) {
@@ -212,7 +284,7 @@ function handleMenuClick(msg: WeChatRecvMessage, key: string): string {
       return buildTextReply(
         msg,
         '工作时间 9:00-21:00,公众号「家有所爱」内直接回复消息即可\n' +
-        '紧急问题请邮件至 support@aiwill-planner.cn\n' +
+        '紧急问题请邮件至 330320991@qq.com\n' +
         '回复【订单】查询订单 / 回复【绑定】绑定账号'
       );
     case 'V1001_BEIAN':
@@ -220,6 +292,10 @@ function handleMenuClick(msg: WeChatRecvMessage, key: string): string {
         msg,
         '沪ICP备2026020925号-1\n备案查询: https://beian.miit.gov.cn'
       );
+
+    // 改版 v13: PC 端登录菜单
+    case 'V1001_PC_LOGIN':
+      return handlePcLoginRequest(msg, msg.fromUserName);
 
     // 保留旧 key 兼容 (如未来菜单换名)
     case 'MENU_CS_CHAT':
@@ -249,7 +325,7 @@ function buildWelcomeReply(msg: WeChatRecvMessage): string {
   return buildNewsReply(msg, [
     {
       title: '👋 欢迎关注 家有所爱 — 家庭财产与爱的传承助手',
-      description: '基于专业模板的智能文书生成服务。6 类家庭文书 (遗嘱/婚内财产/婚前/离婚/抚养/赠与) 在线生成, ¥19.9 起。',
+      description: '🔐 电脑端登录: 在公众号对话框直接回复【PC】即可收到 8 位验证码 · 基于专业模板的智能文书生成服务 (遗嘱/婚内财产/婚前/离婚/抚养/赠与), ¥19.9 起。',
       picUrl: `${baseUrl}/icon-512.png`,
       url: `${baseUrl}/`,
     },
@@ -314,7 +390,7 @@ function _getWelcomeTextFallback(): string {
     '👉 帮助 → 查看使用指南',
     '',
     '⏰ 服务时间: 工作日 9:00-21:00',
-    '📧 邮件支持: support@aiwill-planner.cn',
+    '📧 邮件支持: 330320991@qq.com',
     '',
     '📋 备案: 沪ICP备2026020925号-1',
     '本服务由 家有所爱 提供',
@@ -329,6 +405,7 @@ function getHelpText(): string {
     '🔹【价格】查看服务价格',
     '🔹【备案】查看 ICP 备案信息',
     '🔹【绑定】绑定公众号到网站账号',
+    '🔹【PC】电脑端登录 (获取 8 位验证码)',
     '🔹【人工】联系人工客服 (9:00-21:00)',
   ].join('\n');
 }

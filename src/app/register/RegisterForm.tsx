@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { WechatLoginButton } from '@/components/Wechat/WechatLoginButton';
+import { REFERRAL_STORAGE_KEY } from '@/lib/referral';
 
 interface RegisterFormProps {
   returnTo: string;
+  refCode?: string | null;
 }
 
-export function RegisterForm({ returnTo }: RegisterFormProps) {
+export function RegisterForm({ returnTo, refCode }: RegisterFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +19,25 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refPreview, setRefPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (refCode) {
+      try {
+        localStorage.setItem(REFERRAL_STORAGE_KEY, refCode);
+        setRefPreview(refCode);
+      } catch {
+        setRefPreview(refCode);
+      }
+    } else {
+      try {
+        const stored = localStorage.getItem(REFERRAL_STORAGE_KEY);
+        if (stored) setRefPreview(stored);
+      } catch {
+        // ignore
+      }
+    }
+  }, [refCode]);
 
   const passwordStrength =
     password.length === 0
@@ -49,6 +70,16 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
 
     setBusy(true);
     try {
+      const effectiveRef =
+        refCode ||
+        (() => {
+          try {
+            return localStorage.getItem(REFERRAL_STORAGE_KEY);
+          } catch {
+            return null;
+          }
+        })();
+
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -57,6 +88,7 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
           password,
           display_name: displayName.trim() || undefined,
           acceptTerms: true,
+          ref_code: effectiveRef || undefined,
         }),
       });
       const data = await res.json();
@@ -66,7 +98,20 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
         return;
       }
 
-      // 成功 → 跳 returnTo (默认 /login?registered=1)
+      try {
+        localStorage.removeItem(REFERRAL_STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+
+      if (data.referral_bound && effectiveRef) {
+        try {
+          sessionStorage.setItem('aiwill_red_packet_bound', '1');
+        } catch {
+          // ignore
+        }
+      }
+
       router.push(returnTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : '网络错误, 请重试');
@@ -77,6 +122,15 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {refPreview && (
+        <div
+          className="bg-rose-50 border border-rose-200 rounded-lg p-3 text-sm text-rose-800 leading-relaxed-cn"
+          role="note"
+        >
+          <span aria-hidden>🎁 </span>
+          您通过好友邀请链接注册, 注册成功后将自动获得 <strong>¥2 红包</strong> (可抵扣订单, 单笔订单最多抵 50%)
+        </div>
+      )}
       <div>
         <label
           htmlFor="email"
@@ -222,7 +276,7 @@ export function RegisterForm({ returnTo }: RegisterFormProps) {
       <WechatLoginButton
         returnTo={returnTo}
         className="w-full"
-        text="微信登录"
+        text="微信一键注册 (推荐)"
       />
     </form>
   );

@@ -52,14 +52,15 @@ function PaymentContent() {
 
   // A/B 测试: 支付 CTA 文案
   const { variant: abVariant, track: abTrack } = useABTest('payment_cta_v1');
-  const abCtaText = abVariant === 'B' ? '我已支付, 立省 ¥980'
-    : abVariant === 'C' ? '我已支付, 与 1000+ 用户同行'
+  const abCtaText = abVariant === 'B' ? '我已支付, 与 1000+ 用户同行'
+    : abVariant === 'C' ? '我已支付 · 客服确认中'
     : '我已支付 · 请客服确认';
 
-  const planData = planParam === 'expert' ? PRICING.expertReview
-    : PRICING.guide;
+  // 改版 v4 (2026-07-31): 删除 ¥999 专家护航版, 全站统一显示智能版 ¥19.9
+  const planData = PRICING.guide;
   // 改版 v10 (2026-06-28): 修 JS ReferenceError, 之前 3 处 priceInYuan
   //   引用但未定义, 整个 /payment 页面崩溃 ("This page couldn't load")
+  // 改版 v3 (2026-07-30): 新用户 UI 看不到 ¥999, 但历史 expert 订单仍可继续支付 (向后兼容)
   const priceInYuan = planData.price;
 
   // 全球化项目 W2.1: 海外华人显示本地货币 (CNY / USD/GBP/SGD)
@@ -330,86 +331,47 @@ function PaymentContent() {
           )}
         </div>
 
-        {/* 版本对比表 (改版 v11, 2026-06-28, 提升决策清晰度) */}
+        {/* 版本对比表 (改版 v3, 2026-07-30): 简化版 — 不再推 ¥999 升级
+            - 老用户若选择 plan=expert 仍可继续支付 (向后兼容)
+            - 新用户 /plan=ai 看到的是「智能版 + 定制服务说明」, 不再引导升级 ¥999 */}
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
           <h3 className="text-lg font-bold text-slate-800 mb-1 leading-tight-cn">
-            <span aria-hidden>⚖️ </span>两版差异, 一表看清
+            <span aria-hidden>📦 </span>本次订单包含
           </h3>
           <p className="text-xs text-slate-500 mb-4 leading-relaxed-cn">
-            根据您的复杂程度选择 — 简单场景选智能版, 复杂场景选专家护航版
+            智能版 ¥19.9 — 6 类家庭文书统一价 · 问卷 + 草稿生成 + PDF/Word 双格式
           </p>
 
-          <div className="overflow-x-auto -mx-2">
-            <table className="w-full text-sm leading-tight-cn border-collapse">
-              <thead>
-                <tr className="border-b-2 border-slate-200">
-                  <th className="text-left py-2 px-2 font-semibold text-slate-600">功能</th>
-                  <th className="py-2 px-2 text-center font-semibold text-slate-700">
-                    智能版<br />
-                    <span className="text-amber-600 text-base font-bold tabular-nums">{formatPrice(19.9, displayCurrency)}</span>
-                  </th>
-                  <th className="py-2 px-2 text-center font-semibold text-amber-700 bg-amber-50 rounded-t-lg">
-                    专家护航版<br />
-                    <span className="text-amber-600 text-base font-bold tabular-nums">{formatPrice(999, displayCurrency)}</span>
-                    <span className="block text-[10px] font-normal text-amber-600 mt-0.5" aria-label="推荐">
-                      ★ 推荐
-                    </span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-slate-700">
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-2">系统化问卷</td>
-                  <td className="py-2.5 px-2 text-center" aria-label="包含">✅</td>
-                  <td className="py-2.5 px-2 text-center bg-amber-50" aria-label="包含">✅</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-2">文书草稿生成</td>
-                  <td className="py-2.5 px-2 text-center">✅</td>
-                  <td className="py-2.5 px-2 text-center bg-amber-50">✅</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-2">PDF + Word 双格式下载</td>
-                  <td className="py-2.5 px-2 text-center">✅</td>
-                  <td className="py-2.5 px-2 text-center bg-amber-50">✅</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-2">资产规划专业人士 1 对 1 视频审核</td>
-                  <td className="py-2.5 px-2 text-center text-slate-300" aria-label="不包含">—</td>
-                  <td className="py-2.5 px-2 text-center bg-amber-50 font-semibold text-amber-700">✅</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-2">关键条款修改建议</td>
-                  <td className="py-2.5 px-2 text-center text-slate-300" aria-label="不包含">—</td>
-                  <td className="py-2.5 px-2 text-center bg-amber-50 font-semibold text-amber-700">✅</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-2">公证 / 签署指引文档</td>
-                  <td className="py-2.5 px-2 text-center text-slate-300" aria-label="不包含">—</td>
-                  <td className="py-2.5 px-2 text-center bg-amber-50 font-semibold text-amber-700">✅</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 px-2 text-xs text-slate-500">适合</td>
-                  <td className="py-2.5 px-2 text-center text-xs text-slate-500">常见标准场景</td>
-                  <td className="py-2.5 px-2 text-center text-xs text-amber-700 bg-amber-50 rounded-b-lg font-medium">
-                    跨境 / 股权 / 复杂资产
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-green-500" aria-hidden>✓</span>
+              <span>系统化问卷引导 (8 分钟)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-500" aria-hidden>✓</span>
+              <span>依据《民法典》系统化生成草稿</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-500" aria-hidden>✓</span>
+              <span>PDF + Word 双格式导出</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-500" aria-hidden>✓</span>
+              <span>7 天无理由退款 · 30 天内免费修改</span>
+            </div>
           </div>
 
           {planParam === 'ai' && (
-            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800 leading-relaxed-cn">
+            <div className="mt-4 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-700 leading-relaxed-cn">
               <p>
-                <span aria-hidden>💡 </span>
-                提示: 当前选择的是「智能版」. 如涉及房产 / 股权 / 大额资产, 建议升级到「专家护航版」, 由专业人士 1 对 1 把关.
+                <span aria-hidden>💎 </span>
+                复杂场景 (跨境 / 股权 / 大额资产 / 再婚多套房产)? 可留言定制服务, 由资产规划专业人士 1 对 1 对接, 24 小时内邮件回复.
               </p>
               <Link
-                href={`/payment?plan=expert${willId ? `&will_id=${willId}` : ''}`}
-                className="text-blue-700 font-semibold hover:underline mt-1 inline-block"
+                href="/contact"
+                className="text-amber-700 font-semibold hover:underline mt-1 inline-block"
               >
-                升级到专家版 →
+                留言定制服务 →
               </Link>
             </div>
           )}

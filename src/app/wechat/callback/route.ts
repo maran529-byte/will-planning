@@ -17,7 +17,7 @@ import { exchangeCode, getUserInfo } from '@/lib/wechat/oauth';
 import { supabaseAdmin } from '@/lib/supabase-server';
 import { setOpenidCookie, getOauthStateCookie, clearOauthStateCookie, getOpenidCookieOptions } from '@/lib/cookie';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/config';
+import { SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY } from '@/lib/config';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -60,7 +60,7 @@ async function mintUserSessionForEmail(email: string): Promise<{
     return null;
   }
   // 2. 用 email_otp 兑换 session (anon 客户端即可, 不需要 service_role)
-  const anon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const anon = createClient(SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
   const verifyType = (linkData.properties.verification_type || 'magiclink') as

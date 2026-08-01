@@ -85,8 +85,8 @@ export default async function LoginPage({ searchParams }: PageProps) {
               <p>
                 微信搜 <span className="text-amber-500">家有所爱</span> 联系客服
                 · 或发邮件至{' '}
-                <a href="mailto:support@aiwill-planner.cn" className="text-amber-500">
-                  support@aiwill-planner.cn
+                <a href="mailto:330320991@qq.com" className="text-amber-500">
+                  330320991@qq.com
                 </a>
               </p>
             </div>

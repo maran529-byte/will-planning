@@ -20,7 +20,7 @@ import { exchangeCode, getUserInfo } from '@/lib/wechat/oauth';
 import { supabaseAdmin } from '@/lib/supabase-server';
 import { getOpenidCookieOptions } from '@/lib/cookie';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/config';
+import { SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY } from '@/lib/config';
 
 // ---------- Schemas ----------
 
@@ -95,14 +95,17 @@ async function handleOAuthCallback(params: { code: string; state: string; expect
     .maybeSingle();
 
   let userId: string;
+  let tempEmail: string;
   if (existing) {
     userId = existing.id;
+    // 历史 wechat 用户的 tempEmail: 直接从 openid 重建 (只在签发 session 时用)
+    tempEmail = `wx_${token.openid}@aiwill.local`;
     await supabaseAdmin
       .from('users')
       .update(upsertData)
       .eq('id', userId);
   } else {
-    const tempEmail = `wx_${token.openid}@aiwill.local`;
+    tempEmail = `wx_${token.openid}@aiwill.local`;
     const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: tempEmail,
       email_confirm: true,
@@ -138,7 +141,7 @@ async function handleOAuthCallback(params: { code: string; state: string; expect
       email: tempEmail,
     });
     if (!linkError && linkData?.properties?.email_otp) {
-      const anon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      const anon = createClient(SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, {
         auth: { autoRefreshToken: false, persistSession: false },
       });
       const verifyType = (linkData.properties.verification_type || 'magiclink') as

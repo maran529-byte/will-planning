@@ -6,6 +6,16 @@
 //  - 删去 'family' 套餐 (产品精简, 仅 2 档)
 //  - 'lawyer' → 'expert' (合规: 业务介绍中不再出现"律师"称谓, 改为"专业资产规划人员")
 //    — 注: 数据库 enum 仍保留 'lawyer' 旧值 (兼容历史订单), UI 层做映射。
+//
+// 改版 v3 (2026-07-30, 产品精简):
+//  - 前端: 取消"专家护航版"显示, 全站只展示 ¥19.9 智能版
+//  - 高端定制需求: 引导到 /contact 留定制服务 (独立流程, 非 ¥999 标准产品)
+//  - 后端: 'expert' plan 保留 (兼容历史订单, 已支付的不能丢), 但 UI 不再推荐
+//  - UI 看到的唯一价格 = ¥19.9
+//
+// 改版 v4 (2026-07-31, 完全下架):
+//  - expert.plan name/description 改为「已下架」占位, 避免任何 API/管理后台误暴露
+//  - 历史订单显示走 config.ts 的 PLAN_DISPLAY 映射到「智能版」
 
 export const PLAN_IDS = ['ai', 'expert'] as const;
 export type PlanId = (typeof PLAN_IDS)[number];
@@ -18,6 +28,8 @@ export interface PlanPricing {
   promo?: boolean;
   promoText?: string;
   perTime?: boolean;
+  /** 改版 v3: UI 是否展示给新用户 (false = 隐藏, 仅保留后端兼容) */
+  showInUI?: boolean;
 }
 
 export const PRICING: Record<PlanId, PlanPricing> = {
@@ -28,14 +40,23 @@ export const PRICING: Record<PlanId, PlanPricing> = {
     description: '问卷+生成草稿+PDF',
     promo: true,
     promoText: '限时优惠',
+    showInUI: true,
   },
   expert: {
     id: 'expert',
-    name: '专家护航版',
-    priceCents: 99900,           // ¥999.00
-    description: '系统化生成+资产规划专业人士审核+签署指引',
+    name: '已下架',              // 改版 v4: 不再暴露 专家护航版 / ¥999 字样
+    priceCents: 99900,           // 历史订单价格 (数据库内金额不变, 仅展示/前端禁用)
+    description: '已下架',
+    showInUI: false,
   },
 };
+
+/**
+ * 改版 v3: 返回前端可见的套餐列表 (新用户只能看到 ¥19.9).
+ */
+export function getUIPlans(): PlanPricing[] {
+  return Object.values(PRICING).filter((p) => p.showInUI !== false);
+}
 
 // 历史 plan 字符串 → 当前 plan 的映射. 用于:
 //  (a) 旧订单/老数据 (DB 中 'lawyer' 旧值)

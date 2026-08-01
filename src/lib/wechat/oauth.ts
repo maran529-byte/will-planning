@@ -80,6 +80,14 @@ export function buildAuthorizeUrl(opts: {
  * @throws Error 微信返回 errcode !== 0 时
  */
 export async function exchangeCode(code: string): Promise<AccessTokenResponse> {
+  // 提前校验: WECHAT_MP_APP_SECRET 未配置 → 微信会返回 41004 appsecret missing
+  if (!WECHAT_MP_APP_SECRET) {
+    throw new Error(
+      'exchangeCode failed: 41004 appsecret missing (WECHAT_MP_APP_SECRET 未配置). ' +
+      '请在部署环境 (Vercel → Settings → Environment Variables) 配置 WECHAT_MP_APP_SECRET 后 Redeploy.'
+    );
+  }
+
   const url = new URL(`${WECHAT_API_BASE}/sns/oauth2/access_token`);
   url.searchParams.set('appid', WECHAT_MP_APP_ID);
   url.searchParams.set('secret', WECHAT_MP_APP_SECRET);

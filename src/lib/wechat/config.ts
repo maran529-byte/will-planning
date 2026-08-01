@@ -6,8 +6,9 @@
  */
 
 // 公众号 凭证
-export const WECHAT_MP_APP_ID = process.env.WECHAT_MP_APP_ID || 'wx77780599aa2a53ee';
-export const WECHAT_MP_APP_SECRET = process.env.WECHAT_MP_APP_SECRET || '';  // ⚠️ 重置后填入
+export const WECHAT_MP_APP_ID = process.env.WECHAT_MP_APP_ID || process.env.WECHAT_APPID || 'wx77780599aa2a53ee';
+// 兼容旧名 WECHAT_APPSECRET (支付模块用的命名), 优先取 WECHAT_MP_APP_SECRET
+export const WECHAT_MP_APP_SECRET = process.env.WECHAT_MP_APP_SECRET || process.env.WECHAT_APPSECRET || '';
 
 // 公众号服务器配置 (URL 验证 + 消息加解密)
 export const WECHAT_MP_TOKEN = process.env.WECHAT_MP_TOKEN || '';             // 32 位随机

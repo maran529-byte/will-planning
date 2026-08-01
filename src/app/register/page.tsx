@@ -28,6 +28,7 @@ export const metadata: Metadata = {
 interface PageProps {
   searchParams: {
     return?: string;
+    ref?: string;
   };
 }
 
@@ -35,6 +36,7 @@ export default async function RegisterPage({ searchParams }: PageProps) {
   const host = (await headers()).get('host') ?? '';
   const isH5 = isH5Host(host);
   const returnTo = searchParams.return ?? '/orders';
+  const refCode = searchParams.ref ?? null;
 
   if (!isH5) {
     return (
@@ -69,7 +71,7 @@ export default async function RegisterPage({ searchParams }: PageProps) {
             </div>
 
             <Link
-              href="https://h5.aiwill-planner.cn/register"
+              href={`https://h5.aiwill-planner.cn/register${refCode ? `?ref=${encodeURIComponent(refCode)}` : ''}`}
               className="mt-8 block w-full py-4 bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-2xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
             >
               前往 H5 注册 →
@@ -94,5 +96,5 @@ export default async function RegisterPage({ searchParams }: PageProps) {
     );
   }
 
-  return <RegisterForm returnTo={returnTo} />;
+  return <RegisterForm returnTo={returnTo} refCode={refCode} />;
 }

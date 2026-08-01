@@ -1,35 +1,35 @@
 /**
  * 用户注册 (POST /api/auth/register)
  *
- * Body: { email, password, display_name?, acceptTerms: true }
+ * Body: { email, password, display_name?, acceptTerms: true, ref_code?: string }
  *
- * 流程:
- *   1. 调 supabase.auth.signUp (Supabase 帮我们做密码强度 + 重复检查)
+ * 流程 (2026-07-29 改版):
+ *   1. 调 supabase.auth.admin.createUser (绕过 SMTP, email_confirm=true 直接创建)
+ *      - 之前用 anon signUp, 但 Supabase 默认会发"确认邮件",
+ *        自建实例无 SMTP 配置导致 signup 总是 400
  *   2. 成功后, 用 service_role 在 public.users 创建对应记录
- *   3. (可选) 自动登录: 写 user_session cookie, 让用户体验更顺畅
- *
- * 重要: Supabase 默认会发"确认邮件"。生产环境需要配置 SMTP,
- *  本地开发可以关闭 (Supabase Dashboard > Authentication > Providers
- *  > Email > Confirm email = off). 不关闭的话用户需先点邮件链接
- *  才能登录.
+ *   3. 如果有 ref_code, 调用 bind_referral_and_reward() 给推荐人发 ¥2 红包
+ *   4. 用 generateLink + verifyOtp 签发 access_token, 自动写 user_session cookie
+ *      (让用户体验更顺畅, 不需要再去登录页输入一遍密码)
  *
  * 安全:
  *   - 密码长度至少 8 位 (zod schema)
  *   - 邮箱格式校验
  *   - 必须勾选 acceptTerms
- *   - 不直接返回 session (避免自动登录绕过邮件确认流程)
- *     — 改为返回成功状态, 让前端跳 /login 引导用户登录
+ *   - 重复邮箱检测: createUser 失败 message 含 'already' → 409 EMAIL_TAKEN
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import {
-  SUPABASE_URL,
+  SUPABASE_INTERNAL_URL,
   SUPABASE_ANON_KEY,
   SUPABASE_SERVICE_ROLE_KEY,
 } from '@/lib/config';
 import { supabaseAdmin } from '@/lib/supabase-server';
+import { REFERRAL_REWARD_CENTS, canBindReferral } from '@/lib/referral';
+import { setUserSessionCookie } from '@/lib/user-auth';
 
 const registerSchema = z.object({
   email: z.string().email('请输入有效邮箱'),
@@ -38,10 +38,11 @@ const registerSchema = z.object({
   acceptTerms: z.boolean().refine((v) => v === true, {
     message: '请先同意服务条款与隐私政策',
   }),
+  ref_code: z.string().min(1).max(64).optional(),
 });
 
 export async function POST(request: NextRequest) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_INTERNAL_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json(
       { code: 'SUPABASE_NOT_CONFIGURED', error: 'Supabase 未配齐, 无法注册' },
       { status: 503 }
@@ -68,79 +69,126 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { email, password, display_name } = parsed.data;
+  const { email, password, display_name, ref_code } = parsed.data;
 
-  // 1. 调 Supabase signUp
-  const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-  const { data, error } = await anonClient.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { display_name: display_name || '' }, // 写入 auth.user_metadata
-      emailRedirectTo: process.env.SITE_URL
-        ? `${process.env.SITE_URL.replace(/\/+$/, '')}/login?registered=1`
-        : undefined,
-    },
-  });
-
-  if (error) {
-    // 重复注册 → 401
-    if (/already registered|already exists|user already|email already/i.test(error.message)) {
-      return NextResponse.json(
-        { code: 'EMAIL_TAKEN', error: '该邮箱已注册, 请直接登录' },
-        { status: 409 }
-      );
-    }
-    return NextResponse.json(
-      { code: 'SIGNUP_FAILED', error: error.message },
-      { status: 400 }
-    );
-  }
-
-  if (!data.user) {
-    return NextResponse.json(
-      { code: 'SIGNUP_NO_USER', error: '注册未返回用户信息' },
-      { status: 500 }
-    );
-  }
-
-  // 2. 在 public.users 同步创建 (service_role 绕过 RLS)
-  // 注: Supabase 默认会发确认邮件, 此时 session 可能为 null
   if (!supabaseAdmin) {
     return NextResponse.json(
       { code: 'SUPABASE_NOT_CONFIGURED', error: '服务端 admin client 不可用' },
       { status: 503 }
     );
   }
+
+  // 1. 调 Supabase admin.createUser (绕过 SMTP, email_confirm=true 直接生效)
+  //    - 失败: 重复邮箱 → 409; 其他 → 400
+  const { data: createdData, error: createError } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { display_name: display_name || '' },
+  });
+
+  if (createError || !createdData?.user) {
+    const msg = createError?.message || '注册失败';
+    if (/already registered|already exists|user already|email already/i.test(msg)) {
+      return NextResponse.json(
+        { code: 'EMAIL_TAKEN', error: '该邮箱已注册, 请直接登录' },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json(
+      { code: 'SIGNUP_FAILED', error: msg },
+      { status: 400 }
+    );
+  }
+
+  const userId = createdData.user.id;
+
+  // 2. 在 public.users 同步创建 (service_role 绕过 RLS)
   const { error: upsertError } = await supabaseAdmin
     .from('users')
     .upsert(
       {
-        id: data.user.id,
+        id: userId,
         email,
         display_name: display_name || null,
-        // role DEFAULT 'user', 不显式设置
       },
       { onConflict: 'id', ignoreDuplicates: true }
     );
 
   if (upsertError) {
-    // 不要因 public.users 同步失败让用户觉得注册失败
-    // (auth.users 已创建, 用户可登录后再补 profile)
-    console.error('public.users upsert failed:', upsertError);
+    console.error('[register] public.users upsert failed:', upsertError.message);
   }
 
-  // 3. 返回成功
-  // 不写 cookie — 让用户去登录页手动登录 (符合 Supabase 默认邮件确认流程)
+  // 3. 推荐人绑定 + ¥2 红包奖励 (业务铁律 v1.0)
+  let referralBound = false;
+  if (ref_code && canBindReferral(ref_code, userId)) {
+    try {
+      const { data: rewardData, error: rewardErr } = await supabaseAdmin.rpc(
+        'bind_referral_and_reward',
+        {
+          p_referrer_id: ref_code,
+          p_referee_id: userId,
+          p_reward_cents: REFERRAL_REWARD_CENTS,
+        }
+      );
+      if (rewardErr) {
+        console.error('[register] bind_referral_and_reward failed:', rewardErr.message);
+      } else {
+        referralBound = rewardData === true;
+        if (referralBound) {
+          console.log(
+            `[register] 推荐人 ${ref_code} 成功绑定被推荐人 ${userId}, 发放 ¥${REFERRAL_REWARD_CENTS / 100} 红包`
+          );
+        }
+      }
+    } catch (e) {
+      console.error('[register] referral binding error:', (e as Error)?.message);
+    }
+  }
+
+  // 4. 自动登录: 用 admin.generateLink + anon.verifyOtp 拿 access_token
+  //    (magic-link 通道, 不发邮件, 仅取 token)
+  let accessToken: string | null = null;
+  let expiresIn = 3600;
+  try {
+    const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+    });
+    if (!linkErr && linkData?.properties?.email_otp) {
+      const anon = createClient(SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, {
+        auth: { autoRefreshToken: false, persistSession: false },
+      });
+      const verifyType = (linkData.properties.verification_type || 'magiclink') as
+        | 'magiclink' | 'signup' | 'email' | 'recovery';
+      const { data: verifyData, error: verifyErr } = await anon.auth.verifyOtp({
+        email,
+        token: linkData.properties.email_otp,
+        type: verifyType,
+      });
+      if (!verifyErr && verifyData?.session) {
+        accessToken = verifyData.session.access_token;
+        expiresIn = verifyData.session.expires_in ?? 3600;
+      }
+    }
+  } catch (e) {
+    console.warn('[register] auto sign-in failed:', (e as Error)?.message);
+  }
+
+  if (accessToken) {
+    const expiresAt = Date.now() + expiresIn * 1000;
+    await setUserSessionCookie(accessToken, expiresAt);
+  }
+
+  // 5. 返回成功
   return NextResponse.json({
     success: true,
-    user: { id: data.user.id, email },
-    // 提示前端是否需要引导用户去邮箱确认
-    needsEmailConfirmation: !data.session,
-    message: data.session
+    user: { id: userId, email },
+    autoSignedIn: !!accessToken,
+    needsEmailConfirmation: false,
+    message: accessToken
       ? '注册成功, 已自动登录'
-      : '注册成功, 请查收邮箱确认链接后登录',
+      : '注册成功, 请前往登录',
+    referral_bound: referralBound,
   });
 }

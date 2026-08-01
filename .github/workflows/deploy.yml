@@ -25,9 +25,12 @@ jobs:
 
       # Vercel 端点要求 CLI >= 47.2.2 (2025-10 起), 但 vercel-action@v25 内部
       # 仍固定调用老版 CLI. 这里显式 npx -y 拉最新版, 绕过 action 内的版本锁.
+      # 改版 v14 (2026-08-01): 加 --force 强制新部署, 解决 _next/static/chunks/ 旧 chunk
+      #   被 Vercel CDN 边缘节点长期缓存, 自定义域 (h5.aiwill-planner.cn) 用户仍看到旧 UI.
+      #   --force 跳过 build cache, 重新生成所有 chunk, 全局生效.
       - name: Deploy to Vercel
         run: |
-          npx -y vercel@latest deploy --prod \
+          npx -y vercel@latest deploy --prod --force \
             --token "${{ secrets.VERCEL_TOKEN }}" \
             --yes
         env:

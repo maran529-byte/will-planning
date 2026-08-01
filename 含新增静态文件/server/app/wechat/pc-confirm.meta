@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/wechat/layout,_N_T_/wechat/pc-confirm/layout,_N_T_/wechat/pc-confirm/page,_N_T_/wechat/pc-confirm"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/wechat/pc-confirm/__PAGE__",
+    "/wechat/pc-confirm",
+    "/wechat",
+    "/_index",
+    "/_head"
+  ]
+}

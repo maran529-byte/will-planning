@@ -1,0 +1,3 @@
+module.exports=[16710,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)(b.Fragment,{children:a})},"metadata",0,{title:"智能问卷",description:"10 分钟帮您完成婚前/婚内/离婚/抚养/赠与/传承 6 类家庭文书问卷",alternates:{canonical:"https://h5.aiwill-planner.cn/questionnaire"},robots:{index:!1,follow:!1,googleBot:{index:!1,follow:!1}}}])},4179,a=>{a.n(a.i(16710))}];
+
+//# sourceMappingURL=src_app_questionnaire_layout_tsx_0r7bwsd._.js.map

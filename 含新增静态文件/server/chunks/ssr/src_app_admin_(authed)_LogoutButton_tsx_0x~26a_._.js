@@ -1,0 +1,3 @@
+module.exports=[60739,a=>{"use strict";var b=a.i(87924);a.s(["LogoutButton",0,function(){return(0,b.jsx)("button",{type:"button",onClick:async()=>{await fetch("/api/admin/auth",{method:"DELETE"}),window.location.href="/admin/login"},className:"text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded hover:bg-slate-800 focus-ring-visible","aria-label":"退出登录",children:"退出"})}])}];
+
+//# sourceMappingURL=src_app_admin_%28authed%29_LogoutButton_tsx_0x~26a_._.js.map

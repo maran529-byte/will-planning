@@ -10,7 +10,7 @@ import urllib.request
 import urllib.parse
 from typing import Optional, Dict, Any
 
-MEASUREMENT_ID = os.environ.get("GA4_MEASUREMENT_ID", "G-9XQ3Q29SEK")
+MEASUREMENT_ID = os.environ.get("GA4_MEASUREMENT_ID", "")
 API_SECRET = os.environ.get("GA4_API_SECRET", "")
 
 ENDPOINT = "https://www.google-analytics.com/mp/collect"

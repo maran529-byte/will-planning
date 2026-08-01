@@ -74,6 +74,7 @@ scp -i "${SSH_KEY}" \
     "${REPO_ROOT}/deployment/mainland-server/llms.txt" \
     "${REPO_ROOT}/deployment/mainland-server/googleca0c92e68f0ca67c.html" \
     "${REPO_ROOT}/deployment/mainland-server/MP_verify_ZfvMTOA5IvTKBOHF.txt" \
+    "${REPO_ROOT}/public/wechat-mp-qr.png" \
     "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_WWW}/"
 
 echo "✅ 静态资源已上传"

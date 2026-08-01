@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/wechat/layout,_N_T_/wechat/bind/layout,_N_T_/wechat/bind/page,_N_T_/wechat/bind"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/wechat/bind/__PAGE__",
+    "/wechat/bind",
+    "/wechat",
+    "/_index",
+    "/_head"
+  ]
+}

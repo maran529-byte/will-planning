@@ -81,4 +81,3 @@ Allow: /
 
 # === Sitemap ===
 Sitemap: https://h5.aiwill-planner.cn/sitemap.xml
-Sitemap: https://aiwill-planner.cn/sitemap.xml

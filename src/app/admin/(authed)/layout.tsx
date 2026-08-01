@@ -29,6 +29,8 @@ import { LogoutButton } from './LogoutButton';
 
 const NAV_ITEMS = [
   { href: '/admin', label: '概览' },
+  { href: '/admin/issues', label: '🐛 问题审核' },
+  { href: '/admin/issue-keywords', label: '🤖 自运营词库' },
   { href: '/admin/orders', label: '订单' },
   { href: '/admin/refunds', label: '退款' },
   { href: '/admin/users', label: '用户' },
@@ -39,6 +41,7 @@ const NAV_ITEMS = [
   { href: '/admin/payment-events', label: '回调事件' },
   { href: '/admin/analytics', label: '数据看板' },
   { href: '/admin/ab-tests', label: 'A/B 测试' },
+  { href: '/admin/wechat-menu', label: '公众号菜单' },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -1,7 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import LegalFooter from "@/components/LegalFooter";
 import { StructuredData } from "@/components/StructuredData";
+import SiteUrlClient from "@/components/SiteUrlClient";
 import "./globals.css";
+
+const BAIDU_TONGJI_ID = "51b33a32b85e6ec0389b80e07e1b5458";
 
 // 字体策略: 改版后使用 系统字体栈, 避免离线 / 受限网络环境 build 失败.
 // (原 next/font/google Geist 在国内 CI / 离线沙箱无法 fetch). 系统字体在中文站
@@ -115,11 +119,22 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <StructuredData type="organization" />
         <StructuredData type="website" />
-        {/* GA4 / 百度统计 — 2026-06-28 取消 (用户要求) */}
+        {/* 百度统计 — 2026-07-20 重新接入, ID: 51b33a32b85e6ec0389b80e07e1b5458 */}
+        <Script id="baidu-tongji" strategy="afterInteractive">
+          {`var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?${BAIDU_TONGJI_ID}";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();`}
+        </Script>
       </head>
       <body className="min-h-full flex flex-col">
         {children}
         <LegalFooter />
+        {/* 改版 (2026-07-30, GEO): 客户端动态校正 canonical/og:url, 避免 H5 被判镜像 */}
+        <SiteUrlClient />
       </body>
     </html>
   );

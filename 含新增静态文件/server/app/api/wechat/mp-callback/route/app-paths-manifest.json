@@ -1,0 +1,3 @@
+{
+  "/api/wechat/mp-callback/route": "app/api/wechat/mp-callback/route.js"
+}

@@ -48,8 +48,8 @@ export default async function ContactPage() {
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
               <div className="text-2xl mb-2" aria-hidden="true">📧</div>
               <div className="font-medium">邮件</div>
-              <a href="mailto:support@aiwill-planner.cn" className="text-sm text-amber-600 mt-1 block hover:underline break-all">
-                support@aiwill-planner.cn
+              <a href="mailto:330320991@qq.com" className="text-sm text-amber-600 mt-1 block hover:underline break-all">
+                330320991@qq.com
               </a>
             </div>
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">

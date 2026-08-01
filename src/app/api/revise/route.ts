@@ -2,7 +2,7 @@
 //
 // 设计目标 (2026-06-09, 需求 #4 "在用户未下载文书前, 可以提供多次修改内容的权限"):
 //   1. 用户改了一两个字段, 不想再走完整个问卷
-//   2. 拿当前文书的 formData + 用户新修改的字段 → 重新调 LLM
+//   2. 拿当前文书的 formData + 用户新修改的字段 → 重新生成 (模板路径)
 //   3. 每次 revise, revision_count + 1
 //   4. 超过 3 次 → 400 拒绝, 提示用户 "请联系人工"
 //
@@ -17,9 +17,12 @@
 //   - 400: { code: 'MAX_REVISIONS_REACHED' | 'INVALID_REQUEST' }
 //   - 404: { code: 'NOT_FOUND' }
 //   - 500: { code: 'INTERNAL_ERROR' }
+//
+// P0-6 (2026-07-30): 已删除 MiniMax 推理分支, 仅保留模板重新生成
 
 import { NextRequest, NextResponse } from "next/server";
-import { MINIMAX_API_KEY, MINIMAX_BASE_URL, MINIMAX_MODEL } from "@/lib/config";
+// P0-6 (2026-07-30): 删除 MiniMax 引用 - 合规整改 v16
+// import { MINIMAX_API_KEY, MINIMAX_BASE_URL, MINIMAX_MODEL } from "@/lib/config";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { sanitizeFormData } from "@/lib/form-data-filter";
 
@@ -135,40 +138,12 @@ export async function POST(request: NextRequest) {
 
     // 调 LLM 重新生成
     let newContent = "";
-    // 合规 P0 (2026-06-10): 关闭生成式 AI revise 端点
+    // 合规 P0 (2026-07-30): 删除 MiniMax 推理分支
     // - 法规: 《生成式人工智能服务管理暂行办法》(2023-08-15 施行)
     // - 状态: 暂未取得生成式 AI 服务备案
-    // - 策略: 不调 LLM, 提示用户使用表单修改
-    // - 还原: 备案完成后删除此 kill switch, 恢复原 if 分支
-    const AI_SERVICE_COMPLIANCE_KILLED = true;
-    if (!AI_SERVICE_COMPLIANCE_KILLED && MINIMAX_API_KEY && MINIMAX_API_KEY !== "") {
-      try {
-        const prompt = buildPrompt(docType, sanitized);
-        const response = await fetch(MINIMAX_BASE_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${MINIMAX_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: MINIMAX_MODEL,
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.3,
-          }),
-        });
-        if (response.ok) {
-          const data = await response.json();
-          newContent = data.choices?.[0]?.message?.content || "";
-        }
-      } catch (apiErr) {
-        console.error(`[revise ${docType}] MiniMax API error:`, apiErr);
-      }
-    }
-
-    // Fallback: 如果 LLM 失败, 至少更新 form_data + revision_count
-    if (!newContent) {
-      newContent = existing.will_content || existing.doc_content || "";
-    }
+    // - 策略: 仅使用原 content 作为 fallback, 提示用户使用表单修改
+    // - 还原: 备案完成后部署到 HK 并使用境外 ASN 提供商, 在此文件新增分支
+    newContent = existing.will_content || existing.doc_content || "";
 
     // 更新数据库: content + revision_count + form_data
     const newRevisions = currentRevisions + 1;

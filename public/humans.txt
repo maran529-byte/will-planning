@@ -1,0 +1,18 @@
+/* TEAM */
+家有所爱工作室
+Editor & Curator: 家有所爱工作室 编辑组
+Contact: hello@aiwill-planner.cn
+Location: 上海市, 中国
+
+/* SITE */
+Last update: 2026/07/02
+Standards: HTML5, CSS3, JavaScript (Next.js 16 App Router)
+Components: Schema.org JSON-LD, Open Graph, hreflang
+Doctype: zh-CN 家庭法律文书智能生成参考平台
+
+/* THANKS */
+- 微信开放平台 — 公众号 / 微信支付
+- 腾讯云 — Supabase 数据托管
+- 百度站长平台 — 搜索引擎收录
+- 民法典 — 法律依据
+- 文书模板作者团队

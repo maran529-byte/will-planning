@@ -1,0 +1,3 @@
+{
+  "/api/wechat/pc-login-verify/route": "app/api/wechat/pc-login-verify/route.js"
+}

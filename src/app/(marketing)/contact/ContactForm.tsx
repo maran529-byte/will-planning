@@ -15,7 +15,7 @@ type Topic =
   | 'child-custody'
   | 'gift'
   | 'inheritance'
-  | 'expert-review'
+  | 'custom-service'    // 改版 v3 (2026-07-30): 取代原 'expert-review', 指向定制服务
   | 'payment'
   | 'other';
 
@@ -27,7 +27,7 @@ const TOPICS: { value: Topic; label: string }[] = [
   { value: 'child-custody', label: '子女抚养' },
   { value: 'gift', label: '赠与' },
   { value: 'inheritance', label: '财富传承' },
-  { value: 'expert-review', label: '专家护航服务' },
+  { value: 'custom-service', label: '定制服务 (复杂场景)' },
   { value: 'payment', label: '付款问题' },
   { value: 'other', label: '其他' },
 ];

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/config';
+import { SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY } from '@/lib/config';
 
 export async function GET(_request: NextRequest) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!SUPABASE_INTERNAL_URL || !SUPABASE_ANON_KEY) {
     return NextResponse.json(
       { code: 'SUPABASE_NOT_CONFIGURED', error: 'Supabase 未配置' },
       { status: 503 }
@@ -22,7 +22,7 @@ export async function GET(_request: NextRequest) {
   }
 
   try {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    const supabase = createClient(SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
       global: { headers: { Authorization: `Bearer ${accessToken}` } },
     });

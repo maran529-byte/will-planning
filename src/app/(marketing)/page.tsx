@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { PRICING } from "@/lib/config";
 import { VisitorIdBanner } from "@/components/VisitorIdBanner";
 import { StructuredData } from "@/components/StructuredData";
 import { DOCUMENT_TYPES, COLOR_CLASSES } from "@/lib/document-types";
@@ -15,7 +14,7 @@ const H5_SITE   = "https://h5.aiwill-planner.cn"; // 移动端 (overseas)
 export const metadata: Metadata = {
   title: "家有所爱 · 婚前/婚内/离婚/抚养/赠与/传承 6 类家庭文书 ¥19.9 起",
   description:
-    "10 分钟帮您整理好婚姻协议、婚内财产、离婚协议、子女抚养、赠与、家庭传承 6 类家庭文书。¥19.9 起, 资产规划专业人士在线陪伴, 30+ 篇民法典深度指南免费查阅。",
+    "10 分钟帮您整理好婚姻协议、婚内财产、离婚协议、子女抚养、赠与、家庭传承 6 类家庭文书。¥19.9 起, 资产规划专业人士在线陪伴, 20 篇民法典深度指南免费查阅。",
   keywords: [
     "婚前财产协议",
     "婚前协议怎么写",
@@ -233,91 +232,64 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 定价方案 */}
+      {/* 定价方案 — 改版 v4 (2026-07-30): 全站仅展示 ¥19.9 智能版, 复杂场景走 /contact 留言 */}
       <section id="pricing" className="py-16 px-4">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 text-slate-800 text-balance">透明定价</h2>
-          <p className="text-slate-600 text-center mb-12 leading-relaxed-cn">根据您的需求选择合适的服务方案</p>
+          <p className="text-slate-600 text-center mb-12 leading-relaxed-cn">所有 6 类家庭文书统一一口价 · 无隐藏费用</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto items-stretch">
-            {/* 智能版 */}
-            <div className="pricing-card flex flex-col h-full">
+          <div className="max-w-md mx-auto">
+            {/* 智能版 ¥19.9 — 全站唯一标准产品 */}
+            <div className="pricing-card featured flex flex-col">
+              <span className="featured-badge">推荐</span>
               <div className="text-center mb-6">
-                {PRICING.guide.promoText && (
-                  <span className="inline-block bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded-full mb-2">
-                    {PRICING.guide.promoText}
-                  </span>
-                )}
-                <h3 className="text-xl font-bold mb-2">{PRICING.guide.name}</h3>
-                <p className="text-slate-600 text-sm mb-4 leading-relaxed-cn">{PRICING.guide.description}</p>
-                <div className="text-4xl font-bold text-slate-800 tabular-nums">
-                  ¥{PRICING.guide.price}
+                <span className="inline-block bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded-full mb-2">
+                  限时优惠
+                </span>
+                <h3 className="text-xl font-bold mb-2">智能版</h3>
+                <p className="text-slate-600 text-sm mb-4 leading-relaxed-cn">问卷 + 生成草稿 + PDF/Word 导出</p>
+                <div className="text-4xl font-bold text-amber-600 tabular-nums">
+                  ¥19.9
                 </div>
+                <p className="text-xs text-slate-500 mt-1">6 类文书统一价 · 无隐藏费用</p>
               </div>
-              <ul className="space-y-3 mb-6 text-sm flex-1">
+              <ul className="space-y-3 mb-6 text-sm">
                 <li className="flex items-center gap-2">
                   <span className="text-green-500" aria-hidden>✓</span>
-                  <span>智能问卷引导</span>
+                  <span>智能问卷引导 (8 分钟)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-green-500" aria-hidden>✓</span>
-                  <span>文书草稿生成</span>
+                  <span>依据《民法典》系统化生成草稿</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-green-500" aria-hidden>✓</span>
-                  <span>PDF文件导出</span>
+                  <span>PDF + Word 双格式导出</span>
                 </li>
-                <li className="flex items-center gap-2 text-slate-400">
-                  <span aria-hidden>✗</span>
-                  <span>专家审核（需另付费）</span>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500" aria-hidden>✓</span>
+                  <span>7 天无理由退款</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500" aria-hidden>✓</span>
+                  <span>30 天内免费修改</span>
                 </li>
               </ul>
               <Link
                 href="/doc-type?plan=ai"
-                className="block text-center bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-lg transition mt-auto"
+                className="block text-center bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition"
               >
-                立即开始
-              </Link>
-            </div>
-
-            {/* 专家护航版 */}
-            <div className="pricing-card featured flex flex-col h-full">
-              <span className="featured-badge">推荐</span>
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold mb-2">{PRICING.expertReview.name}</h3>
-                <p className="text-slate-600 text-sm mb-4 leading-relaxed-cn">{PRICING.expertReview.description}</p>
-                <div className="text-4xl font-bold text-amber-600 tabular-nums">
-                  ¥{PRICING.expertReview.price}
-                </div>
-              </div>
-              <ul className="space-y-3 mb-6 text-sm flex-1">
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500" aria-hidden>✓</span>
-                  <span>智能问卷引导</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500" aria-hidden>✓</span>
-                  <span>文书草稿生成</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500" aria-hidden>✓</span>
-                  <span>资产规划专业人士视频审核</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500" aria-hidden>✓</span>
-                  <span>签署指引文档</span>
-                </li>
-              </ul>
-              <Link
-                href="/doc-type?plan=expert"
-                className="block text-center bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition mt-auto"
-              >
-                立即开始
+                立即开始 ¥19.9 →
               </Link>
             </div>
           </div>
 
           <p className="text-center text-slate-500 text-sm mt-8">
+            复杂场景 (跨境 / 股权 / 大额资产 / 再婚多套房产) 可
+            <Link href="/contact" className="text-amber-600 hover:underline mx-1">
+              留言定制服务
+            </Link>
+            ·{' '}
             <a
               href={H5_SITE}
               target="_blank"
@@ -379,7 +351,7 @@ export default async function HomePage() {
               <p className="mt-4 text-slate-600 leading-relaxed-cn">
                 模板为草稿文本, 需经当事人签字 (或公证) 后才具备保障效果。
                 我们建议涉及房产、股权、大额资产的文书完成公证以确保最大保障效果。
-                选 ¥999 专家版可获得资产规划专业人士 1 对 1 视频审核。
+                复杂场景 (跨境 / 股权 / 大额资产) 可走「定制服务」, 由资产规划专业人士 1 对 1 对接。
               </p>
             </details>
 
@@ -392,7 +364,7 @@ export default async function HomePage() {
                 >▾</span>
               </summary>
               <p className="mt-4 text-slate-600 leading-relaxed-cn">
-                不会。所有数据存储于中国大陆腾讯云, 银行级加密;
+                不会。业务数据由 Supabase (PostgreSQL + RLS) 海外节点提供, 银行级加密;
                 PII 字段 (身份证/手机号) 单独加密;
                 不会泄露给第三方或用于模型训练。
                 30 天后您可申请彻底删除。
@@ -503,7 +475,7 @@ export default async function HomePage() {
             <div className="bg-white rounded-xl p-6 shadow-sm border border-amber-100">
               <p className="text-slate-700 leading-relaxed-cn mb-4">
                 <span className="text-amber-500 text-2xl mr-1" aria-hidden>“</span>
-                再婚家庭搞股权赠与协议, 199 专家版的律师视频审核值了。
+                再婚家庭搞股权赠与协议, 系统化生成把赠与人 / 受赠人 / 税费条款都理得很清楚, 后来办赠与公证一次过。
               </p>
               <p className="text-sm text-slate-500">
                 <span className="font-medium text-slate-700">老陈</span> · 创业者 · 来自深圳
@@ -531,8 +503,8 @@ export default async function HomePage() {
           faqs: [
             { q: '系统化起草的婚姻协议有保障效果吗？', a: '模板版生成的为草稿, 需经双方签字 (或公证) 后才具备保障效果。涉及房产、股权、大额资产建议办理公证。' },
             { q: '需要多长时间完成一份协议？', a: '填写问卷约 8-10 分钟, 系统化生成约 1 分钟, 即可下载 PDF/Word 文件。' },
-            { q: '我的婚姻 / 财产信息会泄露吗？', a: '所有数据存储于中国大陆腾讯云, 符合《数据安全法》; PII 字段 (身份证/手机号) 单独加密, 30 天可申请彻底删除。' },
-            { q: '专家版 (¥999) 和 智能版 (¥19.9) 的区别？', a: '智能版由系统化模板生成, 适合常见标准场景; 专家版增加资产规划专业人士 1 对 1 视频审核 + 修改建议, 适合跨境资产 / 股权设计等复杂情况。' },
+            { q: '我的婚姻 / 财产信息会泄露吗？', a: '业务数据由 Supabase (PostgreSQL + RLS) 海外节点提供, 符合《数据安全法》; PII 字段 (身份证/手机号) 单独加密, 30 天可申请彻底删除。' },
+            { q: '智能版 (¥19.9) 和 定制服务 的区别？', a: '智能版由系统化模板生成, 适合常见标准场景 (婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承); 复杂场景 (跨境资产 / 股权设计 / 大额传承 / 再婚多套房产) 可在 /contact 留言定制服务, 由资产规划专业人士 1 对 1 对接。' },
             { q: '婚前 / 婚内 / 离婚该选哪类？', a: '婚前 / 再婚选「婚姻协议书」; 已婚想明确财产选「婚内财产协议」; 准备分手选「离婚协议书」+「子女抚养协议」(如有未成年子女)。' },
             { q: '支付后还能修改协议内容吗？', a: '支付前可无限次重新填写; 支付后还有 3 次「免费修改」机会, 之后可联系客服。' },
             // 改版 v10 (2026-06-29, GEO): 3 个新 Q&A 同步注入
@@ -695,10 +667,10 @@ export default async function HomePage() {
                   },
                   {
                     '@type': 'Review',
-                    name: '赠与协议专家版反馈',
+                    name: '赠与协议使用反馈',
                     author: { '@type': 'Person', name: '老陈' },
                     datePublished: '2026-06-09',
-                    reviewBody: '再婚家庭搞股权赠与协议, 199 专家版的律师视频审核值了。',
+                    reviewBody: '再婚家庭搞股权赠与协议, 系统化生成把赠与人 / 受赠人 / 税费条款都理得很清楚, 后来办赠与公证一次过。',
                     reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5', worstRating: '1' },
                   },
                   {

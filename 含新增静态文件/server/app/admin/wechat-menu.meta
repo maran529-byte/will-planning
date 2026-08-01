@@ -1,0 +1,19 @@
+{
+  "status": 307,
+  "headers": {
+    "location": "/admin/login?return=%2Fadmin",
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/admin/layout,_N_T_/admin/(authed)/layout,_N_T_/admin/(authed)/wechat-menu/layout,_N_T_/admin/(authed)/wechat-menu/page,_N_T_/admin/wechat-menu"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/admin/!KGF1dGhlZCk/wechat-menu/__PAGE__",
+    "/admin/!KGF1dGhlZCk/wechat-menu",
+    "/admin/!KGF1dGhlZCk",
+    "/admin",
+    "/_index",
+    "/_head"
+  ]
+}

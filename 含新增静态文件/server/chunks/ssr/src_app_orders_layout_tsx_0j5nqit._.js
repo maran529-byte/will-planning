@@ -1,0 +1,3 @@
+module.exports=[6124,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)(b.Fragment,{children:a})},"metadata",0,{title:"我的订单",description:"查看历史订单, 导出 PDF/Word, 申请发票",alternates:{canonical:"https://h5.aiwill-planner.cn/orders"},robots:{index:!1,follow:!1,googleBot:{index:!1,follow:!1}}}])},33256,a=>{a.n(a.i(6124))}];
+
+//# sourceMappingURL=src_app_orders_layout_tsx_0j5nqit._.js.map

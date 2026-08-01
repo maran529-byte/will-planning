@@ -79,6 +79,8 @@ function QuestionnaireContent() {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showRestoreHint, setShowRestoreHint] = useState(false);
+  // P1: 访客提示 (2026-07-29 修复) - 顶部横幅提醒用户登录后再提交
+  const [authState, setAuthState] = useState<"unknown" | "guest" | "user">("unknown");
 
   // 1. 首次挂载: 从 localStorage 恢复
   useEffect(() => {
@@ -116,6 +118,24 @@ function QuestionnaireContent() {
     }, 300);
     return () => clearTimeout(t);
   }, [formData, currentStep, hydrated, docType]);
+
+  // P1 (2026-07-29): 探测登录态, 用于顶部横幅提示访客
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((r) => r.json().catch(() => ({})))
+      .then((data) => {
+        if (cancelled) return;
+        // /api/auth/me 成功时返回 { code: 'OK', user: {...} }; 未登录返 { code: 'NOT_AUTHENTICATED', user: null }
+        setAuthState(data?.user ? "user" : "guest");
+      })
+      .catch(() => {
+        if (!cancelled) setAuthState("guest");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const totalSteps = modules.length;
   const currentModule = modules[currentStep];
@@ -299,6 +319,16 @@ function QuestionnaireContent() {
 
       if (!response.ok) {
         const errBody = await response.json().catch(() => ({}));
+        // P1: 未登录 → 跳登录页 (2026-07-29 修复: 之前会显示 raw 错误让用户懵)
+        if (response.status === 401 && errBody.code === "NOT_AUTHENTICATED") {
+          const loginUrl = errBody.loginUrl || `/login?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+          setError("请先登录后再生成文书 (3 秒后跳转到登录页)");
+          setTimeout(() => {
+            router.push(loginUrl);
+          }, 1500);
+          setIsSubmitting(false);
+          return;
+        }
         throw new Error(errBody.error || "生成失败，请稍后重试");
       }
 
@@ -483,6 +513,28 @@ function QuestionnaireContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* P1 (2026-07-29): 访客顶部横幅 — 未登录时提醒先登录 */}
+      {authState === "guest" && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-3">
+          <div className="max-w-2xl mx-auto flex items-start gap-3 text-sm">
+            <span className="text-amber-600 text-lg leading-none" aria-hidden>🔒</span>
+            <div className="flex-1 text-slate-700">
+              <div className="font-medium text-amber-800 mb-0.5">生成文书前需要先登录</div>
+              <div className="text-xs text-slate-600 leading-relaxed">
+                登录后可保存草稿、查看历史文书、获取 ¥2 推荐奖励。
+                已填写的答案不会丢失。
+              </div>
+            </div>
+            <Link
+              href={`/login?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`}
+              className="shrink-0 bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium px-3 py-2 rounded-lg transition"
+            >
+              立即登录
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* 顶部进度条 - sticky */}
       <header className="bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 safe-area-top">
         <div className="max-w-2xl mx-auto px-4 py-3 sm:py-4">

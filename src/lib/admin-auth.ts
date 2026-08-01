@@ -18,7 +18,7 @@
 
 import { cookies } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY } from './config';
+import { SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY } from './config';
 import { supabaseAdmin } from './supabase-server';
 
 export const ADMIN_SESSION_COOKIE = 'admin_session';
@@ -79,7 +79,7 @@ export async function clearAdminSessionCookie(): Promise<void> {
  * 内部: 用 access_token 创建 supabase 客户端 (per-request, 走 anon key + JWT 头)
  */
 function createUserClient(accessToken: string) {
-  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  return createClient(SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
@@ -109,7 +109,7 @@ export interface AdminAuthResult {
  *  - 503: Supabase 未配齐 (SUPABASE_URL/ANON_KEY/SERVICE_ROLE_KEY 缺一)
  */
 export async function requireAdmin(): Promise<AdminAuthResult> {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_INTERNAL_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
     return { authenticated: false, reason: 'Supabase 未配齐, 无法启用管理员后台', status: 503 };
   }
 
@@ -167,7 +167,7 @@ export async function requireAuth(): Promise<{
   reason?: string;
   status: number;
 }> {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_INTERNAL_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
     return { authenticated: false, reason: 'Supabase 未配齐, 无法登录', status: 503 };
   }
 

@@ -1,0 +1,3 @@
+{
+  "/api/admin/affiliates/[id]/review/route": "app/api/admin/affiliates/[id]/review/route.js"
+}

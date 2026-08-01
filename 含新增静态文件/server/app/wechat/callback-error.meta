@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/wechat/layout,_N_T_/wechat/callback-error/layout,_N_T_/wechat/callback-error/page,_N_T_/wechat/callback-error"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/wechat/callback-error/__PAGE__",
+    "/wechat/callback-error",
+    "/wechat",
+    "/_index",
+    "/_head"
+  ]
+}

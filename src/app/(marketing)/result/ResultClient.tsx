@@ -115,7 +115,7 @@ function ResultContent() {
 
   const priceMap: Record<string, number> = {
     ai: 19.9,
-    expert: 999,
+    expert: 999,    // 改版 v3 (2026-07-30): 历史 expert 订单仍可继续支付, 但新用户 UI 看不到
     lawyer: 999,    // 兼容旧 plan
   };
 
@@ -345,35 +345,23 @@ function ResultContent() {
           );
         })()}
 
-        {/* 专家审核服务 */}
+        {/* 定制服务入口 (改版 v4, 2026-07-30): 合并 ¥999 专家版 + 定制服务留言, 不展示价格 */}
         {plan === "ai" && (
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 mb-6 border border-amber-200">
             <div className="flex items-start gap-4">
-              <div className="text-3xl" aria-hidden>👨‍⚖️</div>
+              <div className="text-3xl" aria-hidden>💎</div>
               <div className="flex-1">
-                <h3 className="font-bold text-amber-800 mb-1 leading-tight-cn">升级:资产规划专业人士审核</h3>
+                <h3 className="font-bold text-amber-800 mb-1 leading-tight-cn">复杂场景? 留言定制服务</h3>
                 <p className="text-amber-700 text-sm mb-4 leading-relaxed-cn">
-                  仅需 +¥500,即可获得资产规划专业人士1对1视频审核服务,确保文书规范有效
+                  跨境 / 股权 / 大额资产 / 再婚多套房产等复杂场景, 可留言定制服务, 由资产规划专业人士 1 对 1 对接, 24 小时内邮件回复.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={async () => {
-                      try {
-                        const res = await fetch('/api/book-lawyer', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ willId: id, name: '用户预约', phone: '待填写' }),
-                        });
-                        const data = await res.json();
-                        alert(data.message || '预约成功');
-                      } catch {
-                        alert('预约失败，请稍后重试');
-                      }
-                    }}
-                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition"
+                  <Link
+                    href="/contact"
+                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition text-center"
                   >
-                    预约专家审核
-                  </button>
+                    留言定制服务
+                  </Link>
                   <button className="px-4 py-3 border-2 border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 transition">
                     稍后再说
                   </button>
@@ -392,8 +380,8 @@ function ResultContent() {
                   alert('请先生成文书');
                   return;
                 }
-                // 付费检查: ai 计划也能下载 (营销策略), 但提示专家版更全
-                const tip = plan === 'ai' ? '\n\n(智能版含核心条款, 专家版含完整审核注释)' : '';
+                // 付费检查: ai 计划也能下载 (营销策略), 但提示定制服务
+                const tip = plan === 'ai' ? '\n\n(智能版含核心条款, 复杂场景可走定制服务)' : '';
                 if (!confirm(`即将下载 PDF${tip}\n确认继续？`)) return;
                 window.location.href = `/api/doc/${id}/download`;
               }}
@@ -412,8 +400,8 @@ function ResultContent() {
             </button>
           </div>
 
-          {/* 改版 v11 (2026-06-29) 跨服务分享/升级 CTA
-              - 用户支付意愿强时给「微信好友」「升级专家」入口
+          {/* 改版 v3 (2026-07-30) 跨服务分享/升级 CTA
+              - 用户支付意愿强时给「微信好友」「定制服务」入口
               - 「分享给律师」解决用户「我想让人帮我看看」的诉求 */}
           <div className="mt-4 grid grid-cols-3 gap-2">
             <button
@@ -444,12 +432,12 @@ function ResultContent() {
             </button>
             {plan === "ai" ? (
               <Link
-                href={`/questionnaire?type=${docType}&plan=expert`}
+                href="/contact"
                 className="flex items-center justify-center gap-1.5 px-2 py-2 border border-amber-300 bg-amber-50 rounded-lg text-xs text-amber-700 hover:bg-amber-100 transition"
-                aria-label="升级到专家版"
+                aria-label="了解定制服务"
               >
-                <span aria-hidden>⭐</span>
-                <span>升级专家版</span>
+                <span aria-hidden>💎</span>
+                <span>定制服务</span>
               </Link>
             ) : (
               <Link

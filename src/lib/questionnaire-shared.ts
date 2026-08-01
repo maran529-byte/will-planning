@@ -10,9 +10,187 @@
 import type { Module } from './questionnaire';
 
 // ============================================================================
+// 共享前置模块 (合规闸门: 立场 + 行为能力 + 冲突检测)
+//   6 类文书统一使用, 避免重复维护
+//   依据: 民法典§143 行为能力, §150-151 胁迫/欺诈, §1142 遗嘱以最后为准
+// ============================================================================
+const PREFLIGHT_MODULES: Module[] = [
+  // P1: 立场确认 (本人代双方 / 双方已协商 / 仅本人)
+  {
+    id: 'preflight-standing',
+    title: '立场确认',
+    description: '依据《民法典》§150-151, 文书须为双方真实意思表示',
+    icon: '🤝',
+    questions: [
+      {
+        id: 'pf1', key: 'filingStanding', type: 'radio',
+        question: '本次填写代表谁?',
+        hint: '⚠️ 文书须双方当面签署, 单方填写不代表对方同意',
+        required: true,
+        options: [
+          { value: '本人代双方', label: '本人代双方填写 (草稿用, 双方仍须各自签字确认)' },
+          { value: '双方已协商一致', label: '双方已协商一致 (代为录入)' },
+          { value: '仅本人', label: '仅本人意见 (单方草稿)' },
+        ],
+      },
+    ],
+  },
+  // P2: 行为能力 + 自愿性声明
+  {
+    id: 'preflight-declare',
+    title: '行为能力与自愿声明',
+    description: '依据《民法典》§143, §150-151',
+    icon: '✅',
+    questions: [
+      {
+        id: 'pf2', key: 'hasFullCapacity', type: 'radio',
+        question: '双方均为完全民事行为能力人, 填写时意识清醒, 无受胁迫/欺诈情况',
+        hint: '若任一方为限制民事行为能力者 (如精神障碍、认知障碍老人), 须通过法定代理人操作',
+        required: true,
+        options: [
+          { value: '是', label: '是, 双方均具备完全民事行为能力, 自愿填写' },
+          { value: '否', label: '否, 或存在不确定' },
+        ],
+      },
+    ],
+  },
+  // P3: 冲突检测
+  {
+    id: 'preflight-conflict',
+    title: '冲突检测',
+    description: '依据《民法典》§1142 (遗嘱以最后一份为准)',
+    icon: '🔍',
+    questions: [
+      {
+        id: 'pf3', key: 'hasPriorDoc', type: 'radio',
+        question: '双方此前是否已签订过相关文书 (婚前协议/婚内协议/离婚协议等)?',
+        hint: '有则新文书应明确声明撤销/变更前文书对应条款',
+        required: true,
+        options: [
+          { value: '无', label: '无, 此前未签订过相关文书' },
+          { value: '有同类型', label: '有同类型文书' },
+          { value: '有其他类型', label: '有其他类型相关文书' },
+        ],
+      },
+      {
+        id: 'pf3b', key: 'priorDocDetail', type: 'textarea',
+        question: '请描述已有文书的类型与签订时间',
+        required: false,
+        placeholder: '如: 2018年签订婚前财产协议; 2020年签订婚内财产协议一份',
+      },
+    ],
+  },
+];
+
+// ============================================================================
+// 共享结构化财产明细模块 (婚姻/婚内/离婚/赠与 4 类使用)
+//   6 类关键字段: 房产/车辆/银行/股权/保险/数字资产
+//   依据合规审查 #6: 自由文本导致产权证号/账号尾号遗漏
+// ============================================================================
+const ASSETS_STRUCTURED_MODULE: Module = {
+  id: 'assets-structured',
+  title: '财产明细 (结构化)',
+  description: '为确保文书精度, 请逐项补充关键字段 (产权证号/账号/受益人等)',
+  icon: '📋',
+  questions: [
+    {
+      id: 'as1', key: 'hasRealEstate', type: 'radio',
+      question: '是否有房产需要列入?',
+      required: true,
+      options: [
+        { value: '无', label: '无' },
+        { value: '有', label: '有 (需填写产权证号)' },
+      ],
+    },
+    {
+      id: 'as1b', key: 'realEstateDetail', type: 'textarea',
+      question: '房产明细 (产权证号 / 地址 / 面积 / 共有情况)',
+      required: false,
+      placeholder: '如: 京(2020)朝不动产权第XXXX号; 朝阳区XX路1201室; 89㎡; 单独所有',
+    },
+    {
+      id: 'as2', key: 'hasVehicle', type: 'radio',
+      question: '是否有车辆需要列入?',
+      required: true,
+      options: [
+        { value: '无', label: '无' },
+        { value: '有', label: '有 (需填写车牌/行驶证)' },
+      ],
+    },
+    {
+      id: 'as2b', key: 'vehicleDetail', type: 'textarea',
+      question: '车辆明细 (车牌号 / 车型 / 车架号)',
+      required: false,
+      placeholder: '如: 京A·XXXXX; 丰田凯美瑞2023款; 车架号LHGCM1...',
+    },
+    {
+      id: 'as3', key: 'hasBankAccount', type: 'radio',
+      question: '是否有银行账户/存款需要列入?',
+      required: true,
+      options: [
+        { value: '无', label: '无' },
+        { value: '有', label: '有 (需填写开户行/账号尾号)' },
+      ],
+    },
+    {
+      id: 'as3b', key: 'bankAccountDetail', type: 'textarea',
+      question: '银行账户明细 (开户行 / 账号尾4位 / 币种 / 余额区间)',
+      required: false,
+      placeholder: '如: 中国工商银行北京分行, 尾号1234, 人民币, 余额约50万',
+    },
+    {
+      id: 'as4', key: 'hasEquity', type: 'radio',
+      question: '是否持有公司股权/股票基金?',
+      required: true,
+      options: [
+        { value: '无', label: '无' },
+        { value: '有', label: '有 (需填写公司名/股票代码/持股比例)' },
+      ],
+    },
+    {
+      id: 'as4b', key: 'equityDetail', type: 'textarea',
+      question: '股权/股票基金明细 (公司名 / 股票代码 / 持股比例)',
+      required: false,
+      placeholder: '如: XX科技有限公司, 持股30%; 或 平安银行(000001), 持股10000股',
+    },
+    {
+      id: 'as5', key: 'hasInsurance', type: 'radio',
+      question: '是否拥有人寿保险?',
+      required: true,
+      options: [
+        { value: '无', label: '无' },
+        { value: '有', label: '有 (需填写保单号/受益人)' },
+      ],
+    },
+    {
+      id: 'as5b', key: 'insurancePolicyDetail', type: 'textarea',
+      question: '保单明细 (保险公司 / 保单号 / 受益人)',
+      required: false,
+      placeholder: '如: 中国人寿, 保单号XXX, 受益人: 配偶张三',
+    },
+    {
+      id: 'as6', key: 'hasDigitalAsset', type: 'radio',
+      question: '是否持有数字资产 (加密货币/网络店铺/重要自媒体账号)?',
+      required: true,
+      options: [
+        { value: '无', label: '无' },
+        { value: '有', label: '有 (需填写账号/钱包地址)' },
+      ],
+    },
+    {
+      id: 'as6b', key: 'digitalAssetDetail', type: 'textarea',
+      question: '数字资产明细 (账号ID / 钱包地址 / 平台)',
+      required: false,
+      placeholder: '如: 公众号"家有所爱"(ID: gh_xxxxx); BTC钱包 0x...',
+    },
+  ],
+};
+
+// ============================================================================
 // 1. 婚姻协议书 (婚前财产 + 婚后权利义务约定)
 // ============================================================================
 export const marriageModules: Module[] = [
+  ...PREFLIGHT_MODULES,
   {
     id: 'parties',
     title: '双方基本信息',
@@ -20,9 +198,9 @@ export const marriageModules: Module[] = [
     icon: '💑',
     questions: [
       { id: 'm1', key: 'partyAName', type: 'text', question: '甲方姓名', required: true, placeholder: '男方/女方的真实姓名' },
-      { id: 'm2', key: 'partyAIdCard', type: 'text', question: '甲方身份证号', required: false, placeholder: '选填, 用于合同严谨度' },
+      { id: 'm2', key: 'partyAIdCard', type: 'text', question: '甲方身份证号 (18位)', required: true, hint: '依据《民法典》第469条, 法院/公证处核验时需核对身份证号与姓名一致性', placeholder: '请输入 18 位身份证号' },
       { id: 'm3', key: 'partyBName', type: 'text', question: '乙方姓名', required: true, placeholder: '另一方真实姓名' },
-      { id: 'm4', key: 'partyBIdCard', type: 'text', question: '乙方身份证号', required: false, placeholder: '选填' },
+      { id: 'm4', key: 'partyBIdCard', type: 'text', question: '乙方身份证号 (18位)', required: true, placeholder: '请输入 18 位身份证号' },
       { id: 'm5', key: 'marriageDate', type: 'text', question: '拟登记结婚日期', required: true, placeholder: '如: 2026-08-15' },
     ],
   },
@@ -48,9 +226,35 @@ export const marriageModules: Module[] = [
           { value: '婚前存款', label: '婚前存款' },
           { value: '婚前投资', label: '婚前投资/股票' },
           { value: '婚前股权', label: '婚前公司股权' },
+          { value: '婚前知识产权', label: '婚前知识产权 (专利/版权/商标)' },
+          { value: '婚前数字资产', label: '婚前数字资产 (自媒体/网店/加密货币)' },
         ],
       },
       { id: 'm8', key: 'prenupDetails', type: 'textarea', question: '婚前/婚后财产具体约定详情', required: false, placeholder: '如: 北京市朝阳区XX路XX号房产归甲方个人所有; 婚后工资收入共同所有' },
+    ],
+  },
+  ASSETS_STRUCTURED_MODULE,
+  {
+    id: 'marriage-debt',
+    title: '债务与担保',
+    description: '依据《民法典》第1064-1065条, 须明确债务承担, 避免债权人追偿风险',
+    icon: '💳',
+    questions: [
+      {
+        id: 'md1', key: 'hasPersonalDebt', type: 'radio', question: '任一方是否有婚前个人贷款/欠款?', required: true,
+        options: [
+          { value: '无', label: '无' },
+          { value: '有', label: '有 (注明债权人/金额/用途)' },
+        ],
+      },
+      {
+        id: 'md2', key: 'hasGuarantee', type: 'radio', question: '任一方是否为他人提供担保?', required: true,
+        options: [
+          { value: '否', label: '否' },
+          { value: '是', label: '是 (配偶有知情权, 须明确约定)' },
+        ],
+      },
+      { id: 'md3', key: 'debtArrangement', type: 'textarea', question: '婚前/婚后债务承担具体约定', required: false, placeholder: '如: 甲方婚前房贷XX万由甲方自行承担; 婚后共同房贷按收入比例承担' },
     ],
   },
   {
@@ -85,7 +289,33 @@ export const marriageModules: Module[] = [
     icon: '✍️',
     questions: [
       {
-        id: 'm12', key: 'understandLegal', type: 'radio', question: '是否了解本协议需双方签字方可生效?', required: true,
+        id: 'm12a', key: 'signingMethod', type: 'radio',
+        question: '您计划如何完成签署?',
+        hint: '婚前协议须双方亲笔签名; 大额资产建议办理公证',
+        required: true,
+        options: [
+          { value: '双方亲笔', label: '双方亲笔签名 (适合大多数情况)' },
+          { value: '公证', label: '请公证机构公证 (推荐大额资产)' },
+        ],
+      },
+      {
+        id: 'm12b', key: 'disputeResolution', type: 'radio',
+        question: '若对本协议产生争议, 您希望通过哪种方式解决?',
+        hint: '依据《民法典》第469条, 合同类文书应明确争议解决条款',
+        required: true,
+        options: [
+          { value: '诉讼', label: '向有管辖权的人民法院提起诉讼' },
+          { value: '仲裁', label: '提交仲裁机构仲裁' },
+        ],
+      },
+      {
+        id: 'm12c', key: 'arbitrationInstitution', type: 'text',
+        question: '若选仲裁, 仲裁机构名称 (选填)',
+        required: false,
+        placeholder: '如: 北京仲裁委员会',
+      },
+      {
+        id: 'm12d', key: 'understandLegal', type: 'radio', question: '是否了解本协议需双方签字方可生效?', required: true,
         options: [
           { value: '了解', label: '了解' },
           { value: '不了解, 需要说明', label: '不了解, 需要说明' },
@@ -106,6 +336,7 @@ export const marriageModules: Module[] = [
 // 2. 婚内财产协议 (婚后财产归属细化, 可随时签)
 // ============================================================================
 export const maritalPropertyModules: Module[] = [
+  ...PREFLIGHT_MODULES,
   {
     id: 'mp-parties',
     title: '双方基本信息',
@@ -113,7 +344,9 @@ export const maritalPropertyModules: Module[] = [
     icon: '👫',
     questions: [
       { id: 'mp1', key: 'partyAName', type: 'text', question: '甲方姓名', required: true },
+      { id: 'mp1b', key: 'partyAIdCard', type: 'text', question: '甲方身份证号 (18位)', required: true, placeholder: '请输入 18 位身份证号' },
       { id: 'mp2', key: 'partyBName', type: 'text', question: '乙方姓名', required: true },
+      { id: 'mp2b', key: 'partyBIdCard', type: 'text', question: '乙方身份证号 (18位)', required: true, placeholder: '请输入 18 位身份证号' },
       { id: 'mp3', key: 'marriageYears', type: 'number', question: '结婚年限 (年)', required: true, placeholder: '如: 5' },
       { id: 'mp4', key: 'hasChildren', type: 'radio', question: '是否有未成年子女', required: true,
         options: [
@@ -137,9 +370,12 @@ export const maritalPropertyModules: Module[] = [
           { value: '存款', label: '存款' },
           { value: '股票基金', label: '股票/基金/投资' },
           { value: '公司股权', label: '公司股权' },
-          { value: '知识产权收益', label: '知识产权收益' },
+          { value: '知识产权', label: '知识产权 (专利/版权/商标/收益)' },
+          { value: '数字资产', label: '数字资产 (自媒体/网店/加密货币)' },
+          { value: '人寿保险', label: '人寿保险 (保单现金价值)' },
         ],
       },
+      { id: 'mp5b', key: 'ipDigitalDetail', type: 'textarea', question: '知识产权与数字资产详情', required: false, placeholder: '如: 某公众号账号XXX, 婚后收益归属甲方; 某网店股权归乙方' },
       { id: 'mp6', key: 'propertyDetail', type: 'textarea', question: '具体财产描述 (地址/账号/数量)', required: true, placeholder: '如: 北京市朝阳区XX路XX号1201室, 房产证号 XXX' },
       {
         id: 'mp7', key: 'ownershipMode', type: 'radio', question: '归属方式', required: true,
@@ -151,6 +387,7 @@ export const maritalPropertyModules: Module[] = [
       },
     ],
   },
+  ASSETS_STRUCTURED_MODULE,
   {
     id: 'mp-incomedebt',
     title: '收入与债务',
@@ -173,6 +410,14 @@ export const maritalPropertyModules: Module[] = [
           { value: '按用途承担', label: '按用途 (家庭/个人) 承担' },
         ],
       },
+      {
+        id: 'mp9b', key: 'isGuarantor', type: 'radio', question: '任一方是否为他人提供担保?', hint: '担保责任将影响夫妻共同财产, 须明确告知', required: true,
+        options: [
+          { value: '否', label: '否' },
+          { value: '是', label: '是 (需注明被担保人/金额/担保类型)' },
+        ],
+      },
+      { id: 'mp9c', key: 'debtDetail', type: 'textarea', question: '债务清单与担保详情', required: false, placeholder: '如: 甲方担保乙方之弟XX万向XX银行借款; 房贷XX万由甲方承担' },
     ],
   },
   {
@@ -181,6 +426,26 @@ export const maritalPropertyModules: Module[] = [
     description: '请确认信息',
     icon: '✍️',
     questions: [
+      {
+        id: 'mp9d', key: 'signingMethod', type: 'radio',
+        question: '您计划如何完成签署?',
+        required: true,
+        options: [
+          { value: '双方亲笔', label: '双方亲笔签名' },
+          { value: '公证', label: '请公证机构公证 (推荐大额资产)' },
+        ],
+      },
+      {
+        id: 'mp9e', key: 'disputeResolution', type: 'radio',
+        question: '若对本协议产生争议, 您希望通过哪种方式解决?',
+        required: true,
+        options: [
+          { value: '诉讼', label: '向有管辖权的人民法院提起诉讼' },
+          { value: '仲裁', label: '提交仲裁机构仲裁' },
+        ],
+      },
+      {
+        id: 'mp9f', key: 'arbitrationInstitution', type: 'text', question: '若选仲裁, 仲裁机构名称 (选填)', required: false, placeholder: '如: 北京仲裁委员会' },
       {
         id: 'mp10', key: 'understandLegal', type: 'radio', question: '是否了解本协议不影响人身关系, 只调整财产关系?', required: true,
         options: [
@@ -203,6 +468,7 @@ export const maritalPropertyModules: Module[] = [
 // 3. 离婚协议 (双方协议离婚, 民政局备案用)
 // ============================================================================
 export const divorceModules: Module[] = [
+  ...PREFLIGHT_MODULES,
   {
     id: 'dv-parties',
     title: '双方基本信息',
@@ -210,7 +476,9 @@ export const divorceModules: Module[] = [
     icon: '📋',
     questions: [
       { id: 'dv1', key: 'partyAName', type: 'text', question: '男方姓名', required: true },
+      { id: 'dv1b', key: 'partyAIdCard', type: 'text', question: '男方身份证号 (18位)', required: true, placeholder: '请输入 18 位身份证号' },
       { id: 'dv2', key: 'partyBName', type: 'text', question: '女方姓名', required: true },
+      { id: 'dv2b', key: 'partyBIdCard', type: 'text', question: '女方身份证号 (18位)', required: true, placeholder: '请输入 18 位身份证号' },
       { id: 'dv3', key: 'marriageDate', type: 'text', question: '结婚日期', required: true, placeholder: '如: 2018-06-08' },
       { id: 'dv4', key: 'divorceReason', type: 'text', question: '离婚原因 (一句话)', required: true, placeholder: '如: 感情破裂' },
     ],
@@ -256,6 +524,8 @@ export const divorceModules: Module[] = [
           { value: '存款', label: '存款' },
           { value: '股票基金', label: '股票/基金' },
           { value: '公司股权', label: '公司股权' },
+          { value: '知识产权', label: '知识产权 (专利/版权/商标)' },
+          { value: '数字资产', label: '数字资产 (自媒体/网店/加密货币)' },
           { value: '其他', label: '其他贵重物品' },
         ],
       },
@@ -268,14 +538,44 @@ export const divorceModules: Module[] = [
           { value: '一方承担', label: '由一方全部承担' },
         ],
       },
+      {
+        id: 'dv13b', key: 'isGuarantor', type: 'radio', question: '任一方是否为他人提供担保?', hint: '担保责任将影响共同财产分割, 须明确告知', required: true,
+        options: [
+          { value: '否', label: '否' },
+          { value: '是', label: '是 (需注明被担保人/金额)' },
+        ],
+      },
+      { id: 'dv13c', key: 'debtDetail', type: 'textarea', question: '共同债务与担保详情', required: false, placeholder: '如: 房贷XX万 (余额XX万) 由男方承担; 甲方担保XX万为乙方之弟借款' },
     ],
   },
+  ASSETS_STRUCTURED_MODULE,
   {
     id: 'dv-review',
     title: '确认签署',
     description: '请确认信息',
     icon: '✍️',
     questions: [
+      {
+        id: 'dv13d', key: 'signingMethod', type: 'radio',
+        question: '您计划如何完成签署?',
+        hint: '离婚协议须双方亲笔签名, 民政局备案后生效',
+        required: true,
+        options: [
+          { value: '双方亲笔', label: '双方亲笔签名 (民政局备案生效)' },
+          { value: '公证', label: '先公证再民政局备案 (推荐大额资产)' },
+        ],
+      },
+      {
+        id: 'dv13e', key: 'disputeResolution', type: 'radio',
+        question: '若对本协议产生争议, 您希望通过哪种方式解决?',
+        required: true,
+        options: [
+          { value: '诉讼', label: '向有管辖权的人民法院提起诉讼' },
+          { value: '仲裁', label: '提交仲裁机构仲裁 (人身关系不可仲裁)' },
+        ],
+      },
+      {
+        id: 'dv13f', key: 'courtJurisdiction', type: 'text', question: '约定管辖法院所在地 (选填)', required: false, placeholder: '如: 北京市朝阳区人民法院' },
       {
         id: 'dv14', key: 'isVoluntary', type: 'radio', question: '双方是否自愿离婚?', required: true,
         options: [
@@ -298,6 +598,7 @@ export const divorceModules: Module[] = [
 // 4. 子女抚养协议 (离婚后 / 非婚生 / 收养后均可)
 // ============================================================================
 export const childCustodyModules: Module[] = [
+  ...PREFLIGHT_MODULES,
   {
     id: 'cc-parties',
     title: '当事人信息',
@@ -305,8 +606,11 @@ export const childCustodyModules: Module[] = [
     icon: '👨‍👩‍👧',
     questions: [
       { id: 'cc1', key: 'parentAName', type: 'text', question: '父/母 A 姓名', required: true },
+      { id: 'cc1b', key: 'parentAIdCard', type: 'text', question: '父/母 A 身份证号 (18位)', required: true, placeholder: '请输入 18 位身份证号' },
       { id: 'cc2', key: 'parentBName', type: 'text', question: '父/母 B 姓名', required: true },
+      { id: 'cc2b', key: 'parentBIdCard', type: 'text', question: '父/母 B 身份证号 (18位)', required: true, placeholder: '请输入 18 位身份证号' },
       { id: 'cc3', key: 'childName', type: 'text', question: '子女姓名', required: true },
+      { id: 'cc3b', key: 'childIdCard', type: 'text', question: '子女身份证号或出生证号 (选填)', required: false, placeholder: '便于法院/民政局核对身份' },
       { id: 'cc4', key: 'childAge', type: 'number', question: '子女年龄', required: true, placeholder: '如: 8' },
       {
         id: 'cc5', key: 'relationshipStatus', type: 'radio', question: '父母当前关系', required: true,
@@ -395,6 +699,26 @@ export const childCustodyModules: Module[] = [
     icon: '✍️',
     questions: [
       {
+        id: 'cc15a', key: 'signingMethod', type: 'radio',
+        question: '您计划如何完成签署?',
+        required: true,
+        options: [
+          { value: '双方亲笔', label: '双方亲笔签名' },
+          { value: '公证', label: '请公证机构公证 (推荐)' },
+        ],
+      },
+      {
+        id: 'cc15b', key: 'disputeResolution', type: 'radio',
+        question: '若对本协议产生争议, 您希望通过哪种方式解决?',
+        required: true,
+        options: [
+          { value: '诉讼', label: '向有管辖权的人民法院提起诉讼' },
+          { value: '仲裁', label: '提交仲裁机构仲裁' },
+        ],
+      },
+      {
+        id: 'cc15c', key: 'courtJurisdiction', type: 'text', question: '约定管辖法院所在地 (选填)', required: false, placeholder: '如: 子女居住地人民法院' },
+      {
         id: 'cc16', key: 'isVoluntary', type: 'radio', question: '本协议是双方自愿签订?', required: true,
         options: [
           { value: '是', label: '是' },
@@ -416,6 +740,7 @@ export const childCustodyModules: Module[] = [
 // 5. 赠与协议 (动产 / 不动产 / 股权 / 知识产权)
 // ============================================================================
 export const giftModules: Module[] = [
+  ...PREFLIGHT_MODULES,
   {
     id: 'gf-parties',
     title: '当事人信息',
@@ -423,9 +748,9 @@ export const giftModules: Module[] = [
     icon: '🎁',
     questions: [
       { id: 'gf1', key: 'donorName', type: 'text', question: '赠与人姓名', required: true },
-      { id: 'gf2', key: 'donorIdCard', type: 'text', question: '赠与人身份证号', required: false },
+      { id: 'gf2', key: 'donorIdCard', type: 'text', question: '赠与人身份证号 (18位)', required: true, placeholder: '请输入 18 位身份证号' },
       { id: 'gf3', key: 'recipientName', type: 'text', question: '受赠人姓名', required: true },
-      { id: 'gf4', key: 'recipientIdCard', type: 'text', question: '受赠人身份证号', required: false },
+      { id: 'gf4', key: 'recipientIdCard', type: 'text', question: '受赠人身份证号 (18位)', required: true, placeholder: '请输入 18 位身份证号' },
       {
         id: 'gf5', key: 'relation', type: 'radio', question: '双方关系', required: true,
         options: [
@@ -452,6 +777,8 @@ export const giftModules: Module[] = [
           { value: '车辆', label: '车辆' },
           { value: '存款', label: '存款/现金' },
           { value: '股权', label: '公司股权' },
+          { value: '知识产权', label: '知识产权 (专利/版权/商标)' },
+          { value: '数字资产', label: '数字资产 (自媒体/网店/账号)' },
           { value: '动产', label: '其他动产' },
         ],
       },
@@ -483,12 +810,33 @@ export const giftModules: Module[] = [
       { id: 'gf12', key: 'effectiveDate', type: 'text', question: '生效日期', required: false, placeholder: '如: 2026-09-01' },
     ],
   },
+  ASSETS_STRUCTURED_MODULE,
   {
     id: 'gf-review',
     title: '确认签署',
     description: '请确认信息',
     icon: '✍️',
     questions: [
+      {
+        id: 'gf12a', key: 'signingMethod', type: 'radio',
+        question: '您计划如何完成签署?',
+        required: true,
+        options: [
+          { value: '双方亲笔', label: '双方亲笔签名' },
+          { value: '公证', label: '请公证机构公证 (不动产/大额必选)' },
+        ],
+      },
+      {
+        id: 'gf12b', key: 'disputeResolution', type: 'radio',
+        question: '若对本协议产生争议, 您希望通过哪种方式解决?',
+        required: true,
+        options: [
+          { value: '诉讼', label: '向有管辖权的人民法院提起诉讼' },
+          { value: '仲裁', label: '提交仲裁机构仲裁' },
+        ],
+      },
+      {
+        id: 'gf12c', key: 'arbitrationInstitution', type: 'text', question: '若选仲裁, 仲裁机构名称 (选填)', required: false, placeholder: '如: 北京仲裁委员会' },
       {
         id: 'gf13', key: 'isVoluntary', type: 'radio', question: '赠与是否完全自愿, 无欺诈胁迫?', required: true,
         options: [

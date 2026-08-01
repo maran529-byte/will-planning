@@ -1,12 +1,24 @@
 // MiniMax API Configuration
-export const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY || '';
-export const MINIMAX_BASE_URL = 'https://api.minimaxi.com/anthropic';
-export const MINIMAX_MODEL = 'MiniMax-M2.7';
+// P0-6 (2026-07-30): 删除 MINIMAX_* 常量 - 合规整改 v16
+// 1. ICP 调查表第 1 题「是否利用生成式 AI 向境内公众提供服务」=「否」
+// 2. 主站代码不得保留任何指向大陆 AI 推理 endpoint 的常量
+// 3. 所有文书生成改走 generateDefaultWill / generateDefaultDocument 模板路径
+// 4. 如未来需要 AI 推理, 必须部署在 HK 服务器并使用境外 ASN 提供商 (HuggingFace / OpenAI / Anthropic)
+//
+// const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY || '';
+// const MINIMAX_BASE_URL = 'https://api.minimaxi.com/anthropic';
+// const MINIMAX_MODEL = 'MiniMax-M2.7';
 
 // Supabase Configuration (placeholder - replace with real credentials)
+// SUPABASE_URL: 公网 URL (供浏览器/客户端 fetch, 与 NEXT_PUBLIC_ 共享)
+// SUPABASE_INTERNAL_URL: 服务端专用 (默认 127.0.0.1:8000, 绕过公网 NAT 回环问题)
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+export const SUPABASE_INTERNAL_URL =
+  process.env.SUPABASE_INTERNAL_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  '';
 
 // WeChat Pay Configuration
 // 改版 v2: 命名对齐 Vercel 已配的 WECHAT_MP_* 系列 (公众号登录在 src/lib/wechat/config.ts:11
@@ -34,18 +46,19 @@ export const HUPIJIAO_NOTIFY_URL =
   (process.env.SITE_URL ? `${process.env.SITE_URL.replace(/\/+$/, '')}/api/payment/hupijiao-callback` : '');
 
 // Pricing (UI display, in 元)
+// 改版 v4 (2026-07-31): 删除 expertReview (¥999 专家护航版), 全站只展示 ¥19.9 智能版
 // 改版 v2: 删除 family 套餐, lawyer 改名为 expert (资产规划专业人士)
 export const PRICING = {
   guide: { name: '智能版', price: 19.9, description: '问卷+生成草稿+PDF', promo: true, promoText: '限时优惠' },
-  expertReview: { name: '专家护航版', price: 999, description: '系统化生成+资产规划专业人士审核+签署指引' },
 } as const;
 
 // 兼容旧 plan 字符串的显示名. UI 渲染订单/历史 plan 时使用。
+// 改版 v4 (2026-07-31): expert/lawyer 统一映射到「智能版」, 不再显示 ¥999 专家护航版
 export const PLAN_DISPLAY: Record<string, string> = {
   ai: PRICING.guide.name,
-  expert: PRICING.expertReview.name,
-  lawyer: PRICING.expertReview.name,   // 历史值 → 映射到 expert 显示
-  family: '已下架',                    // 历史值 → 标注已下架
+  expert: PRICING.guide.name,           // 历史值 → 不再显示 ¥999 专家护航版, 统一映射到智能版
+  lawyer: PRICING.guide.name,           // 历史值 → 不再显示 ¥999 专家护航版, 统一映射到智能版
+  family: '已下架',                     // 历史值 → 标注已下架
 };
 
 // 文书类型

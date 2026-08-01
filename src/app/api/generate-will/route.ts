@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-import { MINIMAX_API_KEY, MINIMAX_BASE_URL, MINIMAX_MODEL } from "@/lib/config";
+// P0-6 (2026-07-30): 删除 MiniMax 引用 - 合规整改 v16
+// import { MINIMAX_API_KEY, MINIMAX_BASE_URL, MINIMAX_MODEL } from "@/lib/config";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { getPriceCents } from "@/lib/pricing";
+import { requireAuth } from "@/lib/user-auth";
 // Batch B (2026-06-09): 需求 #3 - 生成前自动过滤无效/占位信息
 import { sanitizeFormData, countDroppedFields } from "@/lib/form-data-filter";
 
@@ -48,6 +50,20 @@ const generateWillSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // P1: 访客必须登录才能生成 (Draft 草稿也要绑定 user_id)
+    const auth = await requireAuth();
+    if (!auth.authenticated || !auth.user) {
+      return NextResponse.json(
+        {
+          code: 'NOT_AUTHENTICATED',
+          error: '请先登录后再生成文书',
+          loginUrl: '/login?returnTo=' + encodeURIComponent(request.headers.get('referer') || '/questionnaire'),
+        },
+        { status: 401 }
+      );
+    }
+    const userId = auth.user.id;
+
     const json = await request.json();
     const parsed = generateWillSchema.safeParse(json);
 
@@ -114,38 +130,12 @@ export async function POST(request: NextRequest) {
 
     let willContent = "";
 
-    // 合规 P0 (2026-06-10): 关闭生成式 AI 文书生成端点
+    // 合规 P0 (2026-07-30): 删除 MiniMax 推理分支, 仅保留模板路径
     // - 法规: 《生成式人工智能服务管理暂行办法》(2023-08-15 施行)
     // - 状态: 暂未取得生成式 AI 服务备案 (备案编号: 待申请)
-    // - 策略: 强制走模板 fallback 路径, 不调 MiniMax API
-    // - 还原: 备案完成后删除此 kill switch, 恢复下方 if 分支
-    const AI_SERVICE_COMPLIANCE_KILLED = true;
-    if (!AI_SERVICE_COMPLIANCE_KILLED && MINIMAX_API_KEY && MINIMAX_API_KEY !== "") {
-      try {
-        const response = await fetch(MINIMAX_BASE_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${MINIMAX_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: MINIMAX_MODEL,
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.3,
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          willContent = data.choices?.[0]?.message?.content || "";
-        }
-      } catch (apiError) {
-        console.error("MiniMax API error:", apiError);
-        willContent = generateDefaultWill({ name, age, maritalStatus, spouseName, children, assets, heirs });
-      }
-    } else {
-      willContent = generateDefaultWill({ name, age, maritalStatus, spouseName, children, assets, heirs });
-    }
+    // - 策略: 仅走 generateDefaultWill 模板路径
+    // - 还原: 备案完成后部署到 HK 并使用境外 ASN 提供商, 在此文件新增分支
+    willContent = generateDefaultWill({ name, age, maritalStatus, spouseName, children, assets, heirs });
 
     // Authoritative server-side price in 分 (cents). Frontend is ignored.
     const priceCents = getPriceCents(plan) ?? 1990;
@@ -158,6 +148,7 @@ export async function POST(request: NextRequest) {
       // 降级策略: 先尝试带 revision_count, 失败则不带
       const baseInsert = {
         id: willId,
+        user_id: userId,  // 绑定 user_id (P1 改造)
         name,
         age,
         gender,

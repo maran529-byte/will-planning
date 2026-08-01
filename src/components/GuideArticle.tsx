@@ -33,6 +33,8 @@ export interface GuideArticleProps {
   /** CTA 文案 */
   ctaTitle?: string;
   ctaDescription?: string;
+  /** FAQ 问答 (传入则注入 FAQPage JSON-LD) */
+  faqs?: Array<{ q: string; a: string }>;
   children: React.ReactNode;
 }
 
@@ -53,6 +55,7 @@ export function GuideArticle({
   ctaDocType,
   ctaTitle,
   ctaDescription,
+  faqs,
   children,
 }: GuideArticleProps) {
   const cta = DOC_TYPE_NAMES[ctaDocType] ?? DOC_TYPE_NAMES.marriage;
@@ -122,11 +125,63 @@ export function GuideArticle({
         {/* 备案 / 友情提示 */}
         <div className="mt-8 text-xs text-slate-400 text-center leading-relaxed-cn">
           <p>本指南为系统化整理, 不构成法律意见. 复杂情况请咨询专业资产规划人员并办理公证.</p>
-          <p className="mt-1">沪ICP备2026020925号-1 · 数据存储于中国大陆腾讯云</p>
+          <p className="mt-1">沪ICP备2026020925号-1 · 数据存储于 Supabase 海外节点</p>
         </div>
       </main>
 
       <LegalFooter />
+
+      {/* SEO/GEO Schema (2026-07-02): Article + BreadcrumbList + FAQPage
+          FAQPage schema 当 faqs.length > 0 时自动注入, 方便 AI 引擎引用
+          主站 url + logo 用绝对地址 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@graph': [
+              {
+                '@type': 'Article',
+                headline: title,
+                description: subtitle,
+                author: { '@type': 'Organization', name: '家有所爱工作室' },
+                publisher: {
+                  '@type': 'Organization',
+                  name: '家有所爱',
+                  logo: { '@type': 'ImageObject', url: 'https://aiwill-planner.cn/logo.png' },
+                },
+                datePublished: '2026-06-01',
+                dateModified: '2026-07-01',
+                mainEntityOfPage: { '@type': 'WebPage', '@id': `https://aiwill-planner.cn/guide/${ctaDocType === 'marriage' ? 'pre-marriage' : ctaDocType === 'marital-property' ? 'during-marriage' : ctaDocType === 'will' ? 'inheritance' : ctaDocType}` },
+              },
+              {
+                '@type': 'BreadcrumbList',
+                itemListElement: breadcrumbs.map((b, i) => ({
+                  '@type': 'ListItem',
+                  position: i + 1,
+                  name: b.name,
+                  ...(b.url ? { item: `https://aiwill-planner.cn${b.url}` } : {}),
+                })),
+              },
+              ...(faqs && faqs.length > 0
+                ? [
+                    {
+                      '@type': 'FAQPage',
+                      mainEntity: faqs.map((faq) => ({
+                        '@type': 'Question',
+                        name: faq.q,
+                        acceptedAnswer: {
+                          '@type': 'Answer',
+                          text: faq.a,
+                        },
+                      })),
+                    },
+                  ]
+                : []),
+            ],
+          }),
+        }}
+      />
     </div>
   );
 }

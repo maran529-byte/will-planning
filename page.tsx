@@ -44,12 +44,15 @@ export default async function HomePage() {
             <Link href="/doc-type" className="btn-primary">
               免费试用 · ¥19.9 起
             </Link>
+            <a href={H5_SITE} target="_blank" rel="noopener noreferrer" className="btn-primary bg-gradient-to-r from-amber-500 to-rose-500 hover:shadow-xl">
+              📱 立即开始 H5 生成
+            </a>
             <a href="#documents" className="btn-secondary btn-secondary--on-dark">
               看看哪类适合我
             </a>
           </div>
           <p className="text-sm text-slate-300 mt-6">
-            <span aria-hidden>⚡</span> 平均 10 分钟完成 · <span aria-hidden>🔒</span> 数据加密 · <span aria-hidden>📄</span> 可下载 PDF/Word
+            <span aria-hidden>⚡</span> 平均 10 分钟完成 · <span aria-hidden>🔒</span> 数据加密 · <span aria-hidden>📄</span> 可下载 PDF/Word · <a href={H5_SITE} className="underline text-amber-300 hover:text-amber-200" target="_blank" rel="noopener noreferrer">前往移动端 →</a>
           </p>
         </div>
       </section>

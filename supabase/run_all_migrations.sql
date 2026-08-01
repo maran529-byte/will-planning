@@ -1,14 +1,15 @@
 -- =============================================================================
--- aiwill-planner · 13 个 migrations 合并执行 (可重复跑)
+-- aiwill-planner · 16 个 migrations 合并执行 (可重复跑)
 --
--- 来源: /Users/maran/aiwill-planner/supabase/migrations/0001..0013
+-- 来源: /Users/maran/aiwill-planner/supabase/migrations/0001..0015
+--        (包含 v13 改版新增: 0014 otp_codes + 0015 pc_login_tickets)
 -- 用法: Supabase Dashboard → SQL Editor → New query → 粘贴本文件 → Run
 --
 -- 安全: 全部用 IF NOT EXISTS 包装, 可重复执行 (只补缺失的表/列/索引)
 -- 适用: 已运行部分 migration 想补齐; 或全新数据库想一把初始化
 --
 -- 不安全: DROP / DELETE / TRUNCATE 全部没有, 不会丢数据
--- 大小: 约 1450 行, Supabase SQL Editor 单次可容纳
+-- 大小: 约 1600 行, Supabase SQL Editor 单次可容纳
 -- =============================================================================
 
 
@@ -468,3 +469,68 @@ COMMENT ON COLUMN public.commissions.parent_blogger_id IS
 -- ✅ 执行完毕
 -- 下一步: 在 SQL Editor 跑 UPDATE public.users SET role = 'admin' WHERE id = '...';
 -- =============================================================================
+
+-- =============================================================================
+-- Migration 0014: 短信/邮箱验证码 (手机号登录入口, 改版 v9 2026-06-28)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.otp_codes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  channel TEXT NOT NULL CHECK (channel IN ('sms', 'email')),
+  target TEXT NOT NULL,
+  code_hash TEXT NOT NULL,
+  purpose TEXT NOT NULL DEFAULT 'login' CHECK (purpose IN ('login', 'register', 'reset')),
+  consumed BOOLEAN NOT NULL DEFAULT FALSE,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  max_attempts INTEGER NOT NULL DEFAULT 5,
+  ip_address TEXT,
+  user_agent TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + INTERVAL '5 minutes')
+);
+
+CREATE INDEX IF NOT EXISTS idx_otp_codes_target ON public.otp_codes(target, channel, consumed);
+CREATE INDEX IF NOT EXISTS idx_otp_codes_expires ON public.otp_codes(expires_at);
+
+ALTER TABLE public.otp_codes ENABLE ROW LEVEL SECURITY;
+
+-- =============================================================================
+-- Migration 0015: PC 端扫码登录票据 (改版 v13, 2026-06-29)
+-- =============================================================================
+-- 背景: PC 浏览器无法直接走微信 OAuth, 需要一个"扫码 + 验证码"机制:
+--   1. PC 端生成 ticket + 8 位验证码
+--   2. 用户用手机微信扫码关注公众号
+--   3. 公众号内回复【PC】→ 后端查到该 ticket 关联的 openid
+--   4. 公众号推送 8 位验证码到用户微信
+--   5. 用户在 PC 端输入验证码 → 后端校验通过 → 写 cookie → 跳 dashboard
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.pc_login_tickets (
+  ticket        TEXT PRIMARY KEY,
+  code          CHAR(8) NOT NULL,
+  openid        TEXT,
+  status        TEXT NOT NULL DEFAULT 'pending'
+                  CHECK (status IN ('pending', 'confirmed', 'consumed', 'expired', 'cancelled')),
+  user_id       UUID,
+  return_to     TEXT,
+  user_agent    TEXT,
+  ip_address    TEXT,
+  attempts      INTEGER NOT NULL DEFAULT 0,
+  max_attempts  INTEGER NOT NULL DEFAULT 5,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  confirmed_at  TIMESTAMPTZ,
+  consumed_at   TIMESTAMPTZ,
+  expires_at    TIMESTAMPTZ NOT NULL DEFAULT (now() + INTERVAL '5 minutes')
+);
+
+CREATE INDEX IF NOT EXISTS idx_pc_login_tickets_code
+  ON public.pc_login_tickets(code);
+
+CREATE INDEX IF NOT EXISTS idx_pc_login_tickets_status_expires
+  ON public.pc_login_tickets(status, expires_at);
+
+CREATE INDEX IF NOT EXISTS idx_pc_login_tickets_openid
+  ON public.pc_login_tickets(openid, status);
+
+-- RLS: 不开放前端读写, 全部由 service_role 走
+ALTER TABLE public.pc_login_tickets ENABLE ROW LEVEL SECURITY;

@@ -93,9 +93,15 @@ body {
   font-size: 16px;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* 改版 v12 (2026-06-28): a 默认色改为 inherit — 但要放在 @layer base 内,
+   让 Tailwind v4 工具类 (text-amber-600 等) 在 cascade 中胜出。
+   之前 a { color: inherit } 写在 layer 外, 源码顺序在 .text-amber-600 之后,
+   导致 text-amber-600 失效, 链接显示为 body 的 slate-900 几乎不可见。 */
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────

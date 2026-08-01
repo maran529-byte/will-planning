@@ -21,7 +21,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import {
-  SUPABASE_URL,
+  SUPABASE_INTERNAL_URL,
   SUPABASE_ANON_KEY,
   SUPABASE_SERVICE_ROLE_KEY,
 } from '@/lib/config';
@@ -54,7 +54,7 @@ async function ensurePublicUser(userId: string, email: string, displayName?: str
 }
 
 export async function POST(request: NextRequest) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_INTERNAL_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json(
       { code: 'SUPABASE_NOT_CONFIGURED', error: 'Supabase 未配齐' },
       { status: 503 }
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
   const { email, password } = parsed.data;
 
   // 1. 用 anon client 调 signInWithPassword (Supabase Auth 会校验密码)
-  const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const anonClient = createClient(SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
   const { data, error } = await anonClient.auth.signInWithPassword({ email, password });

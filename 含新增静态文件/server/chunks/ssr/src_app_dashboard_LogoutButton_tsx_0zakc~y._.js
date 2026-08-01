@@ -1,0 +1,3 @@
+module.exports=[30107,a=>{"use strict";var b=a.i(87924),c=a.i(72131),d=a.i(50944);a.s(["LogoutButton",0,function(){let a=(0,d.useRouter)(),[e,f]=(0,c.useState)(!1),g=async()=>{if(!e){f(!0);try{await fetch("/api/auth/login",{method:"DELETE"}),a.push("/"),a.refresh()}catch{a.push("/")}finally{f(!1)}}};return(0,b.jsx)("button",{type:"button",onClick:g,disabled:e,className:"text-sm text-slate-500 hover:text-red-600 transition disabled:opacity-50",children:e?"退出中...":"退出登录"})}])}];
+
+//# sourceMappingURL=src_app_dashboard_LogoutButton_tsx_0zakc~y._.js.map

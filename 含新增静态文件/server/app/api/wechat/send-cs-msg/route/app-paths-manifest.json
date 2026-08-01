@@ -1,0 +1,3 @@
+{
+  "/api/wechat/send-cs-msg/route": "app/api/wechat/send-cs-msg/route.js"
+}

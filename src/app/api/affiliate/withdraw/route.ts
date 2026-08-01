@@ -9,7 +9,8 @@ import { requireAuth } from '@/lib/admin-auth';
 import { getBloggerByUserId, requestWithdrawal } from '@/lib/affiliate';
 
 const withdrawSchema = z.object({
-  amount_cents: z.number().int().min(1000).max(10000000),  // 最小 ¥10, 最大 ¥100000
+  // 改版 v1.0 (2026-07-24): 提现门槛 ¥10 → ¥50 (工作室批准)
+  amount_cents: z.number().int().min(5000).max(10000000),  // 最小 ¥50, 最大 ¥100000
   contact_method: z.enum(['alipay', 'wechat', 'bank']),
   contact_info: z.string().min(4).max(64),
 });

@@ -30,7 +30,7 @@
 
 import { cookies } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY } from './config';
+import { SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY } from './config';
 import { supabaseAdmin } from './supabase-server';
 
 export const USER_SESSION_COOKIE = 'user_session';
@@ -103,7 +103,7 @@ export async function clearUserSessionCookie(): Promise<void> {
  * 内部: 用 access_token 创建 supabase 客户端 (per-request, 走 anon key + JWT 头)
  */
 function createUserClient(accessToken: string) {
-  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  return createClient(SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
@@ -133,7 +133,7 @@ export interface UserAuthResult {
  *  - 503: Supabase 未配齐
  */
 export async function requireUser(): Promise<UserAuthResult> {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_INTERNAL_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
     return { authenticated: false, reason: 'Supabase 未配齐, 无法启用用户登录', status: 503 };
   }
 

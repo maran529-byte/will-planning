@@ -1,0 +1,20 @@
+[Unit]
+Description=aiwill-planner Process Keeper (守护 nginx / aiwill.service / supabase-db)
+After=network.target
+Documentation=本地自运营守护:
+  - 检查 aiwill.service active + listening 3001
+  - 检查 nginx master PID alive
+  - 检查 supabase-db container running
+  异常时立刻重启, 日志落 /var/log/aiwill-keeper/
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/usr/local/bin/aiwill-keeper.sh
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/aiwill-keeper/keeper.log
+StandardError=append:/var/log/aiwill-keeper/keeper.err.log
+
+[Install]
+WantedBy=multi-user.target

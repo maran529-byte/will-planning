@@ -495,7 +495,7 @@ export async function syncCommissionAvailability(): Promise<number> {
 // 提现
 // =============================================================================
 
-const MIN_WITHDRAWAL_CENTS = 1000; // ¥10
+const MIN_WITHDRAWAL_CENTS = 5000; // ¥50 (改版 v1.0, 2026-07-24 · 工作室批准)
 
 /**
  * 申请提现.

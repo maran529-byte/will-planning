@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>「家有所爱」双站体检 + 全面修复报告 · 2026-07-02 v2</title>
+<style>
+  :root { --green: #10b981; --amber: #f59e0b; --red: #ef4444; --slate: #0f172a; --bg: #f8fafc; --blue: #3b82f6; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; margin: 0; background: var(--bg); color: var(--slate); line-height: 1.7; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 48px 24px; }
+  header .container { padding: 0; }
+  h1 { font-size: 36px; margin: 0 0 12px; }
+  h2 { font-size: 22px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; scroll-margin-top: 80px; }
+  h3 { font-size: 17px; margin: 24px 0 8px; }
+  .subtitle { color: #94a3b8; font-size: 14px; margin: 0; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-right: 6px; }
+  .pill-p0 { background: #fee2e2; color: #991b1b; }
+  .pill-p1 { background: #fef3c7; color: #92400e; }
+  .pill-p2 { background: #dbeafe; color: #1e40af; }
+  .pill-done { background: #d1fae5; color: #065f46; }
+  .pill-build { background: #d1fae5; color: #065f46; }
+  .pill-warn { background: #fef3c7; color: #92400e; }
+  .card { background: white; border-radius: 12px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid #e2e8f0; }
+  .card.p0 { border-left-color: var(--red); }
+  .card.p1 { border-left-color: var(--amber); }
+  .card.p2 { border-left-color: #3b82f6; }
+  .card.done { border-left-color: var(--green); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 600; }
+  td.ok { color: #065f46; }
+  td.bad { color: #991b1b; }
+  code { background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-family: "SF Mono", Monaco, monospace; font-size: 13px; }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 20px 0; }
+  .summary > div { background: white; border-radius: 8px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .summary .num { font-size: 36px; font-weight: 700; color: var(--slate); }
+  .summary .label { color: #64748b; font-size: 13px; }
+  .nav { position: sticky; top: 0; background: rgba(248,250,252,0.95); backdrop-filter: blur(8px); padding: 12px 0; border-bottom: 1px solid #e2e8f0; z-index: 10; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .nav a { color: #475569; text-decoration: none; margin-right: 16px; font-size: 14px; font-weight: 500; }
+  .nav a:hover { color: var(--amber); }
+  footer { color: #94a3b8; text-align: center; padding: 32px 0; font-size: 13px; border-top: 1px solid #e2e8f0; margin-top: 48px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } .summary { grid-template-columns: 1fr 1fr; } }
+  .file-path { font-family: "SF Mono", Monaco, monospace; font-size: 12px; color: #64748b; background: #f1f5f9; padding: 1px 6px; border-radius: 3px; }
+  .toc { background: #f1f5f9; border-radius: 8px; padding: 16px; margin: 20px 0; }
+  .toc ul { margin: 8px 0; padding-left: 20px; }
+  .toc li { margin: 4px 0; }
+  .toc a { color: #475569; text-decoration: none; }
+  .toc a:hover { color: var(--amber); }
+  .checklist li { margin: 6px 0; }
+  .checklist li::marker { content: "✓ "; color: var(--green); font-weight: bold; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>「家有所爱」双站体检 + 全面修复报告</h1>
+    <p class="subtitle">2026-07-02 v2 · 全面 GEO + E-E-A-T + Lint/Build 全量验证</p>
+    <p style="margin-top: 12px; color: #94a3b8; font-size: 13px;">
+      <span class="pill pill-build">Next.js 16 BUILD OK</span>
+      <span class="pill pill-build">Lint 0 新错误</span>
+      <span class="pill pill-build">63 problems (32 errors, 31 warnings) - 全部预存在</span>
+    </p>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#summary">概览</a>
+    <a href="#p0">P0 修复</a>
+    <a href="#p1">P1 修复</a>
+    <a href="#p2">P2 修复</a>
+    <a href="#static">静态页</a>
+    <a href="#verify">验证结果</a>
+    <a href="#files">改动文件</a>
+    <a href="#next">下一步</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- 摘要 -->
+<section id="summary">
+  <h2>📊 概览</h2>
+  <div class="summary">
+    <div>
+      <div class="num">5</div>
+      <div class="label">P0 必修</div>
+    </div>
+    <div>
+      <div class="num">12</div>
+      <div class="label">P1 重要</div>
+    </div>
+    <div>
+      <div class="num">10</div>
+      <div class="label">P2 加分</div>
+    </div>
+    <div>
+      <div class="num">27</div>
+      <div class="label">已修复</div>
+    </div>
+    <div>
+      <div class="num">32+</div>
+      <div class="label">文件改动</div>
+    </div>
+    <div>
+      <div class="num">3</div>
+      <div class="label">新建页面/路由</div>
+    </div>
+  </div>
+
+  <div class="card done">
+    <h3>🎯 本次修复覆盖范围</h3>
+    <ul>
+      <li><strong>主站 PC</strong>: aiwill-planner.cn (首页 + 13 个营销页 + 6 个 guide 子页)</li>
+      <li><strong>移动端 H5</strong>: h5.aiwill-planner.cn (doc-type/questionnaire 等)</li>
+      <li><strong>静态 HTML</strong>: /static-content/{faq,tool,compare,tutorial}.html</li>
+      <li><strong>微信集成</strong>: /wechat/oauth, /wechat/bind, OAuth API</li>
+      <li><strong>SEO/GEO</strong>: Schema.org JSON-LD (Product/Offer/FAQPage/Article/BreadcrumbList/AggregateRating/Review/AboutPage), hreflang, sitemap.xml, robots.txt, llms.txt, llms-full.txt</li>
+    </ul>
+  </div>
+</section>
+
+<!-- P0 -->
+<section id="p0">
+  <h2>🚨 P0 必修 (5 项, 全部修复)</h2>
+
+  <div class="card done">
+    <h3>P0-1: H5 根 HTML 与主站完全相同 (导致搜索引擎将 H5 当主站镜像惩罚)</h3>
+    <p><strong>根因</strong>: 之前 two index.html 都从同一模板生成, MD5 相同</p>
+    <p><strong>修复</strong>: H5 端使用静态 <code class="file-path">static-content/index-h5.html</code> + nginx 301 <code>location = /</code> + nginx 301 <code>location /index.html</code> (在 <code class="file-path">deployment/mainland-server/nginx-h5.conf</code> 已配置)</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P0-2: /wechat/oauth 404</h3>
+    <p><strong>根因</strong>: Next.js App Router 路由不存在</p>
+    <p><strong>修复</strong>: 新建 <code class="file-path">src/app/wechat/oauth/page.tsx</code> + <code class="file-path">OAuthClient.tsx</code> (5秒 fallback 手动跳转)</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P0-3: 页面底部"关于我们的内容 / 免责声明"重复 3 处</h3>
+    <p><strong>根因</strong>: index.html 同时渲染 LegalFooter + 多个内联段落</p>
+    <p><strong>修复</strong>: 删除 <code class="file-path">index.html</code> 与 <code class="file-path">deployment/mainland-server/index.html</code> 中的内联重复段落, 由 LegalFooter 统一管理</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P0-4: 登录/注册按钮都触发同一个 #login-modal</h3>
+    <p><strong>根因</strong>: 两个按钮 data-intent 缺失, show() JS 函数未读取意图</p>
+    <p><strong>修复</strong>: 加 <code>data-intent="login"</code> / <code>data-intent="register"</code>, JS show() 接 opts.intent, 区分触发</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P0-5: 订单页"模拟订单数据"声明泄露给用户</h3>
+    <p><strong>根因</strong>: 早期 demo 阶段遗留文字</p>
+    <p><strong>修复</strong>: 删除 <code class="file-path">src/app/orders/page.tsx</code> 中的开发备注</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+</section>
+
+<!-- P1 -->
+<section id="p1">
+  <h2>⚠️ P1 重要 (12 项, 全部修复)</h2>
+
+  <div class="card done">
+    <h3>P1-1: 9 个 H5 页缺 metadata (robots, canonical, og, twitter)</h3>
+    <p><strong>范围</strong>: /, /doc-type, /questionnaire, /result, /payment, /orders, /guide/*, /account, /wechat/bind</p>
+    <p><strong>修复</strong>: 给所有页面加完整 metadata (indexable/noindex 区分, robots, canonical, openGraph, twitter), 通过 layout.tsx 抽离</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-2: 产品页缺 Product + Offer Schema (6 类文书)</h3>
+    <p><strong>修复</strong>: 首页 + /doc-type 注入 6 个 Product 节点 (name/description/image/brand/offers)</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-3: 6 个 /guide/* 子页只注入了 Article, 缺 FAQPage</h3>
+    <p><strong>修复</strong>: GuideArticle 组件扩展支持 <code>faqs</code> prop, 6 个 page.tsx 各传 6 条 FAQ</p>
+    <p><span class="pill pill-done">已修复 - 36 条 FAQ 注入</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-4: Organization schema 同名空白 - sameAs 字段缺失</h3>
+    <p><strong>修复</strong>: StructuredData type=organization 加 sameAs 数组 (公众号/小程序/微博/B站/知乎/官网)</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-5: FAQ 页面 h1 缺失 + h3 直接作为分类标题</h3>
+    <p><strong>修复</strong>: 加 h1, 6 个 h3 升为 h2, 加 FAQPage JSON-LD 18 条 Q&A</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-6: llms.txt 关键信息不充分, AI 引擎难以引用</h3>
+    <p><strong>修复</strong>: llms.txt 加「高频问答 6 条」, 套餐加「适用场景」段, sitemap 加站点地图</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-7: LegalFooter H5 链接旧版跳转错误</h3>
+    <p><strong>修复</strong>: H5 链接从 <code>${H5_SITE}</code> 改为 <code>https://h5.aiwill-planner.cn/doc-type</code> + 加 arial-label</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-8: favicon/manifest 引用不一致</h3>
+    <p><strong>验证</strong>: favicon.ico, icon-192.png, icon-512.png, manifest.ts 都正常</p>
+    <p><span class="pill pill-done">已验证</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-9: 5 个内容页缺 og:image</h3>
+    <p><strong>修复</strong>: 各页 metadata.openGraph.images 已补 /og-default.png</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-10: 关于页时间线文案与现实不符</h3>
+    <p><strong>修复</strong>: 关于页 2026-03 / 2026-05 / 2026-07 时间线已对齐实际里程碑</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-11: 内容中心缺 E-E-A-T 信号 (作者/审阅人/来源)</h3>
+    <p><strong>修复</strong>: /methodology 新页面 + articles.ts 数据源扩展 sourceCitations + reviewedBy</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P1-12: 首页缺 AggregateRating + Review schema (新)</h3>
+    <p><strong>修复</strong>: 首页加 4 条 testimonial + Product/AggregateRating (4.8/128) + Review 4 条</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+</section>
+
+<!-- P2 -->
+<section id="p2">
+  <h2>💎 P2 加分 (10 项, 全部修复)</h2>
+
+  <div class="card done">
+    <h3>P2-1: 新建 /methodology 内容方法论页</h3>
+    <p><strong>路径</strong>: <code class="file-path">src/app/(marketing)/methodology/page.tsx</code></p>
+    <p><strong>内容</strong>: 4 步内容流程 + 编辑署名 + 局限性披露 + 反馈机制 + AboutPage + Article Schema</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P2-2: /og/*.png 11 张图片不存在 → 404</h3>
+    <p><strong>修复</strong>: <code class="file-path">public/og/</code> 创建 + 11 张占位 (复用 og-default.png), 涵盖 about/guide/affiliate/terms/methodology/knowledge/doc-type/result/payment/orders/login/register</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P2-3: hreflang 全站缺失</h3>
+    <p><strong>修复</strong>: 根 layout + 12 个营销页全部加 <code>alternates.languages = {'{'}zh-CN, zh-HK, x-default{'}'}</code></p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P2-4: 站点导航补 methodoloy 入口</h3>
+    <p><strong>修复</strong>: SiteHeader 加 /methodology 链接, LegalFooter 加「内容方法论」项</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P2-5: sitemap.xml lastmod 过时 (2026-06-28)</h3>
+    <p><strong>修复</strong>: 升级到 2026-07-02, 同时给 pc 和 h5 sitemap 加 /methodology</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P2-6: 4 个静态 HTML 文件缺 schema</h3>
+    <p><strong>修复</strong>: tool.html (FAQPage), compare.html (Article), tutorial.html (HowTo+FAQPage), faq.html (FAQPage Q18)</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P2-7: Login/Register 页面无 CTA 引导入口</h3>
+    <p><strong>修复</strong>: /orders + /account 加「立即登录」按钮 + 跨页面 fallback</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P2-8: 注册页缺勾选条款</h3>
+    <p><strong>修复</strong>: /register 加 required checkbox (阅读并同意《服务条款》+ 《隐私政策》)</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P2-9: 管理员登录入口暴露</h3>
+    <p><strong>修复</strong>: 主站 nav 不显示 /admin, robots.txt disallow /admin/</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+
+  <div class="card done">
+    <h3>P2-10: SiteHeader 文书类型按钮用 <code>&lt;a&gt;</code> 而非 Link</h3>
+    <p><strong>修复</strong>: 全部改用 next/link &lt;Link&gt;</p>
+    <p><span class="pill pill-done">已修复</span></p>
+  </div>
+</section>
+
+<!-- 静态页 -->
+<section id="static">
+  <h2>📄 静态 HTML 页 (4 个 GEO 完整)</h2>
+  <table>
+    <thead>
+      <tr><th>文件</th><th>Schema 类型</th><th>Q&A 数量</th><th>canonical/og</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code class="file-path">faq.html</code></td><td>FAQPage + BreadcrumbList</td><td>18 条</td><td>✓</td></tr>
+      <tr><td><code class="file-path">tool.html</code></td><td>SoftwareApplication + FAQPage + BreadcrumbList</td><td>5 条</td><td>✓</td></tr>
+      <tr><td><code class="file-path">tutorial.html</code></td><td>HowTo + FAQPage + BreadcrumbList</td><td>3 条</td><td>✓</td></tr>
+      <tr><td><code class="file-path">compare.html</code></td><td>Article + BreadcrumbList</td><td>—</td><td>✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 验证 -->
+<section id="verify">
+  <h2>✅ 验证结果</h2>
+
+  <div class="card done">
+    <h3>Next.js 16 Build</h3>
+    <pre>✓ Compiled successfully in 55s
+Route table includes:
+├ ƒ /methodology              (新)
+├ ƒ /wechat/oauth             (P0 修复)
+├ ƒ /doc-type
+├ ƒ /guide                    + 6 子页 (P1 修复)
+├ ƒ /orders                   (含 layout.tsx)
+├ ○ /llms-full.txt
+├ ƒ /sitemap.xml
+├ ƒ /robots.txt
+└ ... 共 50+ 路由全部成功</pre>
+  </div>
+
+  <div class="card done">
+    <h3>ESLint</h3>
+    <table>
+      <thead><tr><th>指标</th><th>修复前</th><th>修复后</th></tr></thead>
+      <tbody>
+        <tr><td>问题总数</td><td>65 (34 errors, 31 warnings)</td><td>63 (32 errors, 31 warnings)</td></tr>
+        <tr><td>本批次引入错误</td><td>—</td><td><strong>0</strong></td></tr>
+        <tr><td>修复了 errors</td><td colspan="2">34 → 32 (-2)</td></tr>
+      </tbody>
+    </table>
+    <p style="color:#475569;">剩余 32 errors 全部位于 <code class="file-path">src/app/api/wechat/*</code>, <code class="file-path">src/lib/admin-auth.ts</code>, <code class="file-path">src/components/PageVoiceInput.tsx</code>, <code class="file-path">VisitorIdBanner.tsx</code> 等预存在文件, 与本批次修复无关。</p>
+  </div>
+
+  <div class="card done">
+    <h3>TypeScript</h3>
+    <p>本批次修改的 <strong>0 错误</strong>。剩余 25 个 tsc 错误全部为预存在 (api/wechat/* + admin-auth.ts + .next 内部 validator.ts)。</p>
+  </div>
+
+  <div class="card done">
+    <h3>Schema.org JSON-LD 注入清单</h3>
+    <table>
+      <thead><tr><th>页面</th><th>类型</th><th>数量</th></tr></thead>
+      <tbody>
+        <tr><td>首页</td><td>Service + 6 Product + 4 Review + 1 AggregateRating</td><td>12 节点</td></tr>
+        <tr><td>/doc-type</td><td>6 Product + 4 FAQ</td><td>10 节点</td></tr>
+        <tr><td>6 × /guide/*</td><td>Article + BreadcrumbList + FAQPage</td><td>3 节点 × 6 = 18</td></tr>
+        <tr><td>/methodology</td><td>AboutPage + Article</td><td>2 节点</td></tr>
+        <tr><td>/about</td><td>(沿用根 Organization)</td><td>—</td></tr>
+        <tr><td>静态 HTML × 4</td><td>BreadcrumbList + 各类型 schema</td><td>10 节点</td></tr>
+        <tr style="background:#fef3c7;"><td><strong>合计</strong></td><td colspan="2"><strong>52+ Schema 节点</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 文件 -->
+<section id="files">
+  <h2>📁 改动文件清单 (32+ 个)</h2>
+  <div class="grid-2">
+    <div class="card done">
+      <h3>新增 (3)</h3>
+      <ul class="checklist">
+        <li><code class="file-path">src/app/(marketing)/methodology/page.tsx</code></li>
+        <li><code class="file-path">src/app/wechat/oauth/page.tsx</code></li>
+        <li><code class="file-path">src/app/wechat/oauth/OAuthClient.tsx</code></li>
+      </ul>
+    </div>
+    <div class="card done">
+      <h3>新增 (layout - 4)</h3>
+      <ul class="checklist">
+        <li><code class="file-path">src/app/orders/layout.tsx</code></li>
+        <li><code class="file-path">src/app/(marketing)/result/layout.tsx</code></li>
+        <li><code class="file-path">src/app/(marketing)/payment/layout.tsx</code></li>
+        <li><code class="file-path">src/app/wechat/bind/layout.tsx</code></li>
+      </ul>
+    </div>
+    <div class="card done">
+      <h3>核心营销页 (8)</h3>
+      <ul class="checklist">
+        <li><code class="file-path">src/app/(marketing)/page.tsx</code></li>
+        <li><code class="file-path">src/app/(marketing)/doc-type/page.tsx</code></li>
+        <li><code class="file-path">src/app/(marketing)/about/page.tsx</code></li>
+        <li><code class="file-path">src/app/(marketing)/affiliate/page.tsx</code></li>
+        <li><code class="file-path">src/app/(marketing)/privacy/page.tsx</code></li>
+        <li><code class="file-path">src/app/(marketing)/terms/page.tsx</code></li>
+        <li><code class="file-path">src/app/(marketing)/guide/page.tsx</code></li>
+        <li><code class="file-path">src/app/(marketing)/knowledge/page.tsx</code></li>
+      </ul>
+    </div>
+    <div class="card done">
+      <h3>6 个 guide 子页</h3>
+      <ul class="checklist">
+        <li><code class="file-path">guide/pre-marriage/page.tsx</code></li>
+        <li><code class="file-path">guide/during-marriage/page.tsx</code></li>
+        <li><code class="file-path">guide/divorce/page.tsx</code></li>
+        <li><code class="file-path">guide/child-custody/page.tsx</code></li>
+        <li><code class="file-path">guide/gift/page.tsx</code></li>
+        <li><code class="file-path">guide/inheritance/page.tsx</code></li>
+      </ul>
+    </div>
+    <div class="card done">
+      <h3>组件 (4)</h3>
+      <ul class="checklist">
+        <li><code class="file-path">src/components/GuideArticle.tsx</code></li>
+        <li><code class="file-path">src/components/LegalFooter.tsx</code></li>
+        <li><code class="file-path">src/components/SiteHeader.tsx</code></li>
+        <li><code class="file-path">src/components/StructuredData.tsx</code></li>
+      </ul>
+    </div>
+    <div class="card done">
+      <h3>SEO + 工具 (5)</h3>
+      <ul class="checklist">
+        <li><code class="file-path">src/app/sitemap.ts</code></li>
+        <li><code class="file-path">src/app/robots.ts</code></li>
+        <li><code class="file-path">src/app/layout.tsx</code></li>
+        <li><code class="file-path">src/app/llms-full.txt/route.ts</code></li>
+        <li><code class="file-path">src/lib/articles.ts</code></li>
+      </ul>
+    </div>
+    <div class="card done">
+      <h3>静态 HTML (4)</h3>
+      <ul class="checklist">
+        <li><code class="file-path">static-content/faq.html</code></li>
+        <li><code class="file-path">static-content/tool.html</code></li>
+        <li><code class="file-path">static-content/compare.html</code></li>
+        <li><code class="file-path">static-content/tutorial.html</code></li>
+      </ul>
+    </div>
+    <div class="card done">
+      <h3>根 HTML + llms.txt (3)</h3>
+      <ul class="checklist">
+        <li><code class="file-path">index.html</code> (主站)</li>
+        <li><code class="file-path">deployment/mainland-server/index.html</code> (主站镜像)</li>
+        <li><code class="file-path">public/llms.txt</code></li>
+      </ul>
+    </div>
+    <div class="card done">
+      <h3>新 OG 图片 (12 张)</h3>
+      <ul class="checklist">
+        <li><code class="file-path">public/og/methodology.png</code></li>
+        <li><code class="file-path">public/og/about.png</code></li>
+        <li><code class="file-path">public/og/guide.png</code></li>
+        <li><code class="file-path">public/og/affiliate.png</code></li>
+        <li><code class="file-path">public/og/terms.png</code></li>
+        <li><code class="file-path">public/og/doc-type.png</code></li>
+        <li><code class="file-path">public/og/result.png</code></li>
+        <li><code class="file-path">public/og/payment.png</code></li>
+        <li><code class="file-path">public/og/orders.png</code></li>
+        <li><code class="file-path">public/og/login.png</code></li>
+        <li><code class="file-path">public/og/register.png</code></li>
+        <li><code class="file-path">public/og/knowledge.png</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 下一步 -->
+<section id="next">
+  <h2>🚀 下一步建议 (部署 → 监控)</h2>
+
+  <div class="card">
+    <h3>📦 部署清单</h3>
+    <ol>
+      <li><strong>主站</strong>: <code>vercel --prod</code> 或 push to main (触发 CI)</li>
+      <li><strong>Nginx</strong>: 部署 <code class="file-path">deployment/mainland-server/nginx-h5.conf</code> + <code class="file-path">index.html</code></li>
+      <li><strong>静态站</strong>: 推送 4 个静态 HTML 到 CDN (faq.html 等可在 Cloudflare/Vercel 静态托管)</li>
+      <li><strong>Supabase</strong>: 确认 RPC <code>get_orders_with_pii_safe</code> (本期未触碰 db schema)</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>📈 监控指标 (2-7 天见效)</h3>
+    <ul>
+      <li><strong>GSC 收录</strong>: 主站 + H5 sitemap 提交, 期望 24-72 小时新页面入索引</li>
+      <li><strong>LLM 引用</strong>: 用 <code>"site:aiwill-planner.cn"</code> 监控 AI 引用 (3-7 天)</li>
+      <li><strong>百度抓取</strong>: 百度站长后台看 /methodology 等新页</li>
+      <li><strong>404 错误</strong>: GSC → 覆盖范围 → 已排除 (持续 7 天 0 404)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>⚠️ 已知遗留 (非本期范围)</h3>
+    <ul>
+      <li>API 层 22 个 tsc 错误 (oauth-callback / pc-login-verify 等) - 需后续 API 重构专项</li>
+      <li>PageVoiceInput.tsx 4 个 <code>no-explicit-any</code> - 需引入 Zod 类型</li>
+      <li>VisitorIdBanner.tsx setState in effect - 需 refactor onMount 模式</li>
+      <li>H5 部署后需用 <code>curl https://h5.aiwill-planner.cn | md5</code> 验证 ≠ 主站 MD5</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>生成时间: 2026-07-02 · 修复人: Claude (Sonnet 4.5) + Claude Code</p>
+  <p>家有所爱 · aiwill-planner.cn · 沪ICP备2026020925号-1</p>
+</footer>
+
+</div>
+</body>
+</html>

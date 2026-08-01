@@ -139,14 +139,19 @@ function buildService(data?: Record<string, unknown>) {
           availability: 'https://schema.org/InStock',
           url: `${BASE_URL}/payment?plan=ai`,
         },
+        // 改版 v3 (2026-07-30): ¥999 专家版已下线, 改为定制服务 (面向复杂场景)
         {
           '@type': 'Offer',
-          name: '专家护航版',
-          description: '系统化文书 + 资产规划专业人士 1 对 1 审核 + 修改建议',
-          price: '999',
+          name: '定制服务',
+          description: '跨境 / 股权 / 大额资产 / 再婚多套房产, 资产规划专业人士 1 对 1 对接',
           priceCurrency: 'CNY',
           availability: 'https://schema.org/InStock',
-          url: `${BASE_URL}/payment?plan=expert`,
+          url: `${BASE_URL}/contact`,
+          priceSpecification: {
+            '@type': 'PriceSpecification',
+            priceCurrency: 'CNY',
+            description: '根据场景复杂度单独报价 (在 /contact 留言)',
+          },
         },
       ],
     },

@@ -1,0 +1,563 @@
+{
+  "generated_at": "2026-07-17",
+  "doc_type_labels": {
+    "prenup": "婚前财产协议",
+    "postnup": "婚内财产协议",
+    "divorce": "离婚协议书",
+    "custody": "子女抚养协议",
+    "gift": "赠与协议",
+    "will": "遗嘱与传承规划"
+  },
+  "articles": [
+    {
+      "id": "cb01",
+      "title": "中国公民和外籍配偶在海外登记结婚，国内婚前财产协议还有效吗？",
+      "doc_type": "prenup",
+      "keywords": [
+        "涉外婚姻 婚前财产协议",
+        "外籍配偶 婚前协议",
+        "海外登记 婚前协议效力"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb01"
+    },
+    {
+      "id": "cb02",
+      "title": "绿卡持有者在国内的婚前财产，需要做婚前协议吗？",
+      "doc_type": "prenup",
+      "keywords": [
+        "绿卡 婚前协议",
+        "移民前 国内财产",
+        "绿卡持有人 财产保护"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb02"
+    },
+    {
+      "id": "cb03",
+      "title": "中国公民与港澳台居民结婚，婚前财产协议怎么写？",
+      "doc_type": "prenup",
+      "keywords": [
+        "港澳台 涉外婚姻",
+        "香港居民 婚前协议",
+        "两岸婚姻 财产"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb03"
+    },
+    {
+      "id": "cb04",
+      "title": "父母在海外给子女买房，婚前协议如何约定这部分出资？",
+      "doc_type": "prenup",
+      "keywords": [
+        "父母海外出资购房",
+        "海外华人 父母赠与",
+        "跨境父母出资"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb04"
+    },
+    {
+      "id": "cb05",
+      "title": "海外华人回国相亲结婚，婚前协议要提前多久准备？",
+      "doc_type": "prenup",
+      "keywords": [
+        "海外华人 回国相亲",
+        "回国结婚 婚前协议",
+        "跨国相亲 财产保护"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb05"
+    },
+    {
+      "id": "cb06",
+      "title": "海外有公司股权，婚前协议如何写股权隔离条款？",
+      "doc_type": "prenup",
+      "keywords": [
+        "海外公司股权 婚前",
+        "境外股权 婚前协议",
+        "开曼/BVI 公司 婚前"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb06"
+    },
+    {
+      "id": "cb07",
+      "title": "中国公民在英国/美国买房，婚前协议需要写哪些条款？",
+      "doc_type": "prenup",
+      "keywords": [
+        "海外买房 婚前",
+        "美国房产 婚前协议",
+        "英国房产 婚前"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb07"
+    },
+    {
+      "id": "cb08",
+      "title": "留学生毕业后在海外结婚，国内的婚前协议还有用吗？",
+      "doc_type": "prenup",
+      "keywords": [
+        "留学生 婚前协议",
+        "海外结婚 国内财产",
+        "留学回国 婚前"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb08"
+    },
+    {
+      "id": "cb09",
+      "title": "海外收入属于夫妻共同财产吗？需要做婚内财产协议吗？",
+      "doc_type": "postnup",
+      "keywords": [
+        "海外收入 共同财产",
+        "婚内财产 海外",
+        "境外工资 共同财产"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb09"
+    },
+    {
+      "id": "cb10",
+      "title": "中国配偶在国内，国外一方能单独处分国内房产吗？",
+      "doc_type": "postnup",
+      "keywords": [
+        "国外配偶 国内房产",
+        "处分夫妻共同财产",
+        "海外 单独处分"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb10"
+    },
+    {
+      "id": "cb11",
+      "title": "海外华人给国内父母汇款，是赠与还是借款？婚内协议怎么写？",
+      "doc_type": "postnup",
+      "keywords": [
+        "海外汇款 父母",
+        "跨境赠与父母",
+        "汇款性质认定"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb11"
+    },
+    {
+      "id": "cb12",
+      "title": "海外华人双重国籍问题，婚内财产协议如何规避风险？",
+      "doc_type": "postnup",
+      "keywords": [
+        "双重国籍 婚内",
+        "国籍冲突 财产",
+        "自动丧失国籍"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb12"
+    },
+    {
+      "id": "cb13",
+      "title": "中国公民在海外开公司，股权算夫妻共同财产吗？",
+      "doc_type": "postnup",
+      "keywords": [
+        "海外开公司 股权",
+        "跨境股权 共同财产",
+        "海外持股 婚内"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb13"
+    },
+    {
+      "id": "cb14",
+      "title": "海外华人股票账户 (美股/A股/港股) 在婚内协议中如何处理？",
+      "doc_type": "postnup",
+      "keywords": [
+        "美股 婚内",
+        "港股 共同财产",
+        "海外股票账户"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb14"
+    },
+    {
+      "id": "cb15",
+      "title": "海外华人养老金 (401k/IRA) 在婚内协议中怎么处理？",
+      "doc_type": "postnup",
+      "keywords": [
+        "401k 婚内",
+        "IRA 共同财产",
+        "美国养老金 婚内"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb15"
+    },
+    {
+      "id": "cb16",
+      "title": "海外华人数字货币 (BTC/ETH) 在婚内协议中如何约定？",
+      "doc_type": "postnup",
+      "keywords": [
+        "数字货币 婚内",
+        "BTC 共同财产",
+        "加密货币 婚前协议"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb16"
+    },
+    {
+      "id": "cb17",
+      "title": "海外华人回国办理离婚，需要哪些手续和文件？",
+      "doc_type": "divorce",
+      "keywords": [
+        "海外华人 回国离婚",
+        "跨国离婚 手续",
+        "海牙认证 离婚"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb17"
+    },
+    {
+      "id": "cb18",
+      "title": "中国法院的离婚判决，在美国/英国/澳洲能得到承认吗？",
+      "doc_type": "divorce",
+      "keywords": [
+        "中国离婚判决 海外承认",
+        "海牙公约 离婚",
+        "跨国 离婚判决执行"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb18"
+    },
+    {
+      "id": "cb19",
+      "title": "海外华人诉讼离婚，管辖法院怎么选？国内还是海外？",
+      "doc_type": "divorce",
+      "keywords": [
+        "海外华人 诉讼离婚 管辖",
+        "涉外离婚 管辖法院",
+        "跨国离婚 管辖"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb19"
+    },
+    {
+      "id": "cb20",
+      "title": "海外华人协议离婚冷静期 30 天，能否缩短或跳过？",
+      "doc_type": "divorce",
+      "keywords": [
+        "海外华人 冷静期",
+        "涉外离婚 冷静期",
+        "协议离婚 30 天"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb20"
+    },
+    {
+      "id": "cb21",
+      "title": "海外华人离婚，海外财产如何在离婚协议中分割？",
+      "doc_type": "divorce",
+      "keywords": [
+        "海外财产 离婚分割",
+        "跨国 财产分割",
+        "境外资产 离婚协议"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb21"
+    },
+    {
+      "id": "cb22",
+      "title": "中国公民与外籍配偶离婚，孩子抚养权如何判定？",
+      "doc_type": "divorce",
+      "keywords": [
+        "涉外离婚 抚养权",
+        "外籍配偶 子女抚养",
+        "跨国 抚养权"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb22"
+    },
+    {
+      "id": "cb23",
+      "title": "海外华人诉讼离婚，对方不出庭怎么办？",
+      "doc_type": "divorce",
+      "keywords": [
+        "涉外离婚 缺席判决",
+        "海外华人 缺席",
+        "对方不出庭"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb23"
+    },
+    {
+      "id": "cb24",
+      "title": "海外华人重婚问题：在海外登记结婚，国内再婚怎么处理？",
+      "doc_type": "divorce",
+      "keywords": [
+        "海外重婚",
+        "跨国重婚",
+        "重复登记"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb24"
+    },
+    {
+      "id": "cb25",
+      "title": "海外华人离婚，子女抚养费能按海外标准要吗？",
+      "doc_type": "custody",
+      "keywords": [
+        "涉外 抚养费",
+        "海外标准 抚养费",
+        "跨国 抚养费"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb25"
+    },
+    {
+      "id": "cb26",
+      "title": "海外华人离婚，孩子国籍/户口/出入境怎么安排？",
+      "doc_type": "custody",
+      "keywords": [
+        "涉外 子女户口",
+        "海外华人 子女国籍",
+        "子女出入境"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb26"
+    },
+    {
+      "id": "cb27",
+      "title": "海外华人离婚，探视权如何在协议中具体化？",
+      "doc_type": "custody",
+      "keywords": [
+        "涉外 探视权",
+        "海外 探视安排",
+        "跨国探视"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb27"
+    },
+    {
+      "id": "cb28",
+      "title": "海外华人外籍配偶带走孩子，国内能阻止吗？",
+      "doc_type": "custody",
+      "keywords": [
+        "外籍配偶 带走孩子",
+        "跨国拐带",
+        "阻止出境"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb28"
+    },
+    {
+      "id": "cb29",
+      "title": "海外华人子女抚养费，能跨国执行吗？",
+      "doc_type": "custody",
+      "keywords": [
+        "抚养费 跨国执行",
+        "海外 执行抚养费",
+        "海牙 抚养费"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb29"
+    },
+    {
+      "id": "cb30",
+      "title": "海外华人海外出生的孩子，国内如何办理出生证明？",
+      "doc_type": "custody",
+      "keywords": [
+        "海外出生 中国户口",
+        "美宝 上户口",
+        "海外出生证明"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb30"
+    },
+    {
+      "id": "cb31",
+      "title": "海外华人子女继承权，如何保障？",
+      "doc_type": "custody",
+      "keywords": [
+        "海外华人 子女继承",
+        "跨境继承 子女",
+        "继承权保护"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb31"
+    },
+    {
+      "id": "cb32",
+      "title": "海外华人留守儿童，祖父母能签抚养协议吗？",
+      "doc_type": "custody",
+      "keywords": [
+        "海外华人 留守儿童",
+        "祖父母 抚养协议",
+        "隔代抚养"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb32"
+    },
+    {
+      "id": "cb33",
+      "title": "海外华人父母给国内子女汇款，是赠与还是借款？",
+      "doc_type": "gift",
+      "keywords": [
+        "海外父母 汇款",
+        "跨境赠与",
+        "汇款性质"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb33"
+    },
+    {
+      "id": "cb34",
+      "title": "海外华人赠与国内房产，需要哪些手续和税费？",
+      "doc_type": "gift",
+      "keywords": [
+        "海外华人 赠与房产",
+        "跨境房产赠与",
+        "外籍赠与 税费"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb34"
+    },
+    {
+      "id": "cb35",
+      "title": "海外华人赠与国内股权，需要哪些手续？",
+      "doc_type": "gift",
+      "keywords": [
+        "海外华人 股权赠与",
+        "跨境股权",
+        "股权过户"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb35"
+    },
+    {
+      "id": "cb36",
+      "title": "海外华人给孙辈的赠与，能绕过子女吗？",
+      "doc_type": "gift",
+      "keywords": [
+        "隔代赠与",
+        "孙辈赠与",
+        "祖父母赠与"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb36"
+    },
+    {
+      "id": "cb37",
+      "title": "海外华人赠与给国内非亲属 (朋友/伴侣)，需要签协议吗？",
+      "doc_type": "gift",
+      "keywords": [
+        "非亲属赠与",
+        "朋友赠与",
+        "伴侣赠与"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb37"
+    },
+    {
+      "id": "cb38",
+      "title": "海外华人父母赠与后反悔，能撤销吗？",
+      "doc_type": "gift",
+      "keywords": [
+        "赠与撤销",
+        "父母赠与反悔",
+        "撤销权"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb38"
+    },
+    {
+      "id": "cb39",
+      "title": "海外华人立遗嘱，国内房产如何处理？",
+      "doc_type": "will",
+      "keywords": [
+        "海外华人 遗嘱",
+        "国内房产 遗嘱",
+        "跨境遗产"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb39"
+    },
+    {
+      "id": "cb40",
+      "title": "中国公民海外立遗嘱，国内继承怎么执行？",
+      "doc_type": "will",
+      "keywords": [
+        "海外遗嘱 国内继承",
+        "跨境遗产 遗嘱",
+        "海牙认证 遗嘱"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb40"
+    },
+    {
+      "id": "cb41",
+      "title": "海外华人遗产继承，国内遗产和海外遗产如何分？",
+      "doc_type": "will",
+      "keywords": [
+        "海外华人 遗产",
+        "跨境遗产继承",
+        "国内国外遗产"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb41"
+    },
+    {
+      "id": "cb42",
+      "title": "海外华人没立遗嘱，国内遗产怎么分？",
+      "doc_type": "will",
+      "keywords": [
+        "海外华人 法定继承",
+        "无遗嘱 国内继承",
+        "法定继承人"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb42"
+    },
+    {
+      "id": "cb43",
+      "title": "中国公民在海外有房产，立遗嘱需要注意什么？",
+      "doc_type": "will",
+      "keywords": [
+        "海外房产 遗嘱",
+        "美国房产 遗嘱",
+        "英国房产 遗嘱"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb43"
+    },
+    {
+      "id": "cb44",
+      "title": "海外华人遗嘱公证，国内国外都需要做吗？",
+      "doc_type": "will",
+      "keywords": [
+        "海外华人 遗嘱公证",
+        "跨境遗嘱公证",
+        "海牙 遗嘱"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb44"
+    },
+    {
+      "id": "cb45",
+      "title": "海外华人遗嘱中能给非中国籍子女留遗产吗？",
+      "doc_type": "will",
+      "keywords": [
+        "外籍子女 继承",
+        "海外子女 遗产",
+        "跨境 子女继承"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb45"
+    },
+    {
+      "id": "cb46",
+      "title": "海外华人立遗嘱，常见错误有哪些？",
+      "doc_type": "will",
+      "keywords": [
+        "海外华人 遗嘱 错误",
+        "遗嘱无效",
+        "跨境遗嘱 风险"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb46"
+    },
+    {
+      "id": "cb47",
+      "title": "海外华人遗产税问题：国内国外都要交吗？",
+      "doc_type": "will",
+      "keywords": [
+        "海外华人 遗产税",
+        "跨境遗产税",
+        "中国 遗产税"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb47"
+    },
+    {
+      "id": "cb48",
+      "title": "海外华人遗嘱继承，国内不动产怎么过户？",
+      "doc_type": "will",
+      "keywords": [
+        "海外华人 不动产 过户",
+        "跨境不动产 继承",
+        "继承公证"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb48"
+    },
+    {
+      "id": "cb49",
+      "title": "海外华人家族信托与遗嘱结合，国内国外资产如何规划？",
+      "doc_type": "will",
+      "keywords": [
+        "海外华人 家族信托",
+        "信托 遗嘱",
+        "跨境财富传承"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb49"
+    },
+    {
+      "id": "cb50",
+      "title": "海外华人意外身故 (无遗嘱)，国内遗产紧急处理流程",
+      "doc_type": "will",
+      "keywords": [
+        "海外华人 意外身故",
+        "紧急继承",
+        "无遗嘱 应急"
+      ],
+      "url": "https://h5.aiwill-planner.cn/guide/cross-border/cb50"
+    }
+  ]
+}

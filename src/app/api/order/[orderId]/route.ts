@@ -61,7 +61,7 @@ export async function GET(
     paymentUrl: `/payment?order=${orderId}`,
     resultUrl: `/result?order=${orderId}`,
     downloadUrl: `/api/doc/${orderId}/download?format=pdf`,
-    title: `${DOC_TYPE_NAMES[inferredDocType] || '家庭文书'} · ${inferredPlan === 'expert' ? '专家护航版' : '智能版'}`,
+    title: `${DOC_TYPE_NAMES[inferredDocType] || '家庭文书'} · 智能版`,
     preview: `# ${DOC_TYPE_NAMES[inferredDocType] || '家庭文书'}\n\n（本订单为 mock 演示数据 — 真实草稿由 LLM 生成）\n\n## 第一条 协议双方\n\n甲方：[姓名]，身份证号：[身份证号]\n乙方：[姓名]，身份证号：[身份证号]\n\n## 第二条 财产范围\n\n...\n\n（本预览仅展示前 200 字，完整草稿请在支付成功后下载 PDF）`,
   };
 

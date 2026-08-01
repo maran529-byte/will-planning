@@ -3,15 +3,16 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { HeaderAuthButtons } from "@/components/HeaderAuthButtons";
 
 const H5_SITE = "https://h5.aiwill-planner.cn";
-const H5_DASHBOARD = "https://h5.aiwill-planner.cn/dashboard";
 
 /**
  * SiteHeader - 主站导航
  *
- * 改版 v2 (2026-07-22, 方案 A 合规修复):
- *   - 旧: 调 readUserSession() (触发 /api/auth/* 链路, 主页变成 dynamic)
- *   - 新: 删除 session 检测, 「我的」直接跳 H5 dashboard
- *   - 架构要求: 主站 0 form 0 input 0 /api/* 调用
+ * 改版 v3 (2026-07-30, 修复"按钮没反应"问题):
+ *   - 旧 v2: 「我的」「登录」「注册」全部直接跳 H5 (h5.aiwill-planner.cn/...)
+ *     → H5 站点偶发不可达时, 用户点了等于跳到无法访问的页面 → 视觉上"按钮没反应"
+ *   - 新 v3: 「我的」跳 /dashboard (主站 host-aware 页: 主站显示跳转卡, H5 显示真实页面)
+ *     「登录」「注册」跳 /login /register (同上)
+ *   - 架构要求: 主站 0 form 0 input 0 /api/* 调用 — 仍由 host-aware 渲染保证
  *   - 架构要求文档: /Users/maran/Desktop/架构要求.md
  */
 export function SiteHeader() {
@@ -78,7 +79,7 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <Link
-            href={H5_DASHBOARD}
+            href="/dashboard"
             className="text-slate-600 hover:text-amber-600 text-sm font-medium transition px-3 py-2"
           >
             我的

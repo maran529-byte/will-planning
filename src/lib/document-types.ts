@@ -208,3 +208,99 @@ export function getDocumentType(id: string | null | undefined): DocumentType | n
   if (!id) return null;
   return DOCUMENT_TYPES.find((d) => d.id === id) ?? null;
 }
+
+// ============================================================================
+// 签署指引 (Signing Guides) — result 页使用
+// 依据民法典 §1134-1142 (遗嘱) + §1065 (婚内协议) + §1078 (离婚协议) + §660 (赠与)
+// 显示在文书下载区上方, 防止用户直接打印签名导致形式要件瑕疵
+// ============================================================================
+export interface SigningGuideStep {
+  /** 步骤序号 (1/2/3) */
+  order: number;
+  /** 步骤标题 */
+  title: string;
+  /** 步骤详情 (1-2 句话) */
+  detail: string;
+}
+
+export interface SigningGuide {
+  /** 适用的民法典条款 */
+  lawRef: string;
+  /** 关键提示 (红字告警, 如见证人强制) */
+  alert?: string;
+  /** 公证建议文案 */
+  notarization: string;
+  /** 签署步骤数组 */
+  steps: SigningGuideStep[];
+}
+
+export const SIGNING_GUIDES: Record<DocumentTypeId, SigningGuide> = {
+  will: {
+    lawRef: "《民法典》§1134-1142 (遗嘱形式)",
+    alert: "⚠️ 自书/代书/打印/录音录像遗嘱均须有 2 名见证人在场 (继承人不得作见证人)",
+    notarization: "推荐公证遗嘱, 效力最高且不易被撤销。涉及大额资产强烈建议公证。",
+    steps: [
+      { order: 1, title: "选择遗嘱形式", detail: "自书 (亲笔全文+签名+日期) / 公证 (公证处办理) / 代书 (2 名见证人+代书人) / 打印 (2 名见证人+每页签名) / 录音录像 (2 名见证人口头+全程录像)" },
+      { order: 2, title: "召集见证人", detail: "继承人、受遗赠人及利害关系人不得担任见证人 (《民法典》§1140)" },
+      { order: 3, title: "当面签署 + 注明年月日", detail: "立遗嘱人签名 + 见证人逐页签名 + 注明立遗嘱日期" },
+      { order: 4, title: "建议公证处保管", detail: "公证遗嘱由公证机构保管, 自书/代书遗嘱建议存放于可信第三方 (律师/银行保险箱)" },
+    ],
+  },
+  marriage: {
+    lawRef: "《民法典》§1049 (夫妻约定)",
+    notarization: "大额资产 (房产/股权) 婚前协议强烈建议办理公证, 避免后续举证困难。",
+    steps: [
+      { order: 1, title: "双方共同阅看文本", detail: "确保双方对每一条款均无异议, 文书须为双方真实意思表示 (《民法典》§150-151)" },
+      { order: 2, title: "双方亲笔签名 + 注明年月日", detail: "甲方签名 / 乙方签名 / 签订日期, 不得代签或盖章代替" },
+      { order: 3, title: "(可选) 办理公证", detail: "涉及房产/股权等大额资产, 建议双方共同到公证处办理公证, 一式三份 (双方各一份, 公证处存档)" },
+      { order: 4, title: "结婚登记时出示", detail: "部分民政局可配合办理财产约定备案, 避免日后争议" },
+    ],
+  },
+  "marital-property": {
+    lawRef: "《民法典》§1065 (婚内财产约定)",
+    notarization: "婚内协议可随时签订, 涉及房产/股权变动的建议办理公证或不动产登记。",
+    steps: [
+      { order: 1, title: "双方共同确认条款", detail: "确保财产归属/债务承担等条款均无异议" },
+      { order: 2, title: "双方亲笔签名 + 注明年月日", detail: "婚内协议仅调整财产关系, 不影响人身关系" },
+      { order: 3, title: "(可选) 办理公证", detail: "涉及房产/股权/车辆等登记财产, 建议公证后办理不动产/股权变更登记" },
+    ],
+  },
+  divorce: {
+    lawRef: "《民法典》§1076-1078 (协议离婚)",
+    alert: "⚠️ 离婚协议须双方亲自到民政局申请离婚登记, 30 日冷静期内任何一方可撤回",
+    notarization: "离婚协议无需公证, 但建议双方各执一份 + 留存电子档。",
+    steps: [
+      { order: 1, title: "双方共同阅看离婚协议", detail: "财产分割/子女抚养/债务承担等条款须双方真实意思表示" },
+      { order: 2, title: "双方亲笔签名 + 注明年月日", detail: "在民政局协议离婚时, 工作人员会要求现场签字" },
+      { order: 3, title: "双方共同到民政局申请离婚登记", detail: "提交离婚协议 + 户口本 + 身份证 + 结婚证 + 2 张 2 寸单人照片" },
+      { order: 4, title: "等待 30 日冷静期 + 领取离婚证", detail: "冷静期满后 30 日内双方共同到民政局申请发给离婚证, 未共同申请视为撤回" },
+    ],
+  },
+  "child-custody": {
+    lawRef: "《民法典》§1084-1086 (子女抚养)",
+    notarization: "抚养协议可公证, 涉及探视权强制执行的法院更认可公证版本。",
+    steps: [
+      { order: 1, title: "双方确认抚养/探视/费用条款", detail: "建议明确每月抚养费金额 + 大额医疗教育分摊 + 探视时间地点" },
+      { order: 2, title: "双方亲笔签名 + 注明年月日", detail: "父母双方签字, 涉及子女满 8 周岁的可考虑子女意见" },
+      { order: 3, title: "(可选) 办理公证", detail: "涉及强制执行探视权的情形, 公证版本更便于法院执行" },
+      { order: 4, title: "(必要时) 法院调解书", detail: "通过法院调解达成的协议具有强制执行力, 可直接申请法院强制执行" },
+    ],
+  },
+  gift: {
+    lawRef: "《民法典》§657-660 (赠与合同)",
+    alert: "⚠️ 不动产赠与未办理过户登记的不发生物权效力 (《民法典》§209)",
+    notarization: "不动产/股权/大额动产赠与必须办理公证 + 变更登记, 否则存在撤销风险。",
+    steps: [
+      { order: 1, title: "双方确认赠与标的与条件", detail: "明确赠与财产 / 是否附条件 (赡养/学业) / 是否保留撤销权" },
+      { order: 2, title: "双方亲笔签名 + 注明年月日", detail: "赠与人 + 受赠人签名 + 签订日期" },
+      { order: 3, title: "办理公证", detail: "不动产/股权/大额动产必须公证, 公证费一般为标的额的 0.3%-1%" },
+      { order: 4, title: "办理过户登记", detail: "不动产到不动产登记中心 / 股权到市场监督管理局 / 车辆到车管所办理变更登记" },
+    ],
+  },
+};
+
+/** 安全查签署指引 */
+export function getSigningGuide(docType: string | null | undefined): SigningGuide | null {
+  if (!docType) return null;
+  return SIGNING_GUIDES[docType as DocumentTypeId] ?? null;
+}

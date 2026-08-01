@@ -1,0 +1,3 @@
+{
+  "/wechat/callback/route": "app/wechat/callback/route.js"
+}

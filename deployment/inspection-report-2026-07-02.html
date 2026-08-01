@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>「家有所爱」双站体检 + 修复报告 · 2026-07-02</title>
+<style>
+  :root { --green: #10b981; --amber: #f59e0b; --red: #ef4444; --slate: #0f172a; --bg: #f8fafc; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; margin: 0; background: var(--bg); color: var(--slate); line-height: 1.7; }
+  .container { max-width: 1080px; margin: 0 auto; padding: 24px; }
+  header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 48px 24px; }
+  header .container { padding: 0; }
+  h1 { font-size: 32px; margin: 0 0 12px; }
+  h2 { font-size: 22px; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  h3 { font-size: 17px; margin: 24px 0 8px; }
+  .subtitle { color: #94a3b8; font-size: 14px; margin: 0; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-right: 6px; }
+  .pill-p0 { background: #fee2e2; color: #991b1b; }
+  .pill-p1 { background: #fef3c7; color: #92400e; }
+  .pill-p2 { background: #dbeafe; color: #1e40af; }
+  .pill-done { background: #d1fae5; color: #065f46; }
+  .pill-warn { background: #fef3c7; color: #92400e; }
+  .card { background: white; border-radius: 12px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid #e2e8f0; }
+  .card.p0 { border-left-color: var(--red); }
+  .card.p1 { border-left-color: var(--amber); }
+  .card.p2 { border-left-color: #3b82f6; }
+  .card.done { border-left-color: var(--green); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f1f5f9; font-weight: 600; }
+  td.ok { color: #065f46; }
+  td.bad { color: #991b1b; }
+  code { background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-family: "SF Mono", Monaco, monospace; font-size: 13px; }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 20px 0; }
+  .summary > div { background: white; border-radius: 8px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .summary .num { font-size: 32px; font-weight: 700; color: var(--slate); }
+  .summary .label { color: #64748b; font-size: 13px; }
+  .nav { position: sticky; top: 0; background: rgba(248,250,252,0.95); backdrop-filter: blur(8px); padding: 12px 0; border-bottom: 1px solid #e2e8f0; z-index: 10; }
+  .nav a { color: #475569; text-decoration: none; margin-right: 16px; font-size: 14px; }
+  .nav a:hover { color: var(--amber); }
+  footer { color: #94a3b8; text-align: center; padding: 32px 0; font-size: 13px; border-top: 1px solid #e2e8f0; margin-top: 48px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } .summary { grid-template-columns: 1fr 1fr; } }
+  .file-path { font-family: "SF Mono", Monaco, monospace; font-size: 12px; color: #64748b; background: #f1f5f9; padding: 1px 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>🔍 「家有所爱」双站体检 + 修复报告</h1>
+    <p class="subtitle">主站 https://aiwill-planner.cn (SEO 大陆 ICP) · H5 https://h5.aiwill-planner.cn (香港服务器) · 报告时间 2026-07-02</p>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="nav">
+  <a href="#summary">总览</a>
+  <a href="#p0">P0 硬伤</a>
+  <a href="#p1">P1 跳转</a>
+  <a href="#p1-geo">P1 GEO</a>
+  <a href="#p2">P2 优化</a>
+  <a href="#files">修改文件</a>
+  <a href="#verify">验收清单</a>
+</div>
+
+<h2 id="summary">📊 修复总览</h2>
+<div class="summary">
+  <div><div class="num" style="color: var(--green);">5</div><div class="label">P0 已修复</div></div>
+  <div><div class="num" style="color: var(--green);">5</div><div class="label">P1 已修复</div></div>
+  <div><div class="num" style="color: var(--green);">2</div><div class="label">P2 已修复</div></div>
+  <div><div class="num">16</div><div class="label">修改/新增文件</div></div>
+</div>
+
+<h2 id="p0">🚨 P0 —— 一上来就要炸的三个硬伤</h2>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> P0-1: H5 根路径被反代到 SEO 主站</h3>
+  <p><strong>症状</strong>: <code>curl h5.aiwill-planner.cn/</code> 返回的 HTML 字节大小与主站完全一致(MD5 相同),用户在主站点了"开始规划→"、"在 H5 开始"、"立即绑定账号"等按钮后看到的还是 SEO 首页,转化漏斗首步断流。</p>
+  <p><strong>根因</strong>: nginx 配置在 <span class="file-path">/deployment/mainland-server/nginx.conf</span> 的 <code>location = /</code> 块,直接 <code>try_files /index.html</code> 而不区分 host。</p>
+  <p><strong>修复</strong>: 在 <code>location = /</code> 顶部加 <code>if ($host = h5.aiwill-planner.cn) { return 301 https://h5.aiwill-planner.cn/doc-type; }</code>,PC 域名保持原行为。同时 <span class="file-path">src/components/LegalFooter.tsx</span> 的"移动端"按钮从 <code>h5.aiwill-planner.cn</code> 改为 <code>h5.aiwill-planner.cn/doc-type</code>。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> P0-2: 登录弹窗的 OAuth 回调是 404</h3>
+  <p><strong>症状</strong>: 弹窗脚本硬编码 <code>https://h5.aiwill-planner.cn/wechat/oauth?state=PC_LOGIN&return=...</code>,实测 404。</p>
+  <p><strong>根因</strong>: Next.js App Router 下 <code>/wechat/oauth</code> 路由根本不存在(<code>/wechat/bind</code> 有,但 <code>/wechat/oauth</code> 是另一回事)。</p>
+  <p><strong>修复</strong>: 新增两个文件:
+    <ul>
+      <li><span class="file-path">src/app/wechat/oauth/page.tsx</span> — server component,负责 metadata + Suspense 包装</li>
+      <li><span class="file-path">src/app/wechat/oauth/OAuthClient.tsx</span> — client component,调 <code>/api/wechat/prepare-oauth</code> → 拼 authorize URL → 自动跳转;5 秒未跳显示手动按钮</li>
+    </ul>
+  </p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> P0-3: 底部免责声明重复</h3>
+  <p><strong>症状</strong>: 主页底部挨着 3 段高度雷同的免责声明(套餐下方 + 内容性质说明 + 💡 关于我们的内容)。</p>
+  <p><strong>修复</strong>: 删除两处 <code>index.html</code>(<span class="file-path">/index.html</span> 和 <span class="file-path">/deployment/mainland-server/index.html</span>)里 hero 区下方的"💡 关于我们的内容"重复段(line 637-640)。底部内容性质说明 + 数据安全 + ICP 备案保留。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> P0-4: 登录/注册按钮行为一样</h3>
+  <p><strong>症状</strong>: 顶部"登录"和"注册"两个按钮 href 都是 <code>#login-modal</code>。</p>
+  <p><strong>修复</strong>: 两个 index.html 顶部按钮加 <code>data-intent="login"</code> / <code>data-intent="register"</code> 属性,JS click handler 读取后传给 <code>show({intent})</code>。意图为 register 时弹窗副标题切换为"使用微信账号快速注册",并把 intent 信息一路传到 OAuth 跳转 URL,后续可扩展"邮箱注册"折叠面板默认展开。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> P0-5: 删 /orders "模拟订单数据" + /orders /account 增"立即登录"按钮</h3>
+  <p><strong>修复</strong>:
+    <ul>
+      <li><span class="file-path">src/app/orders/page.tsx</span> line 283 删掉"这是模拟订单数据..."段</li>
+      <li><span class="file-path">src/app/orders/page.tsx</span> line 124-148 未登录卡片加"立即登录(邮箱密码)"主按钮 + "绑定微信账号"次按钮</li>
+      <li><span class="file-path">src/app/account/page.tsx</span> line 89-108 NotLoggedInView 同样加 2 个按钮</li>
+    </ul>
+  </p>
+</div>
+
+<h2 id="p1">🟡 P1 —— 用户视角的完整修复</h2>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> 9 个 H5 流程页加 noindex + canonical</h3>
+  <p>login / register / dashboard / orders / account / wechat/bind / questionnaire / payment / result 共 9 个页面,补全或新增 <code>metadata.robots = { index: false, follow: false }</code> 和 <code>alternates.canonical = "https://h5.aiwill-planner.cn/..."</code>。</p>
+  <p>orders / payment / result 是 client component,通过新建 <code>layout.tsx</code>(server component)承载 metadata。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> 6 个 /guide/* 子页加 Article + BreadcrumbList schema</h3>
+  <p>在 <span class="file-path">src/components/GuideArticle.tsx</span> 末尾统一注入 <code>@graph</code> JSON-LD,内含 Article + BreadcrumbList。一次修改覆盖 6 个子页(pre-marriage / during-marriage / divorce / child-custody / gift / inheritance)。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> /faq 静态页 h1 + h2 层级重构 + FAQPage schema</h3>
+  <p><span class="file-path">static-content/faq.html</span> 原 0 h1 + 1 h2 + 6 h3,改为 1 h1 + 6 h2(每个分类单独 h2,符合 SEO 层级)。末尾注入 FAQPage schema 含 18 条 Q&A。<strong>同步 deployment 副本</strong>。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> Organization schema sameAs 补全</h3>
+  <p><span class="file-path">src/components/StructuredData.tsx</span> 的 sameAs 数组从空 → 6 条:主站 / H5 / 微信公众号 / 知乎 / 小红书 / 微博。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> llms.txt 补 FAQ 段 + 套餐场景说明</h3>
+  <p><span class="file-path">public/llms.txt</span> 套餐段加"什么时候选智能版 / 什么时候选专家版"各 50 字说明;新增"## 高频问答(可直接引用)"段含 6 条 Q&A。<strong>同步 deployment 副本</strong>。</p>
+</div>
+
+<h2 id="p1-geo">🌐 P1 —— GEO 抓手补齐</h2>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> 首页 + /doc-type 加 Product + Offer schema (6 类文书 × 2 页 = 12 条)</h3>
+  <p>两个 page.tsx 末尾注入 <code>@graph</code> JSON-LD,内含 6 个 Product + Offer 节点(婚姻协议 / 婚内财产 / 离婚协议 / 子女抚养 / 赠与 / 财富传承),每条带 name, description, brand, image, offers(price 19.9 CNY, url 指向 H5 子域)。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> /guide /tutorial /affiliate /terms /about 加 og:image</h3>
+  <p>5 个长内容页 metadata.openGraph.images 数组补 <code>/og/&lt;page&gt;.png</code>(1200×630),未来生成图片时直接生效。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> tool.html / compare.html / tutorial.html 加 h1</h3>
+  <p>3 个静态内容页原本 0 h1,加 1 h1(分别是"在线文书生成器 · 10 分钟搞定"、"婚前协议 vs 婚内财产 vs 离婚协议 vs 抚养"、"家庭文书写作教程")。<strong>同步 deployment 副本</strong>。</p>
+</div>
+
+<h2 id="p2">🟢 P2 —— 微优化</h2>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> /admin/login 入口隐藏</h3>
+  <p><span class="file-path">src/app/login/page.tsx</span> 的"管理员入口"链接移到页面底部,加 <code>hidden md:block</code>(仅 PC 端可见) + <code>opacity: 0.55</code> 低调化。</p>
+</div>
+
+<div class="card done">
+  <h3><span class="pill pill-done">已修</span> /register 表单 checkbox 联动</h3>
+  <p><span class="file-path">src/app/register/RegisterForm.tsx</span> checkbox 未勾选时提交按钮 <code>disabled</code> + 显示提示"请勾选同意条款才能注册"。</p>
+</div>
+
+<div class="card warn">
+  <h3><span class="pill pill-warn">未修</span> H5 "前往 H5" 按钮数量过多</h3>
+  <p>静态 index.html 里有 ≥ 8 个"前往 H5 / 移动端"按钮,过多噪音。这是非关键路径,留待下个迭代处理。</p>
+</div>
+
+<div class="card warn">
+  <h3><span class="pill pill-warn">未修</span> CTA 文案不一致</h3>
+  <p>"开始规划 / 立即开始 / 在 H5 开始 / 立即绑定账号"等动词不一致。报告里建议统一为"立即开始"或"开始规划"。非关键,留待下个迭代。</p>
+</div>
+
+<h2 id="files">📁 修改/新增文件清单(16 个)</h2>
+
+<table>
+  <tr><th>文件</th><th>类型</th><th>修复内容</th></tr>
+  <tr><td><span class="file-path">src/components/LegalFooter.tsx</span></td><td>改</td><td>移动端 H5 链接 → /doc-type</td></tr>
+  <tr><td><span class="file-path">src/components/StructuredData.tsx</span></td><td>改</td><td>Organization sameAs 填 6 条</td></tr>
+  <tr><td><span class="file-path">src/components/GuideArticle.tsx</span></td><td>改</td><td>末尾加 Article + BreadcrumbList schema</td></tr>
+  <tr><td><span class="file-path">src/app/orders/page.tsx</span></td><td>改</td><td>删"模拟订单数据" + 增"立即登录"</td></tr>
+  <tr><td><span class="file-path">src/app/orders/layout.tsx</span></td><td>增</td><td>server component 承载 metadata (noindex)</td></tr>
+  <tr><td><span class="file-path">src/app/account/page.tsx</span></td><td>改</td><td>增 metadata + 增"立即登录"按钮</td></tr>
+  <tr><td><span class="file-path">src/app/(marketing)/page.tsx</span></td><td>改</td><td>末尾加 6 类 Product + Offer schema</td></tr>
+  <tr><td><span class="file-path">src/app/(marketing)/doc-type/page.tsx</span></td><td>改</td><td>canonical + robots + 6 类 Product schema</td></tr>
+  <tr><td><span class="file-path">src/app/(marketing)/about/page.tsx</span></td><td>改</td><td>canonical + og.images</td></tr>
+  <tr><td><span class="file-path">src/app/(marketing)/tutorial/page.tsx</span></td><td>改</td><td>og.images</td></tr>
+  <tr><td><span class="file-path">src/app/(marketing)/affiliate/page.tsx</span></td><td>改</td><td>og.images</td></tr>
+  <tr><td><span class="file-path">src/app/(marketing)/terms/page.tsx</span></td><td>改</td><td>og.images</td></tr>
+  <tr><td><span class="file-path">src/app/wechat/oauth/page.tsx</span></td><td>增</td><td>OAuth 跳转中转页(修 404)</td></tr>
+  <tr><td><span class="file-path">src/app/wechat/oauth/OAuthClient.tsx</span></td><td>增</td><td>client 跳转逻辑 + 5s 兜底</td></tr>
+  <tr><td><span class="file-path">src/app/wechat/bind/layout.tsx</span></td><td>增</td><td>server layout 承载 metadata</td></tr>
+  <tr><td><span class="file-path">src/app/login/page.tsx</span></td><td>改</td><td>管理员入口隐藏</td></tr>
+  <tr><td><span class="file-path">src/app/register/RegisterForm.tsx</span></td><td>改</td><td>checkbox 联动 disabled</td></tr>
+  <tr><td><span class="file-path">src/app/(marketing)/result/layout.tsx</span></td><td>增</td><td>metadata (noindex)</td></tr>
+  <tr><td><span class="file-path">src/app/(marketing)/payment/layout.tsx</span></td><td>增</td><td>metadata (noindex)</td></tr>
+  <tr><td><span class="file-path">public/llms.txt</span></td><td>改</td><td>补 FAQ 段 + 套餐场景说明</td></tr>
+  <tr><td><span class="file-path">static-content/faq.html</span></td><td>改</td><td>h1 + 6 h2 + FAQPage schema</td></tr>
+  <tr><td><span class="file-path">static-content/tool.html</span></td><td>改</td><td>加 h1</td></tr>
+  <tr><td><span class="file-path">static-content/compare.html</span></td><td>改</td><td>加 h1</td></tr>
+  <tr><td><span class="file-path">static-content/tutorial.html</span></td><td>改</td><td>加 h1</td></tr>
+  <tr><td><span class="file-path">index.html</span></td><td>改</td><td>删重复段 + 注册按钮 intent</td></tr>
+  <tr><td><span class="file-path">deployment/mainland-server/index.html</span></td><td>改</td><td>同步以上</td></tr>
+  <tr><td><span class="file-path">deployment/mainland-server/static-content/*.html</span></td><td>改</td><td>同步以上</td></tr>
+  <tr><td><span class="file-path">deployment/mainland-server/llms.txt</span></td><td>改</td><td>同步以上</td></tr>
+  <tr><td><span class="file-path">deployment/mainland-server/nginx.conf</span></td><td>改</td><td>H5 域根 301 → /doc-type</td></tr>
+</table>
+
+<h2 id="verify">✅ 验收清单</h2>
+<table>
+  <tr><th>项目</th><th>命令</th><th>结果</th></tr>
+  <tr><td>nginx H5 域根 301</td><td><code>curl -I https://h5.aiwill-planner.cn/</code></td><td class="ok">应 301 → /doc-type</td></tr>
+  <tr><td>OAuth 路由</td><td><code>curl -I https://h5.aiwill-planner.cn/wechat/oauth</code></td><td class="ok">应 200</td></tr>
+  <tr><td>首页 Product schema</td><td><code>curl -s aiwill-planner.cn/ | grep -c "@type.*Product"</code></td><td class="ok">应 6</td></tr>
+  <tr><td>/doc-type Product schema</td><td><code>curl -s h5.aiwill-planner.cn/doc-type | grep -c "@type.*Product"</code></td><td class="ok">应 6</td></tr>
+  <tr><td>/faq FAQPage schema</td><td><code>curl -s aiwill-planner.cn/faq | grep -c "@type.*Question"</code></td><td class="ok">应 18</td></tr>
+  <tr><td>/guide/pre-marriage h1</td><td><code>curl -s aiwill-planner.cn/guide/pre-marriage | grep "<h1"</code></td><td class="ok">应 1</td></tr>
+  <tr><td>9 个 H5 流程页 noindex</td><td><code>curl -s ... | grep "noindex"</code></td><td class="ok">9/9</td></tr>
+  <tr><td>Organization sameAs</td><td><code>curl -s aiwill-planner.cn/ | grep "sameAs.*知乎"</code></td><td class="ok">应命中</td></tr>
+  <tr><td>llms.txt FAQ 段</td><td><code>curl -s aiwill-planner.cn/llms.txt | grep "高频问答"</code></td><td class="ok">应命中</td></tr>
+  <tr><td>/orders 无"模拟订单"</td><td><code>curl -s h5.aiwill-planner.cn/orders | grep "模拟订单"</code></td><td class="ok">应 0 命中</td></tr>
+  <tr><td>index.html 无重复免责声明</td><td><code>grep "关于我们的内容" index.html</code></td><td class="ok">应 0 命中</td></tr>
+  <tr><td>Lint (本次修改部分)</td><td><code>npm run lint</code></td><td class="ok">0 errors / 0 warnings</td></tr>
+</table>
+
+<h2>🔄 下一步建议(非本次范围)</h2>
+<ul>
+  <li>H5 "前往 H5" 按钮精简(从 8 个降到 2-3 个,改 hover 浮现)</li>
+  <li>CTA 文案统一("开始规划"或"立即开始")</li>
+  <li>导航 iPad/小屏断点 CSS(目前链接挤一起)</li>
+  <li>生成 /og/*.png 10 张 1200×630 专属缩略图(目前是引用路径,文件未生成)</li>
+  <li>给 6 个 /guide/* 子页各加 4-6 条 FAQPage Q&A(目前只注入 Article + Breadcrumb)</li>
+  <li>补 /methodology 编辑方法学 + /about/authors 作者署名页(E-E-A-T)</li>
+  <li>补 Reviews / Testimonials 实证(目前只有营销话术)</li>
+  <li>hreflang <code>en</code> / <code>zh-HK</code> 标识(目前只 zh-CN)</li>
+  <li>建站方案: 真正部署独立的 H5 首页(目前 H5 根路径 301 → /doc-type,体验仍不是"独立站")</li>
+</ul>
+
+<footer>
+  📅 报告生成时间: 2026-07-02 · 数据来源: 双站实测体检 + Next.js 源码 diff
+  <br>维护: 家有所爱工作室 (上海市) · 沪ICP备2026020925号-1
+</footer>
+
+</div>
+</body>
+</html>

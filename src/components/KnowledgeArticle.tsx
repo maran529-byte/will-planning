@@ -100,6 +100,14 @@ export function KnowledgeArticle({ article, url, children }: KnowledgeArticlePro
             <span aria-hidden>📌 </span>本文摘要
           </h2>
           <p className="text-sm text-slate-700 leading-relaxed-cn">{article.summary}</p>
+          <p className="mt-3 text-xs text-slate-600 leading-relaxed-cn">
+            <span aria-hidden>🧭 </span>
+            还没想清楚? 先做一份
+            <Link href="/questionnaire" className="text-amber-700 hover:text-amber-800 underline mx-1">
+              1 分钟智能问卷
+            </Link>
+            , 系统会按你的情况推荐合适的文书类型.
+          </p>
         </aside>
 
         {/* 子组件区: TOC + RelatedArticles */}
@@ -198,7 +206,7 @@ export function KnowledgeArticle({ article, url, children }: KnowledgeArticlePro
         {/* 备案 / 友情提示 */}
         <div className="mt-8 text-xs text-slate-400 text-center leading-relaxed-cn">
           <p>本指南为系统化整理, 不构成法律意见. 复杂情况请咨询专业资产规划人员并办理公证.</p>
-          <p className="mt-1">沪ICP备2026020925号-1 · 数据存储于中国大陆腾讯云</p>
+          <p className="mt-1">沪ICP备2026020925号-1 · 数据存储于 Supabase 海外节点</p>
         </div>
       </main>
 

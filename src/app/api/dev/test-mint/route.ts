@@ -17,7 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/config';
+import { SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY } from '@/lib/config';
 import { supabaseAdmin } from '@/lib/supabase-server';
 
 const schema = z.object({
@@ -25,7 +25,7 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !supabaseAdmin) {
+  if (!SUPABASE_INTERNAL_URL || !SUPABASE_ANON_KEY || !supabaseAdmin) {
     return NextResponse.json({ error: 'Supabase 未配齐' }, { status: 503 });
   }
   const body = await req.json().catch(() => null);
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'no_otp', data: linkData, steps }, { status: 500 });
     }
     steps.push(`step2: verifyOtp with email_otp, type=${linkData.properties.verification_type}`);
-    const anon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    const anon = createClient(SUPABASE_INTERNAL_URL, SUPABASE_ANON_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
     const { data: verifyData, error: verifyError } = await anon.auth.verifyOtp({

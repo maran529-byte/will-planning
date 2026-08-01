@@ -30,7 +30,7 @@ FAILS=0
 # ============================================================
 sect "证据 1：大陆节点不出现 AI 推理 endpoint"
 # ============================================================
-for path in "" "/faq" "/tutorial" "/compare" "/tool"; do
+for path in "" "/faq" "/compare" "/tool"; do
     body=$(curl -s --max-time 10 "https://${MAINLAND_HOST}${path}" 2>/dev/null)
     if echo "$body" | grep -qiE "anthropic|openai|deepseek|qwen|spark|/v1/(chat|completions|messages)"; then
         fail "大陆节点 ${path} 命中 AI endpoint 字符串"
@@ -76,7 +76,6 @@ sect "证据 4：内容性质说明 + 备案号 Footer 全站 100% 覆盖"
 # 避免"法律"字样). 脚本同时兼容旧关键字, 任何一项命中即视为合规.
 for url in "https://${MAINLAND_HOST}/" \
            "https://${MAINLAND_HOST}/faq" \
-           "https://${MAINLAND_HOST}/tutorial" \
            "https://${MAINLAND_HOST}/compare" \
            "https://${MAINLAND_HOST}/tool"; do
     body=$(curl -s --max-time 10 "$url" 2>/dev/null)

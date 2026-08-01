@@ -237,13 +237,16 @@ ssh -i "${SSH_KEY}" "${REMOTE_USER}@${REMOTE_HOST}" \
 # 6. 本地烟囱测试
 # ----------------------------------------------------------------
 echo ""
-echo "==== 6. 本地烟囱测试（5 个静态路径）===="
-for path in "" "/faq" "/tutorial" "/compare" "/tool"; do
+echo "==== 6. 本地烟囱测试（4 个静态路径 + 1 个 redirect）===="
+# /tutorial 已 308 → /knowledge (next.config.ts 改版 v3, 2026-07-30 合并), 视为合规
+for entry in "200:/" "200:/faq" "308:/tutorial" "200:/compare" "200:/tool"; do
+    expected="${entry%%:*}"
+    path="${entry##*:}"
     code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://aiwill-planner.cn${path}" 2>/dev/null)
-    if [[ "$code" == "200" ]]; then
-        echo "  ✅ /${path:-index}  → ${code}"
+    if [[ "$code" == "$expected" ]]; then
+        echo "  ✅ ${path}  → ${code} (期望 ${expected})"
     else
-        echo "  ❌ /${path:-index}  → ${code}"
+        echo "  ❌ ${path}  → ${code} (期望 ${expected})"
     fi
 done
 

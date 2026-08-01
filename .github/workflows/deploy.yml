@@ -34,19 +34,24 @@ jobs:
       - name: Deploy to Vercel
         id: deploy
         run: |
-          DEPLOY_URL=$(npx -y vercel@latest deploy --prod --force \
+          set -e
+          echo "=== Running vercel deploy --prod --force ==="
+          npx -y vercel@latest deploy --prod --force \
             --token "${{ secrets.VERCEL_TOKEN }}" \
-            --yes 2>&1 | tee /tmp/deploy.log | grep -oE 'https://[a-z0-9-]+-[a-z0-9]+-[a-z]+.vercel.app' | tail -1)
-          echo "deploy_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
-          cat /tmp/deploy.log | tail -5
+            --yes 2>&1 | tee /tmp/deploy.log
+          # vercel deploy 输出最后一行是 "Production: https://xxx.vercel.app [2s]"
+          DEPLOY_URL=$(grep -oE 'https://[a-zA-Z0-9_-]+\.vercel\.app' /tmp/deploy.log | tail -1)
+          echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+          echo "  → captured: $DEPLOY_URL"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Promote deployment to all domains
+      - name: Promote deployment to all custom domains
         if: steps.deploy.outputs.deploy_url != ''
         run: |
-          echo "Promoting ${{ steps.deploy.outputs.deploy_url }} to current..."
+          echo "Promoting ${{ steps.deploy.outputs.deploy_url }} → current"
           npx -y vercel@latest promote "${{ steps.deploy.outputs.deploy_url }}" \
             --token "${{ secrets.VERCEL_TOKEN }}" \
-            --yes
+            --yes 2>&1 | tee /tmp/promote.log
+          echo "✅ Promote complete"

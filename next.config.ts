@@ -62,6 +62,17 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: SECURITY_HEADERS,
       },
+      {
+        // 改版 v13 (2026-08-01): 静态 chunk 缩短 Cloudflare 缓存到 5 分钟
+        //   旧: Vercel 默认 max-age=2592000 (30 天), 导致 _next/static/chunks/ 旧 JS
+        //        被 Cloudflare 边缘节点长期缓存, 用户看到旧 UI (手机号登录 tab 等)
+        //   新: 强制 cache-control: public, max-age=300 (5 分钟), Cloudflare 5 分钟
+        //        自动失效, 部署后最迟 5 分钟全球生效
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+        ],
+      },
     ];
   },
 };

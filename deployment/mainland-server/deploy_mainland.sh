@@ -234,6 +234,23 @@ ssh -i "${SSH_KEY}" "${REMOTE_USER}@${REMOTE_HOST}" \
     || echo "⚠️  合规自查存在 FAIL 项，请逐条修正"
 
 # ----------------------------------------------------------------
+# 5.5 Cloudflare CDN purge (h5.aiwill-planner.cn _next/static/chunks/)
+#   - 旧 chunk 被 Cloudflare 缓存 max-age=2592000, 即使 Vercel 已重新部署,
+#     h5 子域浏览器仍拉到旧 JS, 导致旧 UI (手机号登录 tab 等)
+#   - 需要 CF_API_TOKEN + CF_ZONE_ID 环境变量; 缺则跳过
+# ----------------------------------------------------------------
+echo ""
+echo "==== 5.5 Cloudflare CDN purge ===="
+if [ -n "${CF_API_TOKEN:-}" ] && [ -n "${CF_ZONE_ID:-}" ]; then
+    bash "${REPO_ROOT}/deployment/mainland-server/purge_cloudflare.sh" \
+        || echo "⚠️  CF purge 失败, 请人工到 Cloudflare Dashboard → Caching → Purge"
+else
+    echo "⚠️  跳过 CF purge: 未设置 CF_API_TOKEN / CF_ZONE_ID"
+    echo "   建议手工操作: Cloudflare Dashboard → Caching → Purge by URL"
+    echo "     https://h5.aiwill-planner.cn/_next/static/chunks/*"
+fi
+
+# ----------------------------------------------------------------
 # 6. 本地烟囱测试
 # ----------------------------------------------------------------
 echo ""

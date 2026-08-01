@@ -91,28 +91,42 @@ fi
 REMOTE_BUILD
 echo "✅ 远程 build 完成"
 
-# 3) 重启 Next.js (kill 旧进程 + systemd 重启, 或 fallback 到 nohup)
+# 3) 重启 Next.js (优先用 systemd aiwill.service, fallback 到 nohup)
 echo ""
 echo "==== 0.7 重启 Next.js 服务 ===="
 ${SSH_BASE} "${REMOTE_USER}@${REMOTE_HOST}" "bash -s" <<'REMOTE_RESTART'
 set +e
 
-# 尝试 systemctl (如果有 systemd unit)
-if command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files | grep -qE 'next.*service|aiwill.*service'; then
+# 优先: aiwill.service (canonical, 跑 ubuntu 用户)
+if systemctl list-unit-files 2>/dev/null | grep -q '^aiwill.service'; then
+    echo "  → systemctl restart aiwill.service"
+    systemctl restart aiwill.service
+    # 等待 next-server 真正监听 3001 (systemd RestartSec=5)
+    for i in 1 2 3 4 5 6 7 8; do
+        sleep 1
+        if ss -tln 2>/dev/null | grep -q ':3001 '; then
+            echo "    ready after ${i}s"
+            break
+        fi
+    done
+    if ! ss -tln 2>/dev/null | grep -q ':3001 '; then
+        echo "    ⚠️  :3001 仍未监听, 查看 /tmp/next-stderr.log"
+        tail -20 /tmp/next-stderr.log 2>/dev/null || true
+    fi
+elif command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files | grep -qE 'next.*service|aiwill.*service'; then
+    # 兼容: 旧命名 (nextjs / aiwill-nextjs / aiwill-planner)
     systemctl restart nextjs.service 2>/dev/null \
       || systemctl restart aiwill-nextjs.service 2>/dev/null \
       || systemctl restart aiwill-planner.service 2>/dev/null
-    echo "  → systemd restart 完成"
+    echo "  → legacy systemd restart 完成"
 else
-    # Fallback: kill 旧 next-server (在 3001), 用 start_next_node.js 重新拉起
-    echo "  → fallback: kill 旧进程 + nohup 重启"
-    # 杀掉占用 3001 端口的进程
+    # Fallback: kill 旧进程 + setsid nohup
+    echo "  → fallback: kill + setsid nohup"
     PID_3001=$(ss -tlnp 2>/dev/null | grep ':3001 ' | grep -oE 'pid=[0-9]+' | head -1 | cut -d= -f2)
     if [ -z "$PID_3001" ]; then
         PID_3001=$(lsof -ti:3001 2>/dev/null | head -1)
     fi
     if [ -n "$PID_3001" ]; then
-        # 先把 3001 的 owner 进程的孙子进程 (next-server) 也杀掉
         CHILDREN=$(pgrep -P "$PID_3001" 2>/dev/null || true)
         kill -TERM "$PID_3001" 2>/dev/null
         for c in $CHILDREN; do kill -TERM "$c" 2>/dev/null; done
@@ -121,33 +135,17 @@ else
         for c in $CHILDREN; do kill -KILL "$c" 2>/dev/null || true; done
         echo "    killed pid=$PID_3001 (children: $CHILDREN)"
     fi
-
-    # 决定用哪个用户拉起: 如果 .next 目录存在且属于 ubuntu, 用 ubuntu
     cd /var/www/aiwill-planner
-    OWNER=$(stat -c '%U' .next 2>/dev/null || stat -f '%Su' .next 2>/dev/null)
-    START_AS_USER="${OWNER:-root}"
-
-    if id "$START_AS_USER" >/dev/null 2>&1; then
-        if [ "$START_AS_USER" = "root" ]; then
-            setsid nohup node /tmp/start_next_node.js \
-                > /var/log/aiwill-nextjs.log 2>&1 < /dev/null &
-            NEW_PID=$!
-        else
-            setsid nohup sudo -u "$START_AS_USER" node /tmp/start_next_node.js \
-                > /var/log/aiwill-nextjs.log 2>&1 < /dev/null &
-            NEW_PID=$!
-        fi
-        disown 2>/dev/null
-        sleep 3
-        # 验证新进程
-        if ss -tln 2>/dev/null | grep -q ':3001 '; then
-            echo "    new pid=$NEW_PID listening on :3001 (as $START_AS_USER)"
-        else
-            echo "    ⚠️  :3001 未监听, 查看 /var/log/aiwill-nextjs.log"
-            tail -20 /var/log/aiwill-nextjs.log
-        fi
+    setsid nohup node /tmp/start_next_node.js \
+        > /var/log/aiwill-nextjs.log 2>&1 < /dev/null &
+    NEW_PID=$!
+    disown 2>/dev/null
+    sleep 3
+    if ss -tln 2>/dev/null | grep -q ':3001 '; then
+        echo "    new pid=$NEW_PID listening on :3001"
     else
-        echo "    ⚠️  用户 $START_AS_USER 不存在, 跳过重启"
+        echo "    ⚠️  :3001 未监听, tail /var/log/aiwill-nextjs.log"
+        tail -20 /var/log/aiwill-nextjs.log
     fi
 fi
 

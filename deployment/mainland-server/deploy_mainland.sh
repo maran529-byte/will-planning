@@ -56,6 +56,13 @@ rsync -az --delete \
     "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_WWW}/" \
     && echo "✅ 代码已同步" || { echo "❌ rsync 失败"; exit 1; }
 
+# 1b) 修复权限 — 旧目录 700 ubuntu ubuntu 导致 root 无法 scandir / 读 .env.local
+#     解决: 全目录 755, .env.local 644, 这样 root 和 ubuntu 都能读写
+${SSH_BASE} "${REMOTE_USER}@${REMOTE_HOST}" \
+    "chmod -R u+rwX,go+rX /var/www/aiwill-planner/ 2>/dev/null; \
+     chmod 644 /var/www/aiwill-planner/.env.local 2>/dev/null; \
+     echo '✅ 权限已修正 (755/644)'"
+
 # 2) 远程 npm ci + npm run build (用 .next 当前 owner, 避免 root / ubuntu 权限错位)
 echo ""
 echo "==== 0.6 远程 npm ci + npm run build ===="

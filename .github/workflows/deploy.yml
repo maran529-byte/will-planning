@@ -28,11 +28,25 @@ jobs:
       # 改版 v14 (2026-08-01): 加 --force 强制新部署, 解决 _next/static/chunks/ 旧 chunk
       #   被 Vercel CDN 边缘节点长期缓存, 自定义域 (h5.aiwill-planner.cn) 用户仍看到旧 UI.
       #   --force 跳过 build cache, 重新生成所有 chunk, 全局生效.
+      # 改版 v15 (2026-08-01): 加 promote 步骤, 强制让 h5.aiwill-planner.cn 自定义域
+      #   CDN 切到新部署. vercel deploy --prod 默认只更新 vercel.app 域, 自定义域可能
+      #   仍 sticky 在老 deployment.
       - name: Deploy to Vercel
+        id: deploy
         run: |
-          npx -y vercel@latest deploy --prod --force \
+          DEPLOY_URL=$(npx -y vercel@latest deploy --prod --force \
             --token "${{ secrets.VERCEL_TOKEN }}" \
-            --yes
+            --yes 2>&1 | tee /tmp/deploy.log | grep -oE 'https://[a-z0-9-]+-[a-z0-9]+-[a-z]+.vercel.app' | tail -1)
+          echo "deploy_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          cat /tmp/deploy.log | tail -5
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Promote deployment to all domains
+        if: steps.deploy.outputs.deploy_url != ''
+        run: |
+          echo "Promoting ${{ steps.deploy.outputs.deploy_url }} to current..."
+          npx -y vercel@latest promote "${{ steps.deploy.outputs.deploy_url }}" \
+            --token "${{ secrets.VERCEL_TOKEN }}" \
+            --yes

@@ -8,14 +8,12 @@
 
 | 项目 | 状态 |
 |---|---|
-| **CVM 代理架构** | 方案 B (HK CVM 固定 IP 代理) — 已选 |
-| **代理出口 IP (要加白名单的那个)** | `43.129.207.154` (HK CVM, **固定**) |
-| **代理入口地址 (Vercel env)** | `http://43.129.207.154:9443` |
-| **Vercel 代码改动** | ✅ 已完成 (`src/lib/wechat/config.ts` 改动) — 已 commit + push |
-| **Vercel env `WECHAT_PROXY_URL`** | ✅ 已设置 (production + preview) |
-| **HK CVM 端 nginx 反代配置** | ⚠️ 配置已写到 `deployment/hk-server/wechat-proxy.conf.snippet`,**待 SSH 恢复后部署** (用户告知: `~/.ssh/tencent_will` 正在轮换) |
-| **微信白名单** | 🔴 **待你做** — 把 3 个 Vercel IP 删了,只加 `43.129.207.154` |
-| **端到端测试** | 🔴 **待 CVM 反代上线 + 白名单更新后做** |
+| **CVM 代理架构** | 方案 C (大陆 CVM 固定 IP 直推, 跳过 HK 反代) — ✅ 已选 |
+| **代理出口 IP (要加白名单的那个)** | `124.222.215.107` (大陆 CVM, **固定**) |
+| **写操作入口** | CVM `/root/aiwill-self-ops/wechat_menu_push.py` |
+| **Vercel 改动** | ✅ `src/lib/wechat/config.ts` 注释已更新 (走 proxy URL, 但实际写操作已迁出 Vercel) |
+| **微信白名单** | ✅ 已加 `124.222.215.107` |
+| **端到端测试** | ✅ `wechat_menu_push.py --push` 返回 `errcode:0`, 远端菜单已确认含「电脑端登录」 |
 
 **完成 CVM 端部署 + 白名单更新后**,你直接执行 §6 的菜单推送命令就能成。
 >
@@ -114,70 +112,45 @@ done | sort -u
 
 任何新 IP 出现 → 加到白名单(直到 50 个上限)。
 
-### 2.4 长期方案:固定 IP 代理(✅ 已选定方案 B 并已完成 80%)
+### 2.4 长期方案:固定 IP 代理(✅ 已选定方案 C:大陆 CVM 直推, 跳过 HK 反代)
 
-Vercel Functions 没有"静态 IP"功能,白名单是治标不治本。我们已选定 **方案 B:腾讯云 CVM 做固定 IP 代理**。
-
-#### ⚠️ 重要:用 HK CVM (`43.129.207.154`) 而非大陆 CVM (`124.222.215.107`)
-
-> 大陆 CVM `124.222.215.107` 的 nginx.conf 明确禁止反代到外网,且只监听 :80 — **不能用作反代**。已确认用 **HK CVM `43.129.207.154`**(固定公网 IP,在腾讯云香港 region,无合规限制)。
+> 历史方案 B (HK CVM nginx 反代) 已废弃: HK CVM (43.129.207.154) SSH 不稳定, nginx 反代配置难部署, 多次失败。
+> 新方案 C: **公众号写 API 调用全部在大陆 CVM `124.222.215.107` 上执行**, Vercel 不再需要反代。
 
 **架构**:
 ```
-[Vercel Function] --HTTP--> [HK CVM Nginx :9443] --HTTPS--> [api.weixin.qq.com]
-                              ↑
-                              出口 IP: 43.129.207.154 (固定,腾讯云 HK 区域)
+[Vercel Function] --HTTPS--> [api.weixin.qq.com]  (只读 OAuth 等无需白名单)
+                                              ↑
+[CVM:124.222.215.107] --HTTPS--> [api.weixin.qq.com]  (菜单/客服消息/用户管理)
+   ↑                              ↑
+   固定公网 IP                       永久白名单 1 个 IP
 ```
 
-**当前进度**(2026-06-03 22:30):
-- ✅ **Vercel 代码**: `src/lib/wechat/config.ts` 改造完成 — 当 `WECHAT_PROXY_URL` 环境变量存在时,`WECHAT_API_BASE` 切换为代理地址(同时影响 `mp-api.ts` 和 `oauth.ts`)
-- ✅ **Vercel env**: `WECHAT_PROXY_URL=http://43.129.207.154:9443` 已设置(已通过 API 验证,production+preview)
-- ✅ **代码已 commit + push** 到 GitHub `main`
-- ⚠️ **HK CVM 端 nginx 反代配置** 已写到 `deployment/hk-server/wechat-proxy.conf.snippet`,**待 SSH 恢复后**:
-  1. `scp` 该文件到 `root@43.129.207.154:/etc/nginx/conf.d/wechat-proxy.conf`
-  2. `ssh root@43.129.207.154 'nginx -t && nginx -s reload'`
-  3. 自测: `curl -s --max-time 10 "http://127.0.0.1:9443/cgi-bin/token?grant_type=client_credential&appid=wx30fe5cd917eb2e7a&secret=fake"` 应返回 `{"errcode":40001,"errmsg":"invalid credential"}`
-- 🔴 **微信白名单**: 把上面 3 个 Vercel IP 删了,只加 **`43.129.207.154`**
+**已部署**:
+- ✅ CVM `/root/aiwill-self-ops/wechat_menu_push.py` (238 行)
+- ✅ CVM `.env` 含 `WECHAT_MP_APP_ID` + `WECHAT_MP_APP_SECRET`
+- ✅ 微信白名单加 `124.222.215.107` (1 个 IP, 不浪费 50 个名额)
+- ✅ 验证: `wechat_menu_push.py --push` → `{"errcode":0,"errmsg":"ok"}`
 
-#### 配置细节 (CVM 端 nginx)
-
-> 完整配置见 `deployment/hk-server/wechat-proxy.conf.snippet`,关键点:
-> - 端口 **9443** (高位自定义,与现有 80/443 不冲突)
-> - **HTTP 而非 HTTPS** (Vercel→CVM 这段只过 AppSecret,该 secret 本就在 Vercel,加密无意义;省掉证书管理)
-> - `server_name wx-proxy.aiwill-planner.cn 43.129.207.154;` (Vercel 用 IP:port 即可,域名解析可选)
-> - `proxy_ssl_server_name on;` 和 `proxy_ssl_name api.weixin.qq.com;` 重要:让 CVM→WeChat 段的 SNI 正确
-
-#### 优势(同方案 B)
-- 微信白名单永远只需 1 个 IP
-- 抗 warm instance 切换 / 部署重启 / 任何 Vercel 内部变更
-- 复用现有 HK CVM,**零额外成本**
-- 一次配置永久生效
-
-#### 完整执行清单(SSH 恢复后)
-1. SSH 恢复后,执行上面 CVM 端 3 步
-2. 你在 dev.weixin.qq.com 把白名单改成 `43.129.207.154` (删 3 个 Vercel 旧 IP)
-3. 等 1-2 分钟白名单生效
-4. 跑 §6 菜单推送命令验证(应返回 `{"ok":true,"action":"create",...}`)
-5. (可选) 在 Cloudflare 加 `wx-proxy.aiwill-planner.cn` A 记录 → `43.129.207.154` (橙色云代理),让以后可以用域名访问代理
+**优势**:
+- 微信白名单永远只需 1 个 IP (`124.222.215.107`)
+- 不依赖 HK CVM 反代稳定性
+- 复用现有大陆 CVM, **零额外成本**
+- 所有写 API 走 CVM, 读 API 走 Vercel, 职责清晰
 
 ### 2.5 验证
 
-回到你 Mac 执行:
-
+CVM 上执行:
 ```bash
-curl -X POST -H "X-Internal-Token: $(cat /tmp/internal_api_token.txt)" \
-  https://aiwill-planner.vercel.app/api/wechat/admin/menu
+ssh aiwill-server
+sudo -n bash -c "cd /root/aiwill-self-ops && set -a && . ./.env && set +a && /usr/bin/python3 wechat_menu_push.py --push"
 ```
 
 **期望返回**:
 ```json
-{"ok":true,"action":"create","buttons":3,"source":"src/lib/wechat/menu-config.ts"}
+{"errcode":0,"errmsg":"ok"}
+{"✓ 成功, 共 3 个一级菜单"}
 ```
-
-**如果还是 40164**:
-- 等 1-2 分钟(白名单生效有延迟)
-- 重新保存白名单(有时需要再点一次)
-- 跑 §2.3 脚本看 IP 池是否扩大了
 
 ---
 

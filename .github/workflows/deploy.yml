@@ -55,3 +55,23 @@ jobs:
             --token "${{ secrets.VERCEL_TOKEN }}" \
             --yes 2>&1 | tee /tmp/promote.log
           echo "✅ Promote complete"
+
+      # 改版 v16 (2026-08-02): promote 后立刻 invalidate h5 子域 CDN cache
+      #   原因: promote 只切 deployment alias, 但 Vercel CDN 边缘节点上的
+      #   HTML 响应仍可能缓存老 deployment 的内容 (cache-control 30 天).
+      #   invalidate 强制让所有边缘节点下次请求回源.
+      - name: Invalidate h5.aiwill-planner.cn CDN cache
+        if: steps.deploy.outputs.deploy_url != ''
+        run: |
+          echo "=== Invalidating Vercel CDN cache for h5 subdomain ==="
+          PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID }}"
+          # vercel-cli 没有 invalidate 子命令, 用 curl 直接打 Vercel REST API
+          # POST /v1/projects/{id}/cache/purge?domain=h5.aiwill-planner.cn
+          curl -sS -X POST \
+            "https://api.vercel.com/v1/projects/${PROJECT_ID}/cache/purge" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"domain":"h5.aiwill-planner.cn"}' \
+            | tee /tmp/invalidate.log
+          echo ""
+          echo "✅ h5.aiwill-planner.cn CDN cache invalidated"

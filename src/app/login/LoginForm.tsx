@@ -14,6 +14,10 @@ interface LoginFormProps {
    * 改版 v4 (2026-07-30): 删除手机号验证码 tab — 当前未实装 SMS 服务, 用户点了之后
    *   走 /api/auth/send-otp → 永远走 console 打印验证码, 不能真实下发, 体验差.
    *   只保留: 邮箱密码 + 微信扫码
+   *
+   * 改版 v16 (2026-08-02): 触发 Vercel 新 build hash, 让 h5 子域 CDN 强制切换到新部署,
+   *   解决老 chunk (0mqtziz6da19x.js 含'手机号'文案) 在 h5 子域 CDN 节点被永久缓存.
+   *   配合 deploy.yml 新增 vercel invalidate 步骤一并生效.
    */
   intent?: 'login' | 'register';
 }

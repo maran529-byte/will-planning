@@ -60,6 +60,11 @@ export const MP_MENU: MenuConfig = {
         },
         {
           type: 'view',
+          name: '电脑端登录',
+          url: 'https://h5.aiwill-planner.cn/wechat/pc-confirm?from=wechat-mp',
+        },
+        {
+          type: 'view',
           name: '民法典指南',
           url: 'https://h5.aiwill-planner.cn/knowledge?from=wechat-mp',
         },

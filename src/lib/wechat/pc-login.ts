@@ -162,7 +162,14 @@ export async function ensurePcLoginTicket(
     .single();
 
   if (error || !data) {
-    console.error('[ensurePcLoginTicket] insert failed:', error);
+    // 改版 v14 (2026-08-02): 详细日志帮助排查 Vercel/大陆 Supabase URL 不一致问题
+    console.error('[ensurePcLoginTicket] insert failed:', JSON.stringify({
+      openid: openid.substring(0, 12) + '...',
+      code,
+      error: error ? { message: error.message, code: error.code, details: error.details, hint: error.hint } : null,
+      supabase_url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      supabase_internal: process.env.SUPABASE_INTERNAL_URL || '(use NEXT_PUBLIC)',
+    }, null, 2));
     return {
       success: false,
       reason: 'db_error',

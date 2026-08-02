@@ -18,9 +18,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifySignatureSafe } from '@/lib/wechat/verify';
 import { parseWeChatXml, buildTextReply, buildNewsReply, buildEmptyResponse, WeChatRecvMessage } from '@/lib/wechat/xml';
 import { recordUserInteraction } from '@/lib/wechat/cs-window';
-import { assertWeChatMpConfigured } from '@/lib/wechat/config';
+import { assertWeChatMpConfigured, WECHAT_MP_AES_KEY, WECHAT_MP_APP_ID, WECHAT_MP_TOKEN, WECHAT_MP_ENCODING } from '@/lib/wechat/config';
+import { createWeChatCrypto, buildEncryptedReply } from '@/lib/wechat/crypto';
 import { supabaseAdmin } from '@/lib/supabase-server';
 import { ensurePcLoginTicket, findExistingPcLoginTicket } from '@/lib/wechat/pc-login';
+import { createHash } from 'crypto';
 
 // ============================================================================
 // GET: URL 验证
@@ -44,7 +46,16 @@ export async function GET(req: NextRequest) {
     return new NextResponse('missing params', { status: 400 });
   }
 
-  const valid = verifySignatureSafe({ signature, timestamp, nonce });
+  // 改版 v14 (2026-08-02): try/catch 包 verifySignatureSafe
+  // 避免 WECHAT_MP_TOKEN 缺失时 throw → 500 → 微信重试 3 次后丢弃
+  let valid: boolean;
+  try {
+    valid = verifySignatureSafe({ signature, timestamp, nonce });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error('[mp-callback GET] verifySignatureSafe failed:', message);
+    return new NextResponse('verify_error: ' + message, { status: 401 });
+  }
   if (!valid) {
     return new NextResponse('invalid signature', { status: 403 });
   }
@@ -77,11 +88,59 @@ export async function POST(req: NextRequest) {
     return new NextResponse('missing params', { status: 400 });
   }
 
-  if (!verifySignatureSafe({ signature, timestamp, nonce })) {
+  // 改版 v14 (2026-08-02): try/catch 包 verifySignatureSafe
+  // 避免 WECHAT_MP_TOKEN 缺失时 throw → 500 → 微信重试 3 次后丢弃
+  let valid: boolean;
+  try {
+    valid = verifySignatureSafe({ signature, timestamp, nonce });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error('[mp-callback POST] verifySignatureSafe failed:', message);
+    // 返回 success (200) 让微信停止重试, 但不回复用户
+    return new NextResponse(buildEmptyResponse(), {
+      status: 200,
+      headers: { 'Content-Type': 'text/plain' },
+    });
+  }
+  if (!valid) {
     return new NextResponse('invalid signature', { status: 403 });
   }
 
-  const xml = await req.text();
+  const rawXml = await req.text();
+  const { searchParams: sp } = req.nextUrl;
+  const msgSignature = sp.get('msg_signature');
+
+  // 改版 v14 (2026-08-02): 支持 AES 安全模式 (EncodingAESKey)
+  // 微信安全模式下, body 形如: <xml><ToUserName/><Encrypt>...</Encrypt></xml>
+  // 需要先 AES 解密才能 parseWeChatXml; 主动回复也要加密
+  let xml = rawXml;
+  let isAes = false;
+  if (/<Encrypt>/i.test(rawXml) && msgSignature && WECHAT_MP_ENCODING === 'aes' && WECHAT_MP_AES_KEY) {
+    isAes = true;
+    try {
+      // 1. 用 msg_signature 校验: sha1(sort([token, timestamp, nonce, encrypt]))
+      const m = rawXml.match(/<Encrypt><\!\[CDATA\[([\s\S]+?)\]\]><\/Encrypt>/);
+      if (!m) throw new Error('No <Encrypt> tag found in AES body');
+      const encryptStr = m[1];
+      const ts = sp.get('timestamp') || '';
+      const nonce = sp.get('nonce') || '';
+      const expectedSig = createHash('sha1')
+        .update([WECHAT_MP_TOKEN, ts, nonce, encryptStr].sort().join(''))
+        .digest('hex');
+      if (expectedSig !== msgSignature) {
+        console.error('[mp-callback] msg_signature mismatch (AES)');
+        return new NextResponse(buildEmptyResponse(), { status: 200, headers: { 'Content-Type': 'text/plain' } });
+      }
+      // 2. AES 解密
+      const crypto = createWeChatCrypto(WECHAT_MP_AES_KEY, WECHAT_MP_APP_ID);
+      xml = crypto.decrypt(encryptStr);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error('[mp-callback] AES decrypt failed:', message);
+      return new NextResponse(buildEmptyResponse(), { status: 200, headers: { 'Content-Type': 'text/plain' } });
+    }
+  }
+
   let msg: WeChatRecvMessage;
   try {
     msg = parseWeChatXml(xml);
@@ -96,6 +155,27 @@ export async function POST(req: NextRequest) {
 
   // 路由
   const reply = await handleMessage(msg);
+
+  // 安全模式: 回复也要加密
+  if (isAes && WECHAT_MP_AES_KEY) {
+    try {
+      const crypto = createWeChatCrypto(WECHAT_MP_AES_KEY, WECHAT_MP_APP_ID);
+      const encrypted = crypto.encrypt(reply);
+      const ts = String(Math.floor(Date.now() / 1000));
+      const nonce = Math.random().toString(36).substring(2, 10);
+      const sig = createHash('sha1')
+        .update([WECHAT_MP_TOKEN, ts, nonce, encrypted].sort().join(''))
+        .digest('hex');
+      return new NextResponse(
+        buildEncryptedReply(encrypted, sig, ts, nonce),
+        { status: 200, headers: { 'Content-Type': 'application/xml; charset=utf-8' } }
+      );
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error('[mp-callback] AES encrypt reply failed:', message);
+      // 加密失败, 返回明文 (微信会忽略, 不影响主流程)
+    }
+  }
 
   return new NextResponse(reply, {
     status: 200,

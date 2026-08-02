@@ -11,16 +11,16 @@ import type { MenuConfig } from './mp-api';
 export const MP_MENU: MenuConfig = {
   button: [
     {
-      name: '📝 生成文书',
+      name: '生成文书',
       sub_button: [
         {
           type: 'view',
-          name: '开始问卷 (¥19.9)',
+          name: '开始问卷',
           url: 'https://h5.aiwill-planner.cn/questionnaire?from=wechat-mp',
         },
         {
           type: 'view',
-          name: '查看 6 类文书',
+          name: '6 类文书',
           url: 'https://h5.aiwill-planner.cn/doc-type?from=wechat-mp',
         },
         {
@@ -31,7 +31,7 @@ export const MP_MENU: MenuConfig = {
       ],
     },
     {
-      name: '💰 我的订单',
+      name: '我的订单',
       sub_button: [
         {
           type: 'view',
@@ -51,7 +51,7 @@ export const MP_MENU: MenuConfig = {
       ],
     },
     {
-      name: '👤 个人中心',
+      name: '个人中心',
       sub_button: [
         {
           type: 'view',
@@ -60,12 +60,12 @@ export const MP_MENU: MenuConfig = {
         },
         {
           type: 'view',
-          name: '📚 民法典指南',
+          name: '民法典指南',
           url: 'https://h5.aiwill-planner.cn/knowledge?from=wechat-mp',
         },
         {
           type: 'view',
-          name: '📮 定制服务留言',
+          name: '定制留言',
           url: 'https://h5.aiwill-planner.cn/custom?from=wechat-mp',
         },
       ],

@@ -40,9 +40,14 @@ export async function GET(request: NextRequest) {
     .maybeSingle();
 
   if (error) {
-    console.error('[pc-login-status] query failed:', error);
+    console.error('[pc-login-status] query failed:', JSON.stringify(error, null, 2));
     return NextResponse.json(
-      { code: 'QUERY_FAILED', error: '查询失败' },
+      {
+        code: 'QUERY_FAILED',
+        error: '查询失败',
+        supabase_code: (error as { code?: string })?.code ?? '',
+        supabase_msg: (error as { message?: string })?.message ?? '',
+      },
       { status: 500 }
     );
   }

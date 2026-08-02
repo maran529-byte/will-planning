@@ -114,19 +114,9 @@ export async function POST(request: NextRequest) {
   }
 
   if (!data) {
-    const errMsg = (lastError as { message?: string })?.message ?? 'unknown';
-    const errCode = (lastError as { code?: string })?.code ?? 'none';
-    const errHint = (lastError as { hint?: string })?.hint ?? '';
-    console.error('[pc-login-ticket] insert failed after retries:', JSON.stringify({
-      message: errMsg, code: errCode, hint: errHint, lastError
-    }, null, 2));
+    console.error('[pc-login-ticket] insert failed after retries:', lastError);
     return NextResponse.json(
-      {
-        code: 'TICKET_CREATE_FAILED',
-        error: '创建票据失败',
-        supabase_code: errCode,
-        supabase_msg: errMsg,
-      },
+      { code: 'TICKET_CREATE_FAILED', error: '创建票据失败' },
       { status: 500 }
     );
   }

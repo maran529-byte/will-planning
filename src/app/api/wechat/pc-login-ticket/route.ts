@@ -71,29 +71,49 @@ export async function POST(request: NextRequest) {
 
   const { returnTo } = parsed.data;
   const ticket = generateTicket();
-  const code = generateCode();
 
   const userAgent = request.headers.get('user-agent') || null;
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
     || request.headers.get('x-real-ip')
     || 'unknown';
 
-  const { data, error } = await supabaseAdmin
-    .from('pc_login_tickets')
-    .insert({
-      ticket,
-      code,
-      status: 'pending',
-      return_to: returnTo || '/orders',
-      user_agent: userAgent,
-      ip_address: ip,
-      expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-    })
-    .select('ticket, code, expires_at')
-    .single();
+  // 改版 v15 (2026-08-02): code 碰撞重试
+  //   UNIQUE INDEX uniq_pc_login_active_code 保证同一 code 不会被同时分配给 2 个 active ticket
+  //   INSERT 冲突时重生成 code 即可, 最多 5 次
+  let data: { ticket: string; code: string; expires_at: string } | null = null;
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const code = generateCode();
+    const result = await supabaseAdmin
+      .from('pc_login_tickets')
+      .insert({
+        ticket,
+        code,
+        status: 'pending',
+        return_to: returnTo || '/orders',
+        user_agent: userAgent,
+        ip_address: ip,
+        expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+      })
+      .select('ticket, code, expires_at')
+      .single();
 
-  if (error || !data) {
-    console.error('[pc-login-ticket] insert failed:', error);
+    if (!result.error && result.data) {
+      data = result.data;
+      break;
+    }
+    // UNIQUE INDEX 冲突 (code 碰撞) → 重试
+    if (result.error?.code === '23505') {
+      console.warn(`[pc-login-ticket] code collision (attempt ${attempt + 1}/5), retrying`);
+      lastError = result.error;
+      continue;
+    }
+    lastError = result.error;
+    break;
+  }
+
+  if (!data) {
+    console.error('[pc-login-ticket] insert failed after retries:', lastError);
     return NextResponse.json(
       { code: 'TICKET_CREATE_FAILED', error: '创建票据失败' },
       { status: 500 }

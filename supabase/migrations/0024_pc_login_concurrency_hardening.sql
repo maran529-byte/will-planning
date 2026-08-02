@@ -31,6 +31,40 @@
 --      → 同 openid 多 ticket 时统一 cancel, 只留 1 个 active
 -- =============================================================================
 
+-- 0. 清理过期 active ticket — 防止 UNIQUE INDEX 创建时遇到现有重复 code
+--    把所有已过期但仍标记为 active 的 ticket 标记为 expired
+UPDATE public.pc_login_tickets
+SET status = 'expired'
+WHERE status IN ('pending', 'confirmed')
+  AND expires_at < now();
+
+-- 0b. 同 openid 多 active ticket: 只保留每个 openid 最早创建的 1 个, 其余 cancel
+--     防止 UNIQUE INDEX 遇到 (openid='X', code='A') 和 (openid='X', code='B') 都 active
+--     不冲突 (openid 不参与 UNIQUE), 但应用层 cancel-all-active 假设失效
+WITH ranked AS (
+  SELECT ticket,
+    ROW_NUMBER() OVER (PARTITION BY openid ORDER BY created_at ASC) AS rn
+  FROM public.pc_login_tickets
+  WHERE status IN ('pending', 'confirmed') AND openid IS NOT NULL
+)
+UPDATE public.pc_login_tickets t
+SET status = 'cancelled'
+FROM ranked
+WHERE t.ticket = ranked.ticket AND ranked.rn > 1;
+
+-- 0c. 同 code 多 active ticket: 只保留最早创建的 1 个, 其余 cancel
+--     防止 UNIQUE INDEX 创建失败
+WITH ranked AS (
+  SELECT ticket,
+    ROW_NUMBER() OVER (PARTITION BY code ORDER BY created_at ASC) AS rn
+  FROM public.pc_login_tickets
+  WHERE status IN ('pending', 'confirmed')
+)
+UPDATE public.pc_login_tickets t
+SET status = 'cancelled'
+FROM ranked
+WHERE t.ticket = ranked.ticket AND ranked.rn > 1;
+
 -- 1. UNIQUE INDEX on code (仅对 active ticket 生效, 过期/已用 ticket 不约束)
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_pc_login_active_code
   ON public.pc_login_tickets(code)

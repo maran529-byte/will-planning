@@ -80,23 +80,35 @@ export async function POST(req: NextRequest) {
   }
 
   const { searchParams } = req.nextUrl;
-  const signature = searchParams.get('signature');
   const timestamp = searchParams.get('timestamp');
   const nonce = searchParams.get('nonce');
+  const signature = searchParams.get('signature');
+  const msgSignature = searchParams.get('msg_signature');
 
-  if (!signature || !timestamp || !nonce) {
-    return new NextResponse('missing params', { status: 400 });
-  }
+  const rawXml = await req.text();
+  const isAesBody = /<Encrypt>/i.test(rawXml);
 
-  // 改版 v14 (2026-08-02): try/catch 包 verifySignatureSafe
-  // 避免 WECHAT_MP_TOKEN 缺失时 throw → 500 → 微信重试 3 次后丢弃
+  // 改版 v15 (2026-08-02): 兼容 plain + aes 两种签名
+  //   plain: query 用 signature
+  //   aes:   query 用 msg_signature (与 body 内 Encrypt 一起签)
   let valid: boolean;
   try {
-    valid = verifySignatureSafe({ signature, timestamp, nonce });
+    if (isAesBody && msgSignature && WECHAT_MP_ENCODING === 'aes' && WECHAT_MP_AES_KEY) {
+      const m = rawXml.match(/<Encrypt><\!\[CDATA\[([\s\S]+?)\]\]><\/Encrypt>/);
+      if (!m) throw new Error('No <Encrypt> tag found in AES body');
+      const encryptStr = m[1];
+      const expectedSig = createHash('sha1')
+        .update([WECHAT_MP_TOKEN, timestamp || '', nonce || '', encryptStr].sort().join(''))
+        .digest('hex');
+      valid = expectedSig === msgSignature;
+    } else if (signature && timestamp && nonce) {
+      valid = verifySignatureSafe({ signature, timestamp, nonce });
+    } else {
+      return new NextResponse('missing params', { status: 400 });
+    }
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : String(e);
-    console.error('[mp-callback POST] verifySignatureSafe failed:', message);
-    // 返回 success (200) 让微信停止重试, 但不回复用户
+    console.error('[mp-callback POST] verify failed:', message);
     return new NextResponse(buildEmptyResponse(), {
       status: 200,
       headers: { 'Content-Type': 'text/plain' },
@@ -106,32 +118,17 @@ export async function POST(req: NextRequest) {
     return new NextResponse('invalid signature', { status: 403 });
   }
 
-  const rawXml = await req.text();
-  const { searchParams: sp } = req.nextUrl;
-  const msgSignature = sp.get('msg_signature');
-
   // 改版 v14 (2026-08-02): 支持 AES 安全模式 (EncodingAESKey)
   // 微信安全模式下, body 形如: <xml><ToUserName/><Encrypt>...</Encrypt></xml>
   // 需要先 AES 解密才能 parseWeChatXml; 主动回复也要加密
   let xml = rawXml;
   let isAes = false;
-  if (/<Encrypt>/i.test(rawXml) && msgSignature && WECHAT_MP_ENCODING === 'aes' && WECHAT_MP_AES_KEY) {
+  if (isAesBody && WECHAT_MP_ENCODING === 'aes' && WECHAT_MP_AES_KEY) {
     isAes = true;
     try {
-      // 1. 用 msg_signature 校验: sha1(sort([token, timestamp, nonce, encrypt]))
       const m = rawXml.match(/<Encrypt><\!\[CDATA\[([\s\S]+?)\]\]><\/Encrypt>/);
       if (!m) throw new Error('No <Encrypt> tag found in AES body');
       const encryptStr = m[1];
-      const ts = sp.get('timestamp') || '';
-      const nonce = sp.get('nonce') || '';
-      const expectedSig = createHash('sha1')
-        .update([WECHAT_MP_TOKEN, ts, nonce, encryptStr].sort().join(''))
-        .digest('hex');
-      if (expectedSig !== msgSignature) {
-        console.error('[mp-callback] msg_signature mismatch (AES)');
-        return new NextResponse(buildEmptyResponse(), { status: 200, headers: { 'Content-Type': 'text/plain' } });
-      }
-      // 2. AES 解密
       const crypto = createWeChatCrypto(WECHAT_MP_AES_KEY, WECHAT_MP_APP_ID);
       xml = crypto.decrypt(encryptStr);
     } catch (e: unknown) {

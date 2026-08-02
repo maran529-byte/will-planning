@@ -500,4 +500,3 @@ async function recordUserInteractionSafe(openid: string, opts: { menuKey?: strin
     // 不阻断主流程
   }
 }
-// touch 1785663214

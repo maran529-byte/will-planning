@@ -1,156 +1,165 @@
-import { Metadata } from 'next';
-import Link from 'next/link';
+// =============================================================================
+// /compare 路由 - 修复 404（P1）
+// =============================================================================
+// 用途: 修复 aiwill-planner.cn/compare 与 h5.aiwill-planner.cn/compare 双 404
+// 部署: 复制到 ~/aiwill-planner/src/app/(marketing)/compare/page.tsx
+//       然后 git push → Vercel 自动部署
+// =============================================================================
+
+import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: '家有所爱 vs 传统律师 · 6 维度对比',
-  description: '智能文书 vs 传统律师 6 维度对比：价格、速度、隐私、合规、修改、售后。婚前/婚内/离婚/抚养/赠与/传承 6 类家庭文书。',
-  keywords: '智能文书对比, 律师 vs 模板, 婚前协议对比, 离婚协议对比, 家有所爱对比',
-  alternates: {
-    canonical: 'https://aiwill-planner.cn/compare',
-    languages: {
-      'zh-CN': 'https://aiwill-planner.cn/compare',
-      'zh-HK': 'https://aiwill-planner.cn/compare',
-      'x-default': 'https://aiwill-planner.cn/compare',
-    },
-  },
+  title: "家有所爱 vs 传统律师 · 6 维度对比",
+  description:
+    "智能文书 vs 传统律师 6 维度对比：价格、速度、隐私、合规、修改、售后。帮你判断哪个更适合家庭法律文书场景。",
+  alternates: { canonical: "https://aiwill-planner.cn/compare" },
   openGraph: {
-    title: '家有所爱 vs 传统律师 · 6 维度对比',
-    description: '智能文书 ¥19.9 起 vs 传统律师 ¥3000+ · 6 维度全解',
-    url: 'https://aiwill-planner.cn/compare',
-    siteName: '家有所爱',
-    locale: 'zh_CN',
-    type: 'website',
-    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: '家有所爱 vs 传统律师' }],
+    title: "家有所爱 vs 传统律师 · 6 维度对比",
+    description: "6 类家庭法律文书：婚前/婚内/离婚/抚养/赠与/传承。智能版 ¥19.9 vs 专家版 ¥999。",
+    url: "https://aiwill-planner.cn/compare",
+    type: "article",
   },
 };
 
-const ROWS = [
-  {
-    dim: '💰 价格',
-    ai: '¥19.9 起（智能版）/ 定制服务根据复杂度单独报价（在 /contact 留言）',
-    lawyer: '¥3,000 ~ ¥30,000（按文书类型 + 复杂度）',
-    verdict: '智能版仅为律师的 1/150；定制服务按复杂度单独报价',
-  },
-  {
-    dim: '⏱️ 速度',
-    ai: '8 分钟问卷 + 1 分钟生成',
-    lawyer: '3 ~ 15 个工作日（含 1~3 次面谈）',
-    verdict: '智能文书快 100 倍，适合有标准化需求的家庭',
-  },
-  {
-    dim: '🔒 隐私',
-    ai: '问卷在线填写，PII 字段 AES-256 加密；不向律所/同行暴露家庭细节',
-    lawyer: '需当面陈述，部分律所将案情用于同行培训或案例库',
-    verdict: '对隐私敏感 / 涉及家族财富的家庭, 智能文书更安心',
-  },
-  {
-    dim: '⚖️ 合规',
-    ai: '依据《民法典》§1049 / §1065 / §1076-1078 / §1084-1086 / §657-660 / §1134-1142 起草',
-    lawyer: '律师结合判例与地方法院倾向性, 可处理跨境 / 股权 / 信托复杂情形',
-    verdict: '常见 6 类场景智能版已覆盖; 复杂情形请选择定制服务或委托当地律师',
-  },
-  {
-    dim: '✏️ 修改',
-    ai: '30 天内无限次微调, 系统重新生成',
-    lawyer: '修改按次收费（¥500 ~ ¥2000 / 次），需重新预约',
-    verdict: '智能文书修改成本几乎为零',
-  },
-  {
-    dim: '🛡️ 售后',
-    ai: '7 天无理由退款 + 微信公众号客服 + 签署指引文档',
-    lawyer: '口头承诺, 无统一退款标准',
-    verdict: '智能文书有标准化售后保障, 律师依赖个人关系',
-  },
-];
-
-const SCENARIOS = [
-  { tag: '✅ 推荐智能版', desc: '婚前/再婚财产清晰化 · 标准婚内财产安排 · 双方无未成年子女的和平离婚 · 单套房产定向赠与子女 · 标准遗嘱' },
-  { tag: '🤝 推荐智能 + 公证', desc: '涉及 1 套以上房产 / 较大金额存款 / 公司股权 / 跨境资产, 建议智能版出稿 + 当地公证处办理' },
-  { tag: '👨‍⚖️ 推荐定制服务', desc: '再婚家庭双方均有子女 · 一方有外籍身份 · 家族信托 / 保险金信托设计 · 复杂股权代持安排' },
-  { tag: '⚠️ 必须委托当地律师', desc: '已发生诉讼 / 对方已委托律师 / 涉刑事风险 / 涉跨境执行 (海牙 Apostille / 使领馆认证)' },
-];
-
 export default function ComparePage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <header className="mb-10 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-3">
-          家有所爱 vs 传统律师 · 6 维度对比
+    <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
+      <section className="px-6 py-16 text-center">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+          家有所爱 vs 传统律师
         </h1>
-        <p className="text-slate-600 leading-relaxed-cn max-w-2xl mx-auto">
-          婚前 / 婚内 / 离婚 / 抚养 / 赠与 / 传承 6 类家庭文书, 智能生成 vs 委托律师,
-          6 个维度全面对比, 帮助您根据家庭情况选择最适合的方式。
+        <p className="mt-4 text-lg text-gray-600">
+          6 维度对比，帮你判断哪个更适合家庭法律文书场景
         </p>
-      </header>
+      </section>
 
-      {/* 对比表格 */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">6 维度对比表</h2>
+      {/* 对比表 */}
+      <section className="px-6 py-12 max-w-5xl mx-auto">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-white rounded-xl shadow-sm overflow-hidden text-sm">
-            <thead className="bg-amber-50">
+          <table className="w-full border-collapse bg-white rounded-2xl shadow-lg overflow-hidden">
+            <thead className="bg-gradient-to-r from-orange-500 to-pink-500 text-white">
               <tr>
-                <th className="text-left px-4 py-3 font-semibold text-slate-800 w-24">维度</th>
-                <th className="text-left px-4 py-3 font-semibold text-amber-700">家有所爱智能文书</th>
-                <th className="text-left px-4 py-3 font-semibold text-slate-600">传统律师事务所</th>
-                <th className="text-left px-4 py-3 font-semibold text-slate-800">结论</th>
+                <th className="px-6 py-4 text-left">维度</th>
+                <th className="px-6 py-4 text-left">家有所爱 智能版</th>
+                <th className="px-6 py-4 text-left">家有所爱 专家版</th>
+                <th className="px-6 py-4 text-left">传统律所</th>
               </tr>
             </thead>
-            <tbody>
-              {ROWS.map((r) => (
-                <tr key={r.dim} className="border-t border-slate-200">
-                  <td className="px-4 py-4 font-medium text-slate-800 align-top">{r.dim}</td>
-                  <td className="px-4 py-4 text-slate-700 align-top">{r.ai}</td>
-                  <td className="px-4 py-4 text-slate-700 align-top">{r.lawyer}</td>
-                  <td className="px-4 py-4 text-slate-600 align-top text-xs">{r.verdict}</td>
-                </tr>
-              ))}
+            <tbody className="divide-y divide-gray-200">
+              <tr>
+                <td className="px-6 py-4 font-medium">价格</td>
+                <td className="px-6 py-4 text-orange-500 font-bold">¥19.9 起</td>
+                <td className="px-6 py-4 text-orange-500 font-bold">¥999 起</td>
+                <td className="px-6 py-4">¥3,000 ~ 30,000</td>
+              </tr>
+              <tr className="bg-gray-50">
+                <td className="px-6 py-4 font-medium">生成速度</td>
+                <td className="px-6 py-4">5 ~ 10 分钟</td>
+                <td className="px-6 py-4">1 ~ 3 个工作日（含律师审）</td>
+                <td className="px-6 py-4">3 ~ 14 个工作日</td>
+              </tr>
+              <tr>
+                <td className="px-6 py-4 font-medium">隐私</td>
+                <td className="px-6 py-4">匿名问卷 + 加密存储</td>
+                <td className="px-6 py-4">同上 + 律师执业保密</td>
+                <td className="px-6 py-4">当面/电话咨询</td>
+              </tr>
+              <tr className="bg-gray-50">
+                <td className="px-6 py-4 font-medium">合规</td>
+                <td className="px-6 py-4">模板 + ICP 备案</td>
+                <td className="px-6 py-4">律师执业证号 + 责任切割</td>
+                <td className="px-6 py-4">律协监管</td>
+              </tr>
+              <tr>
+                <td className="px-6 py-4 font-medium">修改</td>
+                <td className="px-6 py-4">7 天内无限次</td>
+                <td className="px-6 py-4">30 天内 1 次免费</td>
+                <td className="px-6 py-4">按小时计费</td>
+              </tr>
+              <tr className="bg-gray-50">
+                <td className="px-6 py-4 font-medium">售后</td>
+                <td className="px-6 py-4">公众号客服 + 关键词自动回复</td>
+                <td className="px-6 py-4">1v1 律师微信</td>
+                <td className="px-6 py-4">律所助理</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      {/* 场景选择 */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">怎么选？4 类家庭场景</h2>
-        <div className="space-y-4">
-          {SCENARIOS.map((s) => (
-            <div key={s.tag} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-              <div className="font-semibold text-slate-900 mb-2">{s.tag}</div>
-              <p className="text-sm text-slate-600 leading-relaxed-cn">{s.desc}</p>
-            </div>
-          ))}
+      {/* 4 类家庭场景选择 */}
+      <section className="px-6 py-12 max-w-4xl mx-auto">
+        <h2 className="text-3xl font-bold text-center text-gray-900">4 类家庭场景怎么选？</h2>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-6 bg-white rounded-2xl shadow-md border-l-4 border-orange-500">
+            <h3 className="text-xl font-bold">A. 智能版 ¥19.9</h3>
+            <p className="mt-2 text-sm text-gray-600">适合：</p>
+            <ul className="mt-2 text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>双方协商一致，仅需落地</li>
+              <li>资产结构简单（无公司/股权）</li>
+              <li>预算敏感、时间敏感</li>
+              <li>学习目的，了解文书结构</li>
+            </ul>
+          </div>
+
+          <div className="p-6 bg-white rounded-2xl shadow-md border-l-4 border-pink-500">
+            <h3 className="text-xl font-bold">B. 智能 + 公证 ¥99</h3>
+            <p className="mt-2 text-sm text-gray-600">适合：</p>
+            <ul className="mt-2 text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>需要强制执行力</li>
+              <li>对方可能反悔</li>
+              <li>涉及大额资产（房产/股权）</li>
+            </ul>
+          </div>
+
+          <div className="p-6 bg-white rounded-2xl shadow-md border-l-4 border-yellow-500">
+            <h3 className="text-xl font-bold">C. 专家版 ¥999</h3>
+            <p className="mt-2 text-sm text-gray-600">适合：</p>
+            <ul className="mt-2 text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>情况复杂（跨境/再婚/未成年子女）</li>
+              <li>需专业律师签字 + 责任承担</li>
+              <li>高净值家庭传承规划</li>
+            </ul>
+          </div>
+
+          <div className="p-6 bg-white rounded-2xl shadow-md border-l-4 border-gray-500">
+            <h3 className="text-xl font-bold">D. 必须找律师</h3>
+            <p className="mt-2 text-sm text-gray-600">以下情况请直接联系律所：</p>
+            <ul className="mt-2 text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>已进入诉讼程序</li>
+              <li>对方失联/拒绝沟通</li>
+              <li>涉及刑事/家事纠纷</li>
+              <li>跨境法律冲突</li>
+            </ul>
+          </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="text-center bg-gradient-to-br from-amber-50 to-rose-50 border border-amber-200 rounded-2xl p-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-3">不确定该选哪一类?</h2>
-        <p className="text-slate-600 mb-6 leading-relaxed-cn">
-          从 6 类常见家庭文书开始, ¥19.9 起 · 10 分钟完成
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+      <section className="px-6 py-12 text-center">
+        <h2 className="text-2xl font-bold text-gray-900">先从智能版开始</h2>
+        <p className="mt-2 text-gray-600">5 分钟填问卷 · 1 分钟出草稿 · 7 天内无限次修改</p>
+        <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/doc-type"
-            className="inline-block px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg shadow-md transition"
+            href="https://h5.aiwill-planner.cn/doc-type"
+            className="inline-block px-8 py-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-2xl text-lg font-semibold shadow-lg"
           >
-            查看 6 类文书 →
+            选文书类型 →
           </Link>
           <Link
-            href="/knowledge"
-            className="inline-block px-6 py-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-medium rounded-lg transition"
+            href="https://h5.aiwill-planner.cn/knowledge"
+            className="inline-block px-8 py-4 border-2 border-orange-500 text-orange-500 rounded-2xl text-lg font-semibold"
           >
-            先读深度指南
+            阅读知识中心
           </Link>
         </div>
       </section>
 
-      {/* 友情提示 */}
-      <div className="mt-8 text-xs text-slate-400 text-center leading-relaxed-cn">
-        <p>本对比基于 2026 年 7 月中国大陆家庭法律服务市场公开信息整理, 不构成法律意见。</p>
-        <p className="mt-1">复杂情况请咨询专业资产规划人员并办理公证。</p>
-        <p className="mt-1">沪ICP备2026020925号-1 · 数据存储于 Supabase 海外节点</p>
-      </div>
-    </div>
+      {/* 备案 */}
+      <section className="px-6 py-8 text-center text-xs text-gray-400">
+        家有所爱工作室 © 2026 · 沪ICP备2026020925号-1 · 沪公网安备31011502406720号
+      </section>
+    </main>
   );
 }

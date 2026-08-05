@@ -145,18 +145,27 @@ jobs:
           fi
 
       # ===== 证据 2：nginx.conf 无 proxy_pass 境外 =====
+      # 改版 v2 (2026-08-05): 原脚本 bug — 检测所有 proxy_pass 包括本地 nextjs_local
+      #   - 原症状: 19+ 个合规的 proxy_pass http://nextjs_local 全判违规
+      #   - 根因: grep 没过滤本地 nextjs upstream, 应该只检测境外目标
+      #   - 修复: grep 加上"境外域名/IP"白名单反向检测
       - name: "证据2: nginx.conf 无 proxy_pass 境外"
         run: |
           echo "==== 证据 2: nginx.conf 无 proxy_pass 境外 ===="
           set +e
-          # 跳过注释行（# 或 // 开头）和空行
-          HITS=$(grep -nE "proxy_pass" deployment/mainland-server/nginx.conf | grep -vE "^\s*[0-9]+:\s*#" | grep -vE "^\s*[0-9]+:\s*//" || true)
+          # 跳过注释行（# 或 // 开头）
+          # 检测境外目标: 不在本地 nextjs_local upstream, 也不是 localhost
+          HITS=$(grep -nE "proxy_pass" deployment/mainland-server/nginx.conf \
+                 | grep -vE "^\s*[0-9]+:\s*#" \
+                 | grep -vE "^\s*[0-9]+:\s*//" \
+                 | grep -vE "proxy_pass\s+https?://(nextjs_local|127\.|localhost)" \
+                 | grep -vE "proxy_pass\s+http://nextjs_local" || true)
           if [[ -n "$HITS" ]]; then
-            echo "::error::nginx.conf 含未注释的 proxy_pass，违反合规证据 2:"
+            echo "::error::nginx.conf 含未注释的境外 proxy_pass，违反合规证据 2:"
             echo "$HITS"
             exit 1
           fi
-          echo "✅ PASS: nginx.conf 无未注释的 proxy_pass"
+          echo "✅ PASS: nginx.conf 无境外 proxy_pass (本地 nextjs_local 不计)"
 
       # ===== 证据 3：H5 fetch 仅指向 api.aiwill-planner.cn =====
       - name: "证据3: Vercel 域 fetch 域名合规"

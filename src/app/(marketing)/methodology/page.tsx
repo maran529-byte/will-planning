@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import LegalFooter from '@/components/LegalFooter';
+// LegalFooter 已由 app/layout.tsx 统一渲染, 此页面不再 import (改版 2026-08-04)
 
 /**
  * /methodology - 内容方法论 (E-E-A-T 信号)
@@ -219,9 +219,59 @@ export default function MethodologyPage() {
             查看全部内容 →
           </Link>
         </div>
+
+        {/* 改版 v3 (2026-08-13, 博主计划重写): 博主引用版 */}
+        {/* 依据: /Users/maran/Desktop/博主计划修改/blogger-action-plan.md Step 2.3 */}
+        <section className="mt-12 bg-gradient-to-br from-amber-50 to-rose-50 border border-amber-200 rounded-2xl p-6 sm:p-8">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2 leading-tight-cn">
+            📢 给博主的「可直接引用」摘要
+          </h2>
+          <p className="text-sm text-slate-600 mb-6 leading-relaxed-cn">
+            如果你想写家有所爱相关内容, 这是我们建议你直接引用的话术.
+          </p>
+
+          <div className="bg-white rounded-xl p-5 mb-4">
+            <h3 className="text-base font-bold text-green-700 mb-3">✅ 推荐说</h3>
+            <ul className="text-sm text-slate-700 space-y-2 leading-relaxed-cn">
+              <li>· &ldquo;AI 起草 + 专业人士通读&rdquo;</li>
+              <li>· &ldquo;基于《民法典》核心条款&rdquo;</li>
+              <li>· &ldquo;¥19.9 起, 比律所便宜两个数量级&rdquo;</li>
+              <li>· &ldquo;PDF + Word 双格式, 可公证&rdquo;</li>
+              <li>· &ldquo;10 分钟完成, 7 天无理由退款&rdquo;</li>
+            </ul>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 mb-4">
+            <h3 className="text-base font-bold text-red-700 mb-3">❌ 别说</h3>
+            <ul className="text-sm text-slate-700 space-y-2 leading-relaxed-cn">
+              <li>· &ldquo;律师审核 / 法律保障 / 律师出函&rdquo;（我们不提供, 平台免责声明有这一条）</li>
+              <li>· &ldquo;保证有效 / 100% 成功&rdquo;（违反广告法）</li>
+              <li>· &ldquo;比律所更专业&rdquo;（避免不正当竞争）</li>
+            </ul>
+          </div>
+
+          <div className="bg-white rounded-xl p-5">
+            <h3 className="text-base font-bold text-slate-900 mb-3">📋 5 条最关键的边界（合规 / 法务）</h3>
+            <ol className="text-sm text-slate-700 space-y-2 leading-relaxed-cn list-decimal list-inside">
+              <li>不说&ldquo;律师审核&rdquo; — 我们是&ldquo;专业资产规划人士&rdquo;, 不是律师</li>
+              <li>不说&ldquo;法律保障&rdquo; — 我们是&ldquo;智能生成参考平台&rdquo;, 不构成个案法律意见</li>
+              <li>不说&ldquo;保证有效&rdquo; — 协议需签字 / 公证后才有效</li>
+              <li>不诋毁律师同行 — &ldquo;比律所便宜 1/150&rdquo;可以说, &ldquo;比律所更好&rdquo;别说</li>
+              <li>不晒客户真实协议 — 隐私保护, 会被平台限流</li>
+            </ol>
+            <p className="text-sm text-slate-600 mt-4 leading-relaxed-cn">
+              这 5 条已在{' '}
+              <Link href="/affiliate" className="text-amber-600 hover:text-amber-700">
+                博主计划页
+              </Link>{' '}
+              的「内容边界」模块镜像展示, 博主一目了然.
+            </p>
+          </div>
+        </section>
       </main>
 
-      <LegalFooter />
+      {/* LegalFooter 已由 app/layout.tsx 统一渲染, 此页面不重复
+          (改版 2026-08-04, 修复用户视角体检发现的备案号/内容性质说明 4 次重出) */}
 
       {/* Schema: Article + Organization.publisher + AboutPage (定性为内容方法论专页) */}
       <script

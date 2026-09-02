@@ -1,0 +1,91 @@
+# alert_router.yaml — 告警类型 → 修复动作路由表
+# 改版 v1 (2026-09-01)
+#
+# 优先级: critical > warning > info > unknown
+# 自动修复只对 critical + 命中关键词的 warning 触发, 其他仅邮件告警
+
+version: "v1.0"
+last_updated: "2026-09-01"
+
+alerts:
+  # === healthcheck 探针 (L1) ===
+  healthcheck.fail.single:
+    severity: warning
+    auto_fix: false  # 单端点失败可能瞬时抖动, 让 keeper 重试 3 次
+    action: log_only
+    note: "单端点 1 次失败, 不动; 累计 3 次连续再触发 fail.multi"
+
+  healthcheck.fail.multi:
+    severity: critical
+    auto_fix: true
+    fix_steps:
+      - name: "ssh 验证 aiwill.service 状态"
+        cmd: "sudo systemctl is-active aiwill"
+      - name: "如 inactive, 重启 aiwill"
+        cmd: "sudo systemctl restart aiwill"
+        condition: "is_active != active"
+      - name: "等待 5s"
+        cmd: "sleep 5"
+      - name: "回测关键端点 (max 3 次重试)"
+        cmd: "curl -sk -o /dev/null -w '%{http_code}' https://aiwill-planner.cn/api/health; curl -sk -o /dev/null -w '%{http_code}' https://aiwill-planner.cn/; curl -sk -o /dev/null -w '%{http_code}' https://h5.aiwill-planner.cn/"
+      - name: "如回测失败, 发邮件 + 标 unresolved"
+        cmd: "echo 'CRITICAL: auto-restart failed, manual check needed' | mail -s 'aiwill-keeper critical: auto-fix failed' maran529@icloud.com"
+    cooldown_minutes: 30  # 同一类告警 30 分钟内只自动修一次
+
+  # === cron 任务失败 (L3) ===
+  cron_error:
+    severity: warning
+    auto_fix: false  # cron 错误原因复杂, 不自动改 (避免误修)
+    action: email_only
+    email_to: "maran529@icloud.com"
+    email_subject: "aiwill cron 错误: {error_keyword}"
+    email_body_template: |
+      [cron 错误告警]
+      服务器: aiwill-server (124.222.215.107)
+      错误关键词: {error_keyword}
+      最近 10 行 cron log:
+      ```
+      {last_10_log_lines}
+      ```
+
+      建议:
+      - ssh aiwill-server 'tail -100 {log_path}'
+      - 手动决定是否需要修复 (不要自动修, 风险高)
+
+  # === nginx 5xx 错误激增 (L3) ===
+  nginx_5xx.spike:
+    severity: critical
+    auto_fix: true
+    conditions:
+      - "5xx_count_last_hour > 10"
+    fix_steps:
+      - name: "nginx 配置语法检查"
+        cmd: "sudo nginx -t"
+      - name: "如果语法 OK, reload"
+        cmd: "sudo nginx -s reload"
+        condition: "nginx_test == 'ok'"
+      - name: "如果语法 FAIL, 不 reload, 只发邮件"
+        cmd: "echo 'nginx config syntax FAIL, manual fix needed' | mail -s 'aiwill nginx syntax error' maran529@icloud.com"
+        condition: "nginx_test != 'ok'"
+    cooldown_minutes: 60
+
+  # === nginx PID 缺失 ===
+  nginx_pid_missing:
+    severity: critical
+    auto_fix: true
+    trigger_keyword: "invalid PID number"
+    fix_steps:
+      - name: "sudo nginx 重启"
+        cmd: "sudo nginx"
+      - name: "等待 3s"
+        cmd: "sleep 3"
+      - name: "验证 master pid"
+        cmd: "pgrep -f 'nginx: master'"
+    cooldown_minutes: 60
+
+# === 默认 (未命中任何路由) ===
+default:
+  severity: info
+  auto_fix: false
+  action: log_only
+  note: "未知告警类型, 不自动改, 仅记录 + 下次人工 review"
